@@ -47,7 +47,7 @@ var buildOpts = process.argv.slice(2).join(' ');
 
 function buildFlags(cb){
   program.prompt('build-flags: ', function(opts){
-    if(!opts) { return buildFlags(cb); }
+    if (!opts) { return buildFlags(cb); }
     cb(null,opts);
   });
 }
@@ -63,7 +63,7 @@ function run(err, opts){
 
   // start static file server
 
-  if(!ls(process.cwd()+'/tiapp.xml').length){
+  if (!ls(process.cwd()+'/tiapp.xml').length){
       console.error('[ERROR]'.red, 'Not a valid Titanium Project Directory \n');
       return process.stdin.destroy();
   }

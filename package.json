@@ -1,0 +1,37 @@
+{
+  "name": "LiveTi",
+  "version": "0.0.1",
+  "description": "Titanium Live Reloading",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "scripts": {
+    "build": "make",
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/euforic/LiveTi.git"
+  },
+  "keywords": [
+    "titanium",
+    "appcelerator",
+    "liveti",
+    "reload"
+  ],
+  "author": "Christian Sullivan <cs@euforic.co>",
+  "license": "APPCELERATOR",
+  "bin": {
+    "liveti": "bin/liveti",
+    "liveti-run": "bin/liveti-run",
+    "liveti-help": "bin/liveti-help"
+  },
+  "dependencies": {
+    "shelljs": "~0.1.2",
+    "commander": "~1.1.1",
+    "colors": "~0.6.0-1",
+    "win-spawn": "~1.1.1"
+  }
+}

@@ -1,0 +1,98 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+// inject shelljs to the global scope
+
+require('shelljs/global');
+
+var program = require('commander')
+  , fs = require('fs')
+  , colors = require('colors')
+  , fserver = require('../lib/fserver');
+
+program.Command.prototype.unknownOption = function(){};
+
+// usage
+
+program.usage('run [options]');
+
+// options
+
+// program
+//   .option('-b, --build-flags <build-flags>', 'custom titanium build command');
+
+// examples
+
+program.on('--help', function(){
+  exec('ti build --help');
+  console.log();
+});
+
+// parse argv
+
+program.parse(process.argv);
+
+// build flags for ti cli
+
+var buildOpts = process.argv.slice(2).join(' ');
+
+/**
+ * [buildFlags description]
+ * @param  {Function} cb [description]
+ * @return {[type]}      [description]
+ */
+
+function buildFlags(cb){
+  program.prompt('build-flags: ', function(opts){
+    if(!opts) { return buildFlags(cb); }
+    cb(null,opts);
+  });
+}
+
+/**
+ * [run description]
+ * @param  {[type]} err  [description]
+ * @param  {[type]} opts [description]
+ * @return {[type]}      [description]
+ */
+
+function run(err, opts){
+
+  // start static file server
+
+  if(!ls(process.cwd()+'/tiapp.xml').length){
+      console.error('[ERROR]'.red, 'Not a valid Titanium Project Directory \n');
+      return process.stdin.destroy();
+  }
+
+  fserver.start({path:'./Resources/'});
+
+  // TODO fix this janky ass copy and replace to use streams
+
+  // copy liveti.js to users application Resources directory
+
+  cp('-f', __dirname + '/../build/*.js', './Resources/');
+
+  // replace host place holder with users current local ip address
+
+  require('dns').lookup(require('os').hostname(), function (err, add, fam) {
+    sed('-i', 'FSERVER_HOST', add, './Resources/liveti.js');
+  });
+
+  console.log(process.env.NODE_ENV = 'liveti');
+
+  // start up titanium app
+
+  exec('ti build '+ opts, function(e){
+    console.log(e);
+  });
+}
+
+if (buildOpts){
+  run(null, buildOpts);
+} else {
+  buildFlags(run);
+}

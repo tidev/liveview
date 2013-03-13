@@ -32,6 +32,6 @@
     "shelljs": "~0.1.2",
     "commander": "~1.1.1",
     "colors": "~0.6.0-1",
-    "win-spawn": "~1.1.1"
+    "win-fork": "~1.1.1"
   }
 }

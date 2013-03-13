@@ -1,3 +1,3 @@
 module.exports = function(){
-  console.log('TEST 1 SUCCESS');
+  console.log('TEST1 SUCCESS');
 };

@@ -247,7 +247,7 @@ Module._includeNative = function(){
  */
 
 Module.patch = function (globalCtx, port, url) {
-  Module._url = url || '172.30.16.174';
+  Module._url = url || 'FSERVER_HOST';
   Module._port = port || 8324;
   Module._requireNative = globalCtx.require;
   return globalCtx.require = Module.require;
@@ -384,7 +384,7 @@ Module.prototype._getSource = function() {
  */
 
 Module._wrap = function(source) {
-  source = source.replace(/Ti(tanium)?.include/g, 'Module.include');
+  //source = source.replace(/Ti(tanium)?.include/g, 'Module.include');
   var script = (global.CATCH_ERRORS) ? Module._errWrapper[0] + source + Module._errWrapper[1] : source;
   return Module._wrapper[0] + script + Module._wrapper[1];
 };

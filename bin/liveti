@@ -13,33 +13,38 @@
 /**
  * Module dependencies.
  */
+  var util = require('util');
 
 require('shelljs/global');
 
 var program = require('commander')
-  , spawn = require('win-spawn')
-  , colors = require('colors');
+  , colors = require('colors')
+  , spawn = require('win-fork')
+  , path = require('path')
+  , fs = require('fs')
+  , join = path.join
+  , exists = fs.existsSync
+  , pkgConf = require('../package');
 
 
 console.log(' ');
-console.log('\x1B[90m' + ' LiveTi, Titanium Live file runner, version 0.0.1'+ '\x1B[90m');
+console.log('\x1B[90m' + ' LiveTi, Titanium Live file runner, version '+ pkgConf.version + '\x1B[90m');
 console.log('\x1B[90m' + ' Copyright (c) 2013, Appcelerator, Inc.  All Rights Reserved.\n'+ '\x1B[90m');
 console.log('\x1B[36m' + ' Please report bugs to http://jira.appcelerator.org/\n'+ '\x1B[36m');
 
 // usage
 
 program
+  .version(pkgConf.version)
   .usage('<command> [options]');
 
 // sub-command help
 
 program.on('--help', function(){
+  console.log('  Commands:');
   console.log();
-  console.log(' LiveTi - Titanium Live Reload Development Tool'.bold);
+  console.log('    run [flags...]      build project in live mode');
   console.log();
-  console.log(' run       build an run your app in live mode');
-  console.log();
-  exec('ti build --help');
   process.exit();
 });
 
@@ -55,10 +60,36 @@ var args = process.argv.slice(3);
 
 var cmd = program.args[0];
 
+// alias "build" as "run"
+
+if ('build' == cmd) { cmd = 'run'; }
+
+// display help
+
+if (!cmd) {
+  process.stdout.write(program.helpInformation());
+  program.emit('--help');
+  process.exit();
+}
+
 // executable
 
-var bin = 'liveti-' + (cmd || 'run');
+var bin = 'liveti-' + cmd;
+
+// local
+
+var local = join(__dirname, bin);
+if (exists(local)) { bin = local; }
 
 // spawn
 
-var proc = spawn(bin, args, { stdio: 'inherit', customFds: [0, 1, 2] });
+var proc = spawn(bin, args, { stdio: [0, 1, 3] });
+
+// catch invalid commands
+
+proc.on('error', function () {
+  console.log('  [ERROR] invalid command: '.red + cmd);
+  process.stdout.write(program.helpInformation());
+  program.emit('--help');
+  process.exit();
+});

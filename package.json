@@ -1,8 +1,9 @@
 {
-  "name": "LiveTi",
+  "name": "LiveView",
   "version": "0.0.1",
   "description": "Titanium Live Reloading",
   "main": "index.js",
+  "private": true,
   "directories": {
     "doc": "docs",
     "test": "test"
@@ -13,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/euforic/LiveTi.git"
+    "url": "git://github.com/appcelerator/liveview.git"
   },
   "keywords": [
     "titanium",
@@ -21,8 +22,14 @@
     "liveti",
     "reload"
   ],
-  "author": "Christian Sullivan <cs@euforic.co>",
-  "license": "APPCELERATOR",
+  "author": {
+    "name": "Appcelerator, Inc.",
+    "email": "info@appcelerator.com"
+  },
+  "maintainers": [
+    {"name": "Christian Sullivan", "email": "csullivan@appcelerator.com"},
+    {"name": "Chris Barber", "email": "cbarber@appcelerator.com"}
+  ],
   "bin": {
     "liveti": "bin/liveti",
     "liveti-run": "bin/liveti-run",

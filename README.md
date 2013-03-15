@@ -1,4 +1,4 @@
-# LiveTi
+# LiveView
 ## Titanium live preview of Titanium applications on device.
 
 ## Install
@@ -6,7 +6,13 @@
 Bleeding edge version
 
 ```
-$ npm install -g git+https://github.com/appcelerator/liveti.git
+$ npm install -g git+https://github.com/appcelerator/liveview.git
+```
+
+Install the Titanium CLI hook:
+
+```
+$ titanium config paths.hooks -a "/path/to/liveview/hook"
 ```
 
 ## API

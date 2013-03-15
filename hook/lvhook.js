@@ -65,8 +65,13 @@ exports.init = function (logger, config, cli) {
 		finished(data);
 	});
 
+	cli.addHook('build.pre.compile', function (build, finished) {
+		// TODO: generate path.join(build.projectDir, 'Resources', 'liveview.js')
+		finished();
+	});
+
 	cli.addHook('build.post.compile', function (build, finished) {
-		//
+		// TODO: start HTTP server
 		finished();
 	});
 

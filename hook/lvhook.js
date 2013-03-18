@@ -70,7 +70,7 @@ exports.init = function (logger, config, cli) {
   });
 
   cli.addHook('build.pre.compile', function (build, finished) {
-    var resourceDir = path.join(build.projectDir, 'Resources');
+    var resourceDir = path.join(pwd(), 'Resources');
     var liveviewJS = path.join(resourceDir, 'liveview.js');
     cp('-f', __dirname +'/../build/liveview.js', resourceDir);
     require('dns').lookup(require('os').hostname(), function (err, add, fam) {

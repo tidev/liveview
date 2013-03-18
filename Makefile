@@ -1,10 +1,10 @@
 
 SRC = lib/platform/_head.js lib/platform/events.js lib/platform/process.js lib/platform/require.js lib/platform/_tail.js
-BASE_DIR = $(CURDIR)/bin/liveti
+BASE_DIR = $(CURDIR)/bin/liveview
 # TODO kill only process make started
 #`ps -ef | grep 'fserver\|bin\/ti' | awk "{print $2}"` > /dev/null
 
-all: clean liveti.js liveti.min.js
+all: clean liveview.js liveview.min.js
 
 # TODO FIX TEST CASE
 # test:
@@ -14,14 +14,14 @@ all: clean liveti.js liveti.min.js
 # 			--device-family iphone \
 # 			--sim-type iphone > $(tty))
 
-liveti.js: $(SRC)
+liveview.js: $(SRC)
 	cat $^ > build/$@
 
-liveti.min.js: liveti.js
+liveview.min.js: liveview.js
 	uglifyjs --no-mangle build/$< > build/$@
 
 clean:
 	@ti clean --project-dir ./test/platform
-	rm -f liveti{,.min}.js
+	rm -f liveview{,.min}.js
 
 .PHONY: clean test

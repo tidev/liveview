@@ -1,1 +1,1 @@
-module.exports = require('./lib/liveti');
+module.exports = require('./lib/liveview');

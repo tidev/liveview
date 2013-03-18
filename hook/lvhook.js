@@ -72,7 +72,7 @@ exports.init = function (logger, config, cli) {
   cli.addHook('build.pre.compile', function (build, finished) {
     var resourceDir = path.join(build.projectDir, 'Resources');
     var liveviewJS = path.join(resourceDir, 'liveview.js');
-    cp('-f', '../build/liveview.js', resourceDir);
+    cp('-f', __dirname +'/../build/liveview.js', resourceDir);
     require('dns').lookup(require('os').hostname(), function (err, add, fam) {
       sed('-i', 'FSERVER_HOST', add, liveviewJS);
     });

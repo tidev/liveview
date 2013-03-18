@@ -1,6 +1,6 @@
 
 /*!
- * LiveTi Titanium CommonJS require with some Node.js love and dirty hacks
+ * liveview Titanium CommonJS require with some Node.js love and dirty hacks
  * Copyright (c) 2013 Christian Sullivan <cs@euforic.co>
  * MIT Licensed
  */
@@ -8,7 +8,7 @@
 function consoleBanner(){
   console.log(' ');
   console.log('################################################################');
-  console.log('#      LiveTi, Titanium Live file runner, version 0.0.1        #');
+  console.log('#      liveview, Titanium Live file runner, version 0.0.1        #');
   console.log('# Copyright (c) 2013, Appcelerator, Inc.  All Rights Reserved. #');
   console.log('#                                                              #');
   console.log('# Please report bugs to http://jira.appcelerator.org/          #');
@@ -204,7 +204,7 @@ var process = global.process = Process();
 
 // set environment type
 
-global.ENV = 'liveti';
+global.ENV = 'liveview';
 
 // set logging
 
@@ -292,7 +292,7 @@ Module.require = function(id) {
 
   var freshModule = new Module(fullPath);
 
-  if (global.ENV !== 'liveti') { freshModule.cache(); }
+  if (global.ENV !== 'liveview') { freshModule.cache(); }
   freshModule._compile();
 
   while (!freshModule.loaded) {}
@@ -365,7 +365,7 @@ Module.prototype._getRemoteSource = function(file,timeout){
 
 Module.prototype._getSource = function() {
   var id = this.id;
-  var isRemote = /^(http|https)$/.test(id) || (global.ENV === 'liveti');
+  var isRemote = /^(http|https)$/.test(id) || (global.ENV === 'liveview');
 
   if (isRemote){
     return this._getRemoteSource(null,3000);

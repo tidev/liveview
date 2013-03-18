@@ -22,16 +22,16 @@ $ titanium config paths.hooks -a "/path/to/liveview/hook"
 Outputs usage. Optional command for its usage.
 
 ```
-$ liveti [command] --help
+$ liveview [command] --help
 ```
 
 ### run
 
-Run liveti with the requested Titanium CLI Build Flags.
+Run liveview with the requested Titanium CLI Build Flags.
 (_prompts for build flags if none provided_)
 
 ```
-$ liveti run [Titanium-CLI-Build-Flags]
+$ liveview run [Titanium-CLI-Build-Flags]
 ```
 
 ## License

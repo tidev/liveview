@@ -1,4 +1,3 @@
-
 require('shelljs/global');
 
 exports.cliVersion = '>=3.0.25';
@@ -70,18 +69,22 @@ exports.init = function (logger, config, cli) {
   });
 
   cli.addHook('build.pre.compile', function (build, finished) {
-    var resourceDir = path.join(pwd(), 'Resources');
-    var liveviewJS = path.join(resourceDir, 'liveview.js');
-    cp('-f', __dirname +'/../build/liveview.js', resourceDir);
-    require('dns').lookup(require('os').hostname(), function (err, add, fam) {
-      sed('-i', 'FSERVER_HOST', add, liveviewJS);
-    });
+    if (cli.argv.liveview) {
+      var resourceDir = path.join(pwd(), 'Resources');
+      var liveviewJS = path.join(resourceDir, 'liveview.js');
+      cp('-f', __dirname +'/../build/liveview.js', resourceDir);
+      require('dns').lookup(require('os').hostname(), function (err, add, fam) {
+        sed('-i', 'FSERVER_HOST', add, liveviewJS);
+      });
+    }
     finished();
   });
 
   cli.addHook('build.post.compile', function (build, finished) {
-    var resourceDir = path.join(build.projectDir, 'Resources');
-    fserver.start({path: resourceDir });
+    if (cli.argv.liveview) {
+      var resourceDir = path.join(build.projectDir, 'Resources');
+      fserver.start({path: resourceDir });
+    }
     finished();
   });
 

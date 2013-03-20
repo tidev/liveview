@@ -72,17 +72,17 @@ function run(err, opts){
 
   // TODO fix this janky ass copy and replace to use streams
 
-  // copy liveti.js to users application Resources directory
+  // copy liveview.js to users application Resources directory
 
   cp('-f', __dirname + '/../build/*.js', './Resources/');
 
   // replace host place holder with users current local ip address
 
   require('dns').lookup(require('os').hostname(), function (err, add, fam) {
-    sed('-i', 'FSERVER_HOST', add, './Resources/liveti.js');
+    sed('-i', 'FSERVER_HOST', add, './Resources/liveview.js');
   });
 
-  console.log(process.env.NODE_ENV = 'liveti');
+  console.log(process.env.NODE_ENV = 'liveview');
 
   // start up titanium app
 

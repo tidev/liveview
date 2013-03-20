@@ -17,8 +17,8 @@ exports.init = function (logger, config, cli) {
     finished(null, data);
   }
 
-  cli.addHook('build.config.android', doConfig);
-  cli.addHook('build.config.ios', doConfig);
+  cli.addHook('build.android.config', doConfig);
+  cli.addHook('build.ios.config', doConfig);
 
   cli.addHook('build.ios.copyResource', {
     pre: function (data, finished) {

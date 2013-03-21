@@ -13,7 +13,7 @@ Manually Install the Titanium CLI hook:
 _Note: Cli hook is automatically installed with LiveView_
 
 ```
-$ liveview install clihook"
+$ liveview install clihook
 ```
 
 Export root proxy object in projects `app.js`

@@ -15,6 +15,18 @@ Install the Titanium CLI hook:
 $ titanium config paths.hooks -a "/path/to/liveview/hook"
 ```
 
+Export root proxy object in projects `app.js`
+```
+// example app.js
+// export root proxy object to allow LiveView to reload entire app
+
+var win = module.exports = Ti.UI.createWindow({
+  backgroundColor:'red'
+});
+
+win.open();
+```
+
 ## API
 
 ### help

@@ -1,5 +1,5 @@
 {
-  "name": "LiveView",
+  "name": "liveview",
   "version": "0.0.1",
   "description": "Titanium Live Reloading",
   "main": "index.js",

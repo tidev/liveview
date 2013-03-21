@@ -16,7 +16,8 @@ $ titanium config paths.hooks -a "/path/to/liveview/hook"
 ```
 
 Export root proxy object in projects `app.js`
-```
+
+```js
 // example app.js
 // export root proxy object to allow LiveView to reload entire app
 
@@ -40,7 +41,7 @@ $ liveview [command] --help
 ### run
 
 Run liveview with the requested Titanium CLI Build Flags.
-(_prompts for build flags if none provided_)
+( _prompts for build flags if none provided_ )
 
 ```
 $ liveview run [Titanium-CLI-Build-Flags]

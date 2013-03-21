@@ -19,7 +19,7 @@
   "keywords": [
     "titanium",
     "appcelerator",
-    "liveti",
+    "liveview",
     "reload"
   ],
   "author": {
@@ -31,9 +31,9 @@
     {"name": "Chris Barber", "email": "cbarber@appcelerator.com"}
   ],
   "bin": {
-    "liveti": "bin/liveti",
-    "liveti-run": "bin/liveti-run",
-    "liveti-help": "bin/liveti-help"
+    "liveview": "bin/liveview",
+    "liveview-run": "bin/liveview-run",
+    "liveview-help": "bin/liveview-help"
   },
   "dependencies": {
     "shelljs": "~0.1.2",

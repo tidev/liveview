@@ -28,7 +28,7 @@ var program = require('commander')
 
 
 console.log(' ');
-console.log('\x1B[90m' + ' LiveTi, Titanium Live file runner, version '+ pkgConf.version + '\x1B[90m');
+console.log('\x1B[90m' + ' liveview, Titanium Live file runner, version '+ pkgConf.version + '\x1B[90m');
 console.log('\x1B[90m' + ' Copyright (c) 2013, Appcelerator, Inc.  All Rights Reserved.\n'+ '\x1B[90m');
 console.log('\x1B[36m' + ' Please report bugs to http://jira.appcelerator.org/\n'+ '\x1B[36m');
 
@@ -74,7 +74,7 @@ if (!cmd) {
 
 // executable
 
-var bin = 'liveti-' + cmd;
+var bin = 'liveview-' + cmd;
 
 // local
 

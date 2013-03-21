@@ -15,8 +15,8 @@ program.parse(process.argv);
 // output available commands
 
 var cmd = program.args[0]
-  ? 'liveti ' + program.args[0] + ' --help'
-  : 'liveti --help';
+  ? 'liveview ' + program.args[0] + ' --help'
+  : 'liveview --help';
 
 exec(cmd, function(err, stdout){
   if (err) {

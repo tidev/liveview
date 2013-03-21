@@ -13,7 +13,7 @@ var win = module.exports = Ti.UI.createWindow({
 
 var label = Ti.UI.createLabel({
   textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
-  text:'Appcelerator LiveTi\n\n\n' +
+  text:'Appcelerator liveview\n\n\n' +
        'Check It Out!\n' +
        'A Random Number\n' +
        '[' + Math.floor((Math.random()*100)+1) + ']'

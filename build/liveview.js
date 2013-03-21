@@ -448,7 +448,12 @@ Module.prototype.cache = function() {
    */
 
   Module.global.reload = function(){
-    app.close();
+    try {
+      app.close();
+    } catch (e){
+      console.error('Invalid or missing root element exported from app.js. Please export the application root element. (ex. window, tabview, etc...)');
+      Ti.UI.createAlertDialog({title:'Titanium LiveView', message:'Invalid or missing root element exported from app.js. Please export the application root element. (ex. window, tabview, etc...)'})
+    }
     app = require('app');
   };
 

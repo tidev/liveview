@@ -1,0 +1,52 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+// inject shelljs to the global scope
+
+require('shelljs/global');
+
+var program = require('commander')
+  , colors = require('colors');
+
+program.Command.prototype.unknownOption = function(){};
+
+// usage
+
+program
+  .usage('install <name> [options]');
+
+// examples
+
+program.on('--help', function(){
+  console.log('  Examples:');
+  console.log();
+  console.log('    # install cli hook');
+  console.log('    $ liveview install clihook');
+  console.log();
+});
+
+// parse argv
+
+program.parse(process.argv);
+
+
+// package
+
+var pkg = program.args.shift();
+
+if ((pkg||'').toLowerCase() === 'clihook') { installHook(); }
+
+/**
+ * [installHook description]
+ * @return {[type]} [description]
+ */
+
+function installHook() {
+  exec('titanium -q config paths.hooks -a ' + pwd() + '/hook', function (res) {
+    var outcome = (res.code) ? 'not installed'.red : 'installed'.green;
+    console.log(' Titanium CLI Hook ' + outcome + '\n');
+  });
+}

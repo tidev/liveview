@@ -13,7 +13,6 @@
 /**
  * Module dependencies.
  */
-  var util = require('util');
 
 require('shelljs/global');
 

@@ -9,10 +9,11 @@ Bleeding edge version
 $ npm install -g git+https://github.com/appcelerator/liveview.git
 ```
 
-Install the Titanium CLI hook:
+Manually Install the Titanium CLI hook:
+_Note: Cli hook is automatically installed with LiveView_
 
 ```
-$ titanium config paths.hooks -a "/path/to/liveview/hook"
+$ liveview install clihook"
 ```
 
 Export root proxy object in projects `app.js`

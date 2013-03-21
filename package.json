@@ -10,7 +10,8 @@
   },
   "scripts": {
     "build": "make",
-    "test": "make test"
+    "test": "make test",
+    "postinstall": "./bin/liveview install clihook"
   },
   "repository": {
     "type": "git",

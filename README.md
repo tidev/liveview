@@ -16,6 +16,13 @@ _Note: Cli hook is automatically installed with LiveView_
 $ liveview install clihook
 ```
 
+Manually Remove the Titanium CLI hook:
+_Note: Cli hook is automatically removed with LiveView_
+
+```
+$ liveview rm clihook
+```
+
 Export root proxy object in projects `app.js`
 
 ```js

@@ -43,6 +43,8 @@ program.on('--help', function(){
   console.log('  Commands:');
   console.log();
   console.log('    run [flags...]      build project in live mode');
+  console.log('    install <name>      install liveview components');
+  console.log('    rm <name>           remove liveview components');
   console.log();
   process.exit();
 });
@@ -57,11 +59,15 @@ var args = process.argv.slice(3);
 
 // command
 
-var cmd = program.args[0];
+var cmd = (program.args[0]||'').toLowerCase();
 
 // alias "build" as "run"
 
-if ('build' == cmd) { cmd = 'run'; }
+if ('build' === cmd) { cmd = 'run'; }
+
+// alias "rm" as "remove"
+
+if ('remove' === cmd) { cmd = 'rm'; }
 
 // display help
 

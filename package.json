@@ -1,6 +1,6 @@
 {
   "name": "liveview",
-  "version": "0.1.0",
+  "version": "0.1.0-alpha",
   "description": "Titanium Live Reloading",
   "main": "index.js",
   "private": true,

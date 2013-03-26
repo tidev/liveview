@@ -1,14 +1,13 @@
 
 /*!
  * liveview Titanium CommonJS require with some Node.js love and dirty hacks
- * Copyright (c) 2013 Christian Sullivan <cs@euforic.co>
- * MIT Licensed
+ * Copyright (c) 2013 Appcelerator
  */
 
 function consoleBanner(){
   console.log(' ');
   console.log('################################################################');
-  console.log('#      liveview, Titanium Live file runner, version 0.0.1        #');
+  console.log('#      liveview, Titanium Live file runner, version 0.1.0      #');
   console.log('# Copyright (c) 2013, Appcelerator, Inc.  All Rights Reserved. #');
   console.log('#                                                              #');
   console.log('# Please report bugs to http://jira.appcelerator.org/          #');
@@ -452,7 +451,6 @@ Module.prototype.cache = function() {
       app.close();
     } catch (e){
       console.error('Invalid or missing root proxy object export from app.js. Please export the application root proxy object. (ex. window, tabview, etc...)');
-      Ti.UI.createAlertDialog({title:'Titanium LiveView', message:'Invalid or missing root proxy object export from app.js. Please export the application root proxy object. (ex. window, tabview, etc...)'})
     }
     app = require('app');
   };

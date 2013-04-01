@@ -1,6 +1,6 @@
 {
   "name": "liveview",
-  "version": "0.1.0-alpha",
+  "version": "0.1.0-beta",
   "description": "Titanium Live Reloading",
   "main": "index.js",
   "private": true,
@@ -29,8 +29,14 @@
     "email": "info@appcelerator.com"
   },
   "maintainers": [
-    {"name": "Christian Sullivan", "email": "csullivan@appcelerator.com"},
-    {"name": "Chris Barber", "email": "cbarber@appcelerator.com"}
+    {
+      "name": "Christian Sullivan",
+      "email": "csullivan@appcelerator.com"
+    },
+    {
+      "name": "Chris Barber",
+      "email": "cbarber@appcelerator.com"
+    }
   ],
   "bin": {
     "liveview": "bin/liveview",

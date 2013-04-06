@@ -25,7 +25,7 @@ function consoleBanner(){
  */
 
 function Emitter(obj) {
-  if (obj) return mixin(obj);
+  if (obj) { return mixin(obj); }
 }
 
 /**
@@ -96,7 +96,7 @@ Emitter.prototype.once = function(event, fn){
 Emitter.prototype.off = function(event, fn){
   this._callbacks = this._callbacks || {};
   var callbacks = this._callbacks[event];
-  if (!callbacks) return this;
+  if (!callbacks) { return this; }
 
   // remove all handlers
   if (1 == arguments.length) {
@@ -106,7 +106,7 @@ Emitter.prototype.off = function(event, fn){
 
   // remove specific handler
   var i = callbacks.indexOf(fn._off || fn);
-  if (~i) callbacks.splice(i, 1);
+  if (~i) { callbacks.splice(i, 1); }
   return this;
 };
 
@@ -121,8 +121,8 @@ Emitter.prototype.off = function(event, fn){
 
 Emitter.prototype.emit = function(event){
   this._callbacks = this._callbacks || {};
-  var args = [].slice.call(arguments, 1)
-    , callbacks = this._callbacks[event];
+  var args = [].slice.call(arguments, 1);
+  var callbacks = this._callbacks[event];
 
   if (callbacks) {
     callbacks = callbacks.slice(0);

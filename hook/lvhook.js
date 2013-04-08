@@ -28,7 +28,7 @@ exports.init = function (logger, config, cli) {
 
         if (srcFile == path.join(this.projectDir, 'Resources', 'app.js')) {
           data.args[1] = path.join(path.dirname(destFile), '_app.js');
-        } else if (srcFile == path.join(this.projectDir, 'Resources', 'liveview.js')) {
+        } else if (srcFile == path.join(this.projectDir, 'Resources', '.liveview.js')) {
           data.args[1] = path.join(path.dirname(destFile), 'app.js');
         }
       }
@@ -51,8 +51,8 @@ exports.init = function (logger, config, cli) {
         var target = data.args[0];
         if (target.from == path.join(this.projectDir, 'Resources', 'app.js')) {
           target.path = '_app.js';
-          target.to = target.to.substring(0, target.to.length - 13) + 'liveview.js';
-        } else if (target.from == path.join(this.projectDir, 'Resources', 'liveview.js')) {
+          target.to = target.to.substring(0, target.to.length - 13) + '.liveview.js';
+        } else if (target.from == path.join(this.projectDir, 'Resources', '.liveview.js')) {
           target.path = 'app.js';
           target.to = target.to.substring(0, target.to.length - 13) + 'app.js';
         }
@@ -73,8 +73,8 @@ exports.init = function (logger, config, cli) {
     post: function (build, finished) {
       if (cli.argv.liveview) {
         var resourceDir = path.join(pwd(), 'Resources');
-        var liveviewJS = path.join(resourceDir, 'liveview.js');
-        cp('-f', __dirname +'/../build/liveview.js', resourceDir);
+        var liveviewJS = path.join(resourceDir, '.liveview.js');
+        cp('-f', __dirname +'/../build/liveview.min.js', path.join(resourceDir,'.liveview.js'));
         require('dns').lookup(require('os').hostname(), function (err, add, fam) {
           sed('-i', 'FSERVER_HOST', add, liveviewJS);
         });

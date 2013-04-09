@@ -4893,7 +4893,7 @@ Module.require = function(id) {
     try {
       Module._requireNative(id);
     } catch (e) {
-      console.log('Module not found checking for new file: ' + id);
+      console.log('Checking for new file: ' + id);
     }
   }
 

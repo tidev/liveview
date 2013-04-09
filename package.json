@@ -1,6 +1,6 @@
 {
   "name": "liveview",
-  "version": "0.1.0-beta",
+  "version": "0.1.1",
   "description": "Titanium Live Reloading",
   "main": "index.js",
   "private": true,
@@ -47,6 +47,7 @@
     "shelljs": "~0.1.2",
     "commander": "~1.1.1",
     "colors": "~0.6.0-1",
-    "win-fork": "~1.1.1"
+    "win-fork": "~1.1.1",
+    "chokidar": "~0.6.2"
   }
 }

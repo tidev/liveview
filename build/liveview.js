@@ -4891,7 +4891,6 @@ Module.require = function(id) {
 
   if (!Module.exists(fullPath)) {
     try {
-      console.log('Trying to load as Native Module');
       Module._requireNative(id);
     } catch (e) {
       console.log('Module not found checking for new file: ' + id);
@@ -5058,6 +5057,8 @@ Module.prototype.cache = function() {
   var win = Ti.UI.createWindow({backgroundColor:'#000000'});
   win.open();
 
+  var firstRun = true;
+
   var app = require('app');
 
   /**
@@ -5069,7 +5070,10 @@ Module.prototype.cache = function() {
     try {
       app.close();
     } catch (e){
-      console.warn('[LiveView] Invalid or missing root proxy object export from app.js.\n[LiveView] Please export the application root proxy object (ex. window, tabview, etc...) to avoid possible performance issues with LiveView.');
+      if (firstRun) {
+        firstRun = false;
+        console.warn('[LiveView] Invalid or missing root proxy object export from app.js.\n[LiveView] Please export the application root proxy object (ex. window, tabview, etc...) to avoid possible performance issues with LiveView.');
+      }
     }
     app = require('app');
   };

@@ -77,6 +77,7 @@ exports.init = function (logger, config, cli) {
         cp('-f', __dirname +'/../build/liveview.min.js', path.join(resourceDir,'.liveview.js'));
         require('dns').lookup(require('os').hostname(), function (err, add, fam) {
           sed('-i', 'FSERVER_HOST', add, liveviewJS);
+          sed('-i', 'TCP_HOST', add, liveviewJS);
         });
       }
       finished();

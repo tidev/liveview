@@ -4891,10 +4891,10 @@ Module.require = function(id) {
 
   if (!Module.exists(fullPath)) {
     try {
-      console.log('Loading Native Module');
+      console.log('Trying to load as Native Module');
       Module._requireNative(id);
     } catch (e) {
-      throw new Error('No such module ' + id);
+      console.log('Module not found checking for new file: ' + id);
     }
   }
 
@@ -4992,7 +4992,7 @@ Module.prototype._getSource = function() {
  */
 
 Module._wrap = function(source) {
-  //source = source.replace(/Ti(tanium)?.include/g, 'Module.include');
+  source = source.replace(/Ti(tanium)?.include/g, 'Module.include');
   var script = (global.CATCH_ERRORS) ? Module._errWrapper[0] + source + Module._errWrapper[1] : source;
   return Module._wrapper[0] + script + Module._wrapper[1];
 };

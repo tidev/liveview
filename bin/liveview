@@ -11,7 +11,7 @@
 require('shelljs/global');
 
 var program = require('commander')
-  , colors = require('colors')
+  , colors = require('../lib/colors')
   , spawn = require('win-fork')
   , path = require('path')
   , fs = require('fs')
@@ -19,11 +19,10 @@ var program = require('commander')
   , exists = fs.existsSync
   , pkgConf = require('../package');
 
-
 console.log(' ');
-console.log('\x1B[90m' + ' liveview, Titanium Live file runner, version '+ pkgConf.version + '\x1B[90m');
-console.log('\x1B[90m' + ' Copyright (c) 2013, Appcelerator, Inc.  All Rights Reserved.\n'+ '\x1B[90m');
-console.log('\x1B[36m' + ' Please report bugs to http://jira.appcelerator.org/\n'+ '\x1B[36m');
+console.log(' liveview, Titanium Live file runner, version '+ pkgConf.version);
+console.log(' Copyright (c) 2013, Appcelerator, Inc.  All Rights Reserved.\n'.grey);
+console.log(' Please report bugs to'.grey, 'http://jira.appcelerator.org/\n'.blue);
 
 // usage
 
@@ -87,7 +86,7 @@ var proc = spawn(bin, args, { stdio: [0, 1, 3] });
 // catch invalid commands
 
 proc.on('error', function () {
-  console.log('  [ERROR] invalid command: '.red + cmd);
+  console.log('  [ERROR]'.red + ' invalid command: '.red + cmd);
   process.stdout.write(program.helpInformation());
   program.emit('--help');
   process.exit();

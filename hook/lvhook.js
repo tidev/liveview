@@ -64,8 +64,6 @@ cli.addHook('build.ios.compileJsFile', {
 cli.addHook('build.android.setBuilderPyEnv', {
 	priority: 2000,
 	pre: function (data, finished) {
-		console.log('cli.argv.liveview = ' + cli.argv.liveview);
-		console.log(data.args);
 		if (cli.argv.liveview) {
 			data.args[0].LIVEVIEW = '1';
 		}

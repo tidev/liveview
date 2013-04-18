@@ -41,12 +41,14 @@
   "bin": {
     "liveview": "bin/liveview",
     "liveview-run": "bin/liveview-run",
+    "liveview-server": "bin/liveview-server",
     "liveview-help": "bin/liveview-help"
   },
   "dependencies": {
     "shelljs": "~0.1.2",
     "commander": "~1.1.1",
     "win-fork": "~1.1.1",
-    "chokidar": "~0.6.2"
+    "chokidar": "~0.6.2",
+    "node-appc": "0.1.29"
   }
 }

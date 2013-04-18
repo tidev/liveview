@@ -31,7 +31,7 @@ program
 
 program
 	.command('status')
-	.description('status the LiveView server')
+	.description('status of the LiveView server')
 	.action(status);
 
 program.parse(process.argv);

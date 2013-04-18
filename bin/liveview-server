@@ -1,0 +1,99 @@
+#!/usr/bin/env node
+
+require('shelljs/global');
+
+var program = require('commander'),
+	pkgConf = require('../package'),
+	fs = require('fs'),
+	path = require('path'),
+	fserver = require('../lib/fserver');
+
+program
+	.version(pkgConf.version)
+	.usage('<command> options');
+
+program
+	.command('start')
+	.description('start the LiveView server')
+	.option('--project-dir <path>', 'path to project')
+	.action(start);
+
+program
+	.command('stop')
+	.description('stop the LiveView server')
+	.action(stop);
+
+program
+	.command('restart')
+	.description('restart the LiveView server')
+	.option('--project-dir <path>', 'path to project')
+	.action(restart);
+
+program
+	.command('status')
+	.description('status of the LiveView server')
+	.action(status);
+
+program.parse(process.argv);
+
+program.args.length || program.help();
+
+
+// Implementations
+
+function start(env) {
+	if (!env.hasOwnProperty('projectDir') || !env.projectDir) {
+		console.error('ERROR! --project-dir <path> argument missing');
+		process.exit(1);
+	}
+
+	var projectDir = env.projectDir;
+
+	if (!projectDir || !fs.existsSync(projectDir) || !fs.lstatSync(projectDir).isDirectory()) {
+		console.error('ERROR! Project directory "' + projectDir + '" does not exist.\n');
+		process.exit(1);
+	}
+
+	var tiapp = path.join(projectDir, 'tiapp.xml');
+	if (!fs.existsSync(tiapp)) {
+		// try the parent directory
+		var pDir = path.basename(projectDir);
+		tiapp = path.join(pDir, 'tiapp.xml');
+		if (!fs.existsSync(tiapp)) {
+			console.error('ERROR! Project directory "' + projectDir + '" is not a valid Titanium project.');
+			process.exit(1);
+		}
+		projectDir = path.basename(projectDir);
+	}
+
+	var resourcesDir = path.join(projectDir, 'Resources');
+	if (!fs.existsSync(resourcesDir)) {
+		console.error('ERROR! Titanium project missing Resources directory.');
+		process.exit(1);
+	}
+
+	if (fserver.isRunning()) {
+		console.warn('LiveView already running.');
+	} else {
+		fserver.start({ path: resourcesDir });
+	}
+}
+
+function stop() {
+	if (!fserver.isRunning()) {
+		console.warn('LiveView already stopped.');
+	} else {
+		fserver.killall();
+		console.log('LiveView stopped.');
+	}
+}
+
+function restart(env) {
+	env.projectDir || (env.projectDir = fserver.getProjectDir());
+	stop();
+	start(env);
+}
+
+function status() {
+	console.log('LiveView is ' + (fserver.isRunning() ? 'running' : 'stopped'));
+}

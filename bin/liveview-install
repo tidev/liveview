@@ -10,6 +10,7 @@ require('shelljs/global');
 
 var program = require('commander')
   , colors = require('../lib/colors')
+  , path = require('path');
 
 program.Command.prototype.unknownOption = function(){};
 
@@ -45,9 +46,13 @@ if ((pkg||'').toLowerCase() === 'clihook') { installHook(); }
  */
 
 function installHook() {
-  var hook = require('path').resolve(__dirname + '/../hook');
+  var hook = path.normalize(__dirname + '/../hook');
   var ticonf = JSON.parse(exec('titanium config -o json', {silent:true}).output);
-  if (~ticonf['paths.hooks'].indexOf(hook)) { return console.log(' Titanium CLI Hook'.white,'already installed\n'.yellow); }
+
+  if (~ticonf['paths.hooks'].indexOf(hook)) {
+    return console.log(' Titanium CLI Hook'.white,'already installed\n'.yellow);
+  }
+
   exec('titanium -q config paths.hooks -a ' + hook, function (res) {
     var outcome = (res.code) ? 'not installed'.red : 'installed'.green;
     console.log(' Titanium CLI Hook ' + outcome + '\n');

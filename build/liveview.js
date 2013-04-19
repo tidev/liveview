@@ -4891,6 +4891,7 @@ Module.require = function(id) {
 
   if (!Module.exists(fullPath)) {
     try {
+      if (id === 'app') { id = '_app'; }
       Module._requireNative(id);
     } catch (e) {
       console.log('Checking for new file: ' + id);
@@ -4977,6 +4978,7 @@ Module.prototype._getSource = function() {
   if (isRemote){
     return this._getRemoteSource(null,3000);
   } else {
+    if (id === 'app') { id = '_app'; }
     var file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, id + '.js');
     return (file.read()||{}).text;
   }
@@ -5043,12 +5045,7 @@ Module.prototype.cache = function() {
   Module.patch(globalCtx);
 
   Module.global.process.on('uncaughtException', function (err) {
-    console.error('[LiveView] ', err);
-    Ti.UI.createAlertDialog({
-      message: '[FILE]: ' + err.module + '\n[ERROR]: ' + err.error ,
-      ok: 'close',
-      title: 'LiveView [Error]'
-    }).show();
+    console.error('[LiveView]', err);
   });
 
 
@@ -5056,8 +5053,6 @@ Module.prototype.cache = function() {
 
   var win = Ti.UI.createWindow({backgroundColor:'#000000'});
   win.open();
-
-  var firstRun = true;
 
   var app = require('app');
 
@@ -5067,14 +5062,6 @@ Module.prototype.cache = function() {
    */
 
   Module.global.reload = function(){
-    try {
-      app.close();
-    } catch (e){
-      if (firstRun) {
-        firstRun = false;
-        console.warn('[LiveView] Invalid or missing root proxy object export from app.js.\n[LiveView] Please export the application root proxy object (ex. window, tabview, etc...) to avoid possible performance issues with LiveView.');
-      }
-    }
     app = require('app');
   };
 
@@ -5087,7 +5074,7 @@ Module.prototype.cache = function() {
   var tcpConfig = {host: 'TCP_HOST', port: 8323};
 
   var client = net.connect(tcpConfig, function() {
-    console.log('Client connected');
+    console.log('[LiveView]', 'Client connected');
   });
   client.on('data', function(data) {
     if (!data) { return; }
@@ -5103,11 +5090,6 @@ Module.prototype.cache = function() {
 
   });
   client.on('end', function(data) {
-    console.log('Disconnected from LiveView Event Server');
+    console.log('[LiveView]', 'Disconnected Event Server');
   });
-
-  Ti.Gesture.addEventListener('shake', function(e){
-    Module.global.reload();
-  });
-
 })(this);

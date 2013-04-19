@@ -119,16 +119,17 @@ exports.init = function (logger, config, cli) {
 
 	cli.addHook('build.post.compile', function (build, finished) {
 		if (cli.argv.liveview) {
+			var fserverBin = path.normalize(__dirname + '/../bin/liveview-server');
+
 			require('child_process').spawn(process.execPath, [
-				path.resolve(__dirname + '/../bin/liveview-server'),
+				fserverBin,
 				'start',
 				'--project-dir', cli.argv['project-dir']
 			], {
 				detached: true,
-				stdio: 'ignore'
+				stdio: 'inherit'
 			});
 		}
 		finished();
 	});
-
 };

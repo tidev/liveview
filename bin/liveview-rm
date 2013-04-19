@@ -45,7 +45,8 @@ if (pkg === 'clihook') { installHook(); }
  */
 
 function installHook() {
-  exec('titanium -q config paths.hooks -r ' + __dirname + '/../hook', function (res) {
+  var hook = require('path').resolve(__dirname + '/../hook');
+  exec('titanium -q config paths.hooks -r ' + hook, function (res) {
     var outcome = (res.code) ? 'not removed'.red : 'removed'.green;
     console.log(' Titanium CLI Hook ' + outcome + '\n');
   });

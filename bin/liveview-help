@@ -5,7 +5,7 @@
  */
 
 var program = require('commander')
-  , colors = reuire('../lib/colors')
+  , colors = reuire('coloring')
   , exec = require('child_process').exec;
 
 // parse argv

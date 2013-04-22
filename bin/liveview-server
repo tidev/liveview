@@ -8,6 +8,8 @@ var program = require('commander'),
 	path = require('path'),
 	fserver = require('../lib/fserver');
 
+program.Command.prototype.unknownOption = function(){};
+
 program
 	.version(pkgConf.version)
 	.usage('<command> options');

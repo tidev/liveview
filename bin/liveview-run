@@ -10,7 +10,7 @@ require('shelljs/global');
 
 var program = require('commander')
   , fs = require('fs')
-  , colors = require('../lib/colors')
+  , colors = require('coloring')
   , fserver = require('../lib/fserver');
 
 program.Command.prototype.unknownOption = function(){};

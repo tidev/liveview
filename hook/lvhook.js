@@ -121,11 +121,16 @@ exports.init = function (logger, config, cli) {
 		if (cli.argv.liveview) {
 			var fserverBin = path.normalize(__dirname + '/../bin/liveview-server');
 
-			require('child_process').spawn(process.execPath, [
+			var args = [
 				fserverBin,
 				'start',
-				'--project-dir', cli.argv['project-dir']
-			], {
+				'--project-dir',
+				cli.argv['project-dir']
+			];
+
+			if ( !cli.argv['colors'] ) { args.push('--no-colors'); }
+
+			require('child_process').spawn(process.execPath, args, {
 				detached: true,
 				stdio: 'inherit'
 			});

@@ -1,13 +1,24 @@
 # LiveView
-## Titanium live preview of Titanium applications on device.
+Titanium Live App Reloading for simulator and device.
 
-## Install
+__Install__
 
 Bleeding edge version
 
 ```
 $ npm install -g git+https://github.com/appcelerator/liveview.git
 ```
+
+
+## liveview#help
+
+Outputs usage. Optional command for its usage.
+
+```
+$ liveview [command] --help
+```
+
+## liveview#install
 
 Manually Install the Titanium CLI hook:
 _Note: Cli hook is automatically installed with LiveView_
@@ -16,6 +27,8 @@ _Note: Cli hook is automatically installed with LiveView_
 $ liveview install clihook
 ```
 
+## liveview#rm
+
 Manually Remove the Titanium CLI hook:
 _Note: Cli hook is automatically removed with LiveView_
 
@@ -23,36 +36,43 @@ _Note: Cli hook is automatically removed with LiveView_
 $ liveview rm clihook
 ```
 
-Export root proxy object in projects `app.js`
-
-```js
-// example app.js
-// export root proxy object to allow LiveView to reload entire app
-
-var win = module.exports = Ti.UI.createWindow({
-  backgroundColor:'red'
-});
-
-win.open();
-```
-
-## API
-
-### help
-
-Outputs usage. Optional command for its usage.
-
-```
-$ liveview [command] --help
-```
-
-### run
+## liveview#run
 
 Run liveview with the requested Titanium CLI Build Flags.
 ( _prompts for build flags if none provided_ )
 
 ```
 $ liveview run [Titanium-CLI-Build-Flags]
+```
+Run liveview via the [Titanium CLI Tools](https://github.com/appcelerator/titanium)
+
+```
+$ ti build --liveview [options]
+```
+
+
+## liveview#server
+
+Outputs Server Status. __not implemented__
+
+```
+$ liveview server
+```
+
+## server#stop
+
+Stop liveview file/event servers
+
+```
+$ liveview server stop
+```
+
+## server#start
+
+Start a liveview file/event server for given directory
+
+```
+$ liveview server start --project-dir <project-dir-path>
 ```
 
 ## License

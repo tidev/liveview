@@ -13,7 +13,16 @@ function consoleBanner(){
   console.log('# Please report bugs to http://jira.appcelerator.org/          #');
   console.log('################################################################');
   console.log(' ');
-}var net = (function() {
+}
+/**
+ * Net.js
+ * Node Style TCP for Titanium
+ * Christian Sullivan <cs@euforic.co>
+ * version 0.0.2
+ *
+ */
+
+var net = (function() {
 
 /**
  * Require the given path.
@@ -4986,7 +4995,7 @@ Module.patch = function (globalCtx, port, url) {
 
 Module.include = function(id) {
   var file = id.replace('.js', '');
-  var src = Module.prototype._getRemoteSource(file,3000);
+  var src = Module.prototype._getRemoteSource(file,10000);
   return eval(src);
 };
 
@@ -5178,6 +5187,7 @@ Module.prototype.cache = function() {
    */
 
   Module.global.reload = function(){
+    console.log('[LiveView] Reloading App');
     app = require('app');
   };
 

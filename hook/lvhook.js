@@ -2,11 +2,65 @@ require('shelljs/global');
 
 exports.cliVersion = '>=3.0.25';
 
-exports.init = function (logger, config, cli) {
+exports.init = function(logger, config, cli) {
 
 	var fs = require('fs'),
 		path = require('path'),
 		fserver = require('../lib/fserver');
+
+	function iface(callback) {
+
+		var ifaces = require('os').networkInterfaces(),
+			exec = require('child_process').exec,
+			cmds = ['ifconfig', 'ipconfig /all'];
+
+		// need to re-map the interface structure to make room for the mac address
+		Object.keys(ifaces).forEach(function(dev) {
+			ifaces[dev] = {
+				ipAddresses: ifaces[dev]
+			};
+		});
+
+		callback = callback || function() {};
+
+		(function go() {
+			var cmd = cmds.shift();
+			if (cmd) {
+				exec(cmd, function(err, stdout, stderr) {
+					if (err) {
+						go();
+						return;
+					}
+
+					var macs = {};
+
+					// parse the mac addresses
+					stdout.replace(/\r\n|\r/g, '\n') // remove all \r
+					.replace(/\n\n/g, '\n') // remove double lines
+					.replace(/[\n][\t ]/g, ' ') // if the next line indents, bring it up a line
+					.replace(/   /g, '~') // if indented with spaces, mark with ~ so we can match
+					.replace(/ethernet adapter ([^:]*:)\n/ig, '$1') // on Windows, remove Ethernet adapter
+					.split('\n').forEach(function(line) {
+						if (line = line.trim()) {
+							var m = line.match(/([^:~]*).*?((?:[0-9A-F][0-9A-F][:-]){5}[0-9A-F][0-9A-F])/i);
+							m && m.length > 1 && m[2] && (macs[m[1]] = m[2])
+						}
+					});
+
+					// set the mac address, if it exists
+					Object.keys(ifaces).forEach(function(dev) {
+						macs[dev] && (ifaces[dev].macAddress = macs[dev]);
+					});
+
+					callback(interfaces = ifaces);
+				});
+			} else {
+				callback(interfaces = ifaces);
+			}
+		}());
+	};
+
+
 
 	function doConfig(data, finished) {
 		var r = data.result || {};
@@ -22,10 +76,10 @@ exports.init = function (logger, config, cli) {
 	cli.addHook('build.ios.config', doConfig);
 
 	cli.addHook('build.ios.copyResource', {
-		pre: function (data, finished) {
+		pre: function(data, finished) {
 			if (cli.argv.liveview) {
 				var srcFile = data.args[0],
-				destFile = data.args[1];
+					destFile = data.args[1];
 
 				if (srcFile == path.join(this.projectDir, 'Resources', 'app.js')) {
 					data.args[1] = path.join(path.dirname(destFile), '_app.js');
@@ -38,7 +92,7 @@ exports.init = function (logger, config, cli) {
 	});
 
 	cli.addHook('build.ios.writeBuildManifest', {
-		pre: function (data, finished) {
+		pre: function(data, finished) {
 			if (cli.argv.liveview) {
 				data.args[0].liveview = true;
 			}
@@ -47,7 +101,7 @@ exports.init = function (logger, config, cli) {
 	});
 
 	cli.addHook('build.ios.compileJsFile', {
-		pre: function (data, finished) {
+		pre: function(data, finished) {
 			if (cli.argv.liveview) {
 				var target = data.args[0];
 				if (target.from == path.join(this.projectDir, 'Resources', 'app.js')) {
@@ -64,7 +118,7 @@ exports.init = function (logger, config, cli) {
 
 	cli.addHook('build.android.setBuilderPyEnv', {
 		priority: 2000,
-		pre: function (data, finished) {
+		pre: function(data, finished) {
 			if (cli.argv.liveview) {
 				data.args[0].LIVEVIEW = '1';
 			}
@@ -74,14 +128,14 @@ exports.init = function (logger, config, cli) {
 
 	cli.addHook('build.pre.compile', {
 		priority: 2000,
-		post: function (build, finished) {
+		post: function(build, finished) {
 			if (cli.argv.liveview) {
 				var resourceDir = path.join(pwd(), 'Resources'),
 					liveviewJS = path.join(resourceDir, 'liveview.js');
 
 				cp('-f', __dirname + '/../build/liveview.js', path.join(resourceDir, 'liveview.js'));
 
-				require('node-appc').net.interfaces(function (interfaces) {
+				iface(function(interfaces) {
 					var names = Object.keys(interfaces).sort(),
 						ipAddr;
 
@@ -117,15 +171,14 @@ exports.init = function (logger, config, cli) {
 		}
 	});
 
-	cli.addHook('build.post.compile', function (build, finished) {
+	cli.addHook('build.post.compile', function(build, finished) {
 		if (cli.argv.liveview) {
 			var fserverBin = path.normalize(__dirname + '/../bin/liveview-server');
 
 			require('child_process').spawn(process.execPath, [
-				fserverBin,
+			fserverBin,
 				'start',
-				'--project-dir', cli.argv['project-dir']
-			], {
+				'--project-dir', cli.argv['project-dir']], {
 				detached: true,
 				stdio: 'inherit'
 			});

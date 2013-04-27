@@ -47,6 +47,7 @@ if (pkg === 'clihook') { installHook(); }
 
 function installHook() {
   var hook = path.normalize(__dirname + '/../hook');
+  exec('liveview server stop');
   exec('titanium -q config paths.hooks -r ' + hook, function (res) {
     var outcome = (res.code) ? 'not removed'.red : 'removed'.green;
     console.log(' Titanium CLI Hook ' + outcome + '\n');

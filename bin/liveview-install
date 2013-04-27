@@ -53,6 +53,7 @@ function installHook() {
     return console.log(' Titanium CLI Hook'.white,'already installed\n'.yellow);
   }
 
+  exec('liveview server stop');
   exec('titanium -q config paths.hooks -a ' + hook, function (res) {
     var outcome = (res.code) ? 'not installed'.red : 'installed'.green;
     console.log(' Titanium CLI Hook ' + outcome + '\n');

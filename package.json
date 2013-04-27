@@ -42,13 +42,23 @@
     "liveview": "bin/liveview",
     "liveview-run": "bin/liveview-run",
     "liveview-server": "bin/liveview-server",
-    "liveview-help": "bin/liveview-help"
+    "liveview-install": "bin/liveview-install",
+    "liveview-rm": "bin/liveview-rm"
   },
   "dependencies": {
     "shelljs": "~0.1.2",
     "commander": "~1.1.1",
     "win-fork": "~1.1.1",
     "chokidar": "~0.6.2",
-    "node-appc": "0.1.29"
+    "coloring": "~0.1.0",
+    "debug": "~0.7.2"
+  },
+  "devDependencies": {
+    "should": "~1.2.2",
+    "mocha": "~1.9.0",
+    "supertest": "~0.6.0"
+  },
+  "engines": {
+    "node": "0.8.x || 0.10.x"
   }
 }

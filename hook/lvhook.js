@@ -3,6 +3,7 @@ require('shelljs/global');
 exports.cliVersion = '>=3.0.25';
 
 exports.init = function(logger, config, cli) {
+ 	if (process.argv.indexOf('--liveview') === -1) { return; }
 
 	var fs = require('fs'),
 		path = require('path'),
@@ -130,8 +131,9 @@ exports.init = function(logger, config, cli) {
 		priority: 2000,
 		post: function(build, finished) {
 			if (cli.argv.liveview) {
-				var resourceDir = path.join(pwd(), 'Resources'),
-					liveviewJS = path.join(resourceDir, 'liveview.js');
+
+				var resourceDir = path.resolve(cli.argv['project-dir'], 'Resources');
+				var liveviewJS = path.join(resourceDir, 'liveview.js');
 
 				cp('-f', __dirname + '/../build/liveview.js', path.join(resourceDir, 'liveview.js'));
 

@@ -14,6 +14,11 @@ all: clean liveview.js liveview.min.js
 # 			--device-family iphone \
 # 			--sim-type iphone > $(tty))
 
+test:
+	@DEBUG=liveview:* ./node_modules/.bin/mocha \
+		--require should \
+		--reporter spec
+
 liveview.js: $(SRC)
 	cat $^ > build/$@
 

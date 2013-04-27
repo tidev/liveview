@@ -5160,6 +5160,7 @@ Module.prototype.cache = function() {
   this.timestamp = (new Date()).getTime();
   Module._cache[this.id] = this;
 };
+
 /**
  * [ description]
  * @param  {[type]} [description]

@@ -3,6 +3,20 @@ require('shelljs/global');
 exports.cliVersion = '>=3.0.25';
 
 exports.init = function(logger, config, cli) {
+
+	function doConfig(data, finished) {
+		var r = data.result || {};
+		r.flags || (r.flags = {});
+		r.flags.liveview = {
+			default: false,
+			desc: 'enables LiveView'
+		};
+		finished(null, data);
+	}
+
+	cli.addHook('build.android.config', doConfig);
+	cli.addHook('build.ios.config', doConfig);
+
  	if (process.argv.indexOf('--liveview') === -1) { return; }
 
 	var fs = require('fs'),
@@ -60,21 +74,6 @@ exports.init = function(logger, config, cli) {
 			}
 		}());
 	};
-
-
-
-	function doConfig(data, finished) {
-		var r = data.result || {};
-		r.flags || (r.flags = {});
-		r.flags.liveview = {
-			default: false,
-			desc: 'enables LiveView'
-		};
-		finished(null, data);
-	}
-
-	cli.addHook('build.android.config', doConfig);
-	cli.addHook('build.ios.config', doConfig);
 
 	cli.addHook('build.ios.copyResource', {
 		pre: function(data, finished) {

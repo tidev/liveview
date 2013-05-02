@@ -1,7 +1,7 @@
 {
   "name": "liveview",
-  "version": "0.1.7",
-  "description": "Titanium Live Reloading",
+  "version": "0.1.8",
+  "description": "Titanium Live Realtime App Development",
   "main": "index.js",
   "private": true,
   "directories": {

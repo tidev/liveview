@@ -1,5 +1,5 @@
 
-SRC = lib/platform/_head.js lib/platform/net.js lib/platform/events.js lib/platform/process.js lib/platform/require.js lib/platform/_tail.js
+SRC = lib/platform/_head.js lib/platform/events.js lib/platform/socket.js lib/platform/process.js lib/platform/require.js lib/platform/_tail.js
 BASE_DIR = $(CURDIR)/bin/liveview
 # TODO kill only process make started
 #`ps -ef | grep 'fserver\|bin\/ti' | awk "{print $2}"` > /dev/null

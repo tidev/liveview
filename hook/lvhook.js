@@ -1,10 +1,12 @@
 require('shelljs/global');
+var debug = require('debug')('liveview:clihook');
 
 exports.cliVersion = '>=3.0.25';
 
 exports.init = function(logger, config, cli) {
 
 	function doConfig(data, finished) {
+		debug('Runningbuild.[PLATFORM].config hook');
 		var r = data.result || {};
 		r.flags || (r.flags = {});
 		r.flags.liveview = {
@@ -77,6 +79,7 @@ exports.init = function(logger, config, cli) {
 
 	cli.addHook('build.ios.copyResource', {
 		pre: function(data, finished) {
+			debug('Running pre:build.ios.copyResource hook');
 			if (cli.argv.liveview) {
 				var srcFile = data.args[0],
 					destFile = data.args[1];
@@ -93,6 +96,7 @@ exports.init = function(logger, config, cli) {
 
 	cli.addHook('build.ios.writeBuildManifest', {
 		pre: function(data, finished) {
+			debug('Running pre:build.ios.writeBuildManifest hook');
 			if (cli.argv.liveview) {
 				data.args[0].liveview = true;
 			}
@@ -102,6 +106,7 @@ exports.init = function(logger, config, cli) {
 
 	cli.addHook('build.ios.compileJsFile', {
 		pre: function(data, finished) {
+			debug('Running pre:build.ios.compileJsFile hook');
 			if (cli.argv.liveview) {
 				var target = data.args[0];
 				if (target.from == path.join(this.projectDir, 'Resources', 'app.js')) {
@@ -119,6 +124,7 @@ exports.init = function(logger, config, cli) {
 	cli.addHook('build.android.setBuilderPyEnv', {
 		priority: 2000,
 		pre: function(data, finished) {
+			debug('Running pre:build.ios.compileJsFile hook');
 			if (cli.argv.liveview) {
 				data.args[0].LIVEVIEW = '1';
 			}
@@ -129,6 +135,7 @@ exports.init = function(logger, config, cli) {
 	cli.addHook('build.pre.compile', {
 		priority: 2000,
 		post: function(build, finished) {
+			debug('Running post:build.pre.compile hook');
 			if (cli.argv.liveview) {
 
 				var resourceDir = path.resolve(cli.argv['project-dir'], 'Resources');
@@ -173,6 +180,7 @@ exports.init = function(logger, config, cli) {
 	});
 
 	cli.addHook('build.post.compile', function(build, finished) {
+		debug('Running post:build.pre.compile hook');
 		if (cli.argv.liveview) {
 			var fserverBin = path.normalize(__dirname + '/../bin/liveview-server');
 

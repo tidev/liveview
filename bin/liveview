@@ -20,16 +20,12 @@ var program = require('commander')
   , pkgConf = require('../package')
   , debug = require('debug')('liveview:cli');
 
-console.log(' ');
-console.log(' LiveView, Realtime App Devleopment, version '+ pkgConf.version);
-console.log(' Copyright (c) 2013, Appcelerator, Inc.  All Rights Reserved.'.grey);
-console.log(' Please report bugs to'.grey, 'http://jira.appcelerator.org/\n'.blue);
-
 // usage
 
 program
   .version(pkgConf.version)
-  .usage('<command> [options]');
+  .usage('<command> [options]')
+  .option('--no-banner', 'disable program banner output');
 
 // sub-command help
 
@@ -47,6 +43,13 @@ program.on('--help', function(){
 // parse argv
 
 program.parse(process.argv);
+
+if (program.banner) {
+  console.log(' ');
+  console.log(' LiveView, Realtime App Devleopment, version '+ pkgConf.version);
+  console.log(' Copyright (c) 2013, Appcelerator, Inc.  All Rights Reserved.'.grey);
+  console.log(' Please report bugs to'.grey, 'http://jira.appcelerator.org/\n'.blue);
+}
 
 // args void of cmd
 

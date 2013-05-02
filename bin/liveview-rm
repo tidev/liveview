@@ -17,7 +17,7 @@ program.Command.prototype.unknownOption = function(){};
 // usage
 
 program
-  .usage('install <name> [options]');
+  .usage('rm <name> [options]');
 
 // examples
 
@@ -38,16 +38,16 @@ program.parse(process.argv);
 
 var pkg = (program.args.shift()||'').toLowerCase();
 
-if (pkg === 'clihook') { installHook(); }
+if (pkg === 'clihook') { rmHook(); }
 
 /**
  * [installHook description]
  * @return {[type]} [description]
  */
 
-function installHook() {
+function rmHook() {
   var hook = path.normalize(__dirname + '/../hook');
-  exec('liveview server stop');
+  exec('liveview server stop --no-banner');
   exec('titanium -q config paths.hooks -r ' + hook, function (res) {
     var outcome = (res.code) ? 'not removed'.red : 'removed'.green;
     console.log(' Titanium CLI Hook ' + outcome + '\n');

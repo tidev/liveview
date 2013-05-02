@@ -4,16 +4,6 @@
  * Copyright (c) 2013 Appcelerator
  */
 
-function consoleBanner(){
-  console.log(' ');
-  console.log('################################################################');
-  console.log('#      liveview, Titanium Live file runner, version 0.1.0      #');
-  console.log('# Copyright (c) 2013, Appcelerator, Inc.  All Rights Reserved. #');
-  console.log('#                                                              #');
-  console.log('# Please report bugs to http://jira.appcelerator.org/          #');
-  console.log('################################################################');
-  console.log(' ');
-}
 /*!
  * Event Emitters
  */

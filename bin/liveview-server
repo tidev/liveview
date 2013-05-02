@@ -21,6 +21,8 @@ program.on('--help', function(){
   console.log('    start [options]     start file/event server');
   console.log('    stop [options]      stop file/event server');
   console.log('    restart [options]   restart file/event server');
+  console.log('    status [options]    list running file/event server');
+  console.log('    pids [options]      list running file/event pid file paths');
   console.log();
   process.exit();
 });

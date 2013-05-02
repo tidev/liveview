@@ -155,18 +155,10 @@ Emitter.prototype.hasListeners = function(event){
 if (typeof module !== 'undefined') {
   module.exports = Socket;
 }
+
 /**
- * Initialize a new `Socket`.
- *
- * A "Socket" encapsulates the ability of being
- * the "client" or the "server" depending on
- * whether `connect()` or `bind()` was called.
- *
- * Upon sending and recieving messages, the correct codec
- * set by `format` will be applied. Both sides must elect
- * the same codec, or all hell will break loose on the app.
- *
- * @api private
+ * [Socket description]
+ * @param {[type]} opts [description]
  */
 
 function Socket(opts) {
@@ -188,15 +180,10 @@ function Socket(opts) {
 Socket.prototype.__proto__ = Emitter.prototype;
 
 /**
- * Connect to `port` at `host` and invoke `fn()`.
- *
- * Defaults `host` to localhost.
- *
- * @param {Number|String} port
- * @param {String} host
- * @param {Function} fn
- * @return {Socket}
- * @api public
+ * [connect description]
+ * @param  {[type]}   opts [description]
+ * @param  {Function} fn   [description]
+ * @return {[type]}        [description]
  */
 
 Socket.prototype.connect = function(opts, fn){
@@ -275,6 +262,7 @@ Socket.prototype.write = function(data, fn) {
   });
 
 };
+
 /**
  * [setKeepAlive description]
  * @param {[type]} enable       [description]
@@ -647,7 +635,5 @@ Module.prototype.cache = function() {
   Module.global.process.on('uncaughtException', function (err) {
     console.error('[LiveView]', err);
   });
-
-  // Base window
 
 })(this);

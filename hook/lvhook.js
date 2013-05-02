@@ -183,15 +183,7 @@ exports.init = function(logger, config, cli) {
 		debug('Running post:build.pre.compile hook');
 		if (cli.argv.liveview) {
 			var fserverBin = path.normalize(__dirname + '/../bin/liveview-server');
-
-			require('child_process').spawn(process.execPath, [
-			fserverBin,
-				'start',
-				'hook-call',
-				'--project-dir', cli.argv['project-dir']], {
-				detached: true,
-				stdio: 'inherit'
-			});
+			exec(fserverBin + ' start --project-dir ' + cli.argv['project-dir'] + ' --daemonize');
 		}
 		finished();
 	});

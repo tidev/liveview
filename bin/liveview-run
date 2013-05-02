@@ -9,7 +9,6 @@
 require('shelljs/global');
 
 var program = require('commander')
-  , fs = require('fs')
   , colors = require('coloring')
   , fserver = require('../lib/fserver');
 
@@ -19,15 +18,13 @@ program.Command.prototype.unknownOption = function(){};
 
 program.usage('run [options]');
 
-// options
-
-// program
-//   .option('-b, --build-flags <build-flags>', 'custom titanium build command');
-
 // examples
 
 program.on('--help', function(){
-  exec('ti build --help');
+  console.log('  Ti-Options:\n')
+  exec('ti build --no-banner --help', {silent:true}).output.split('\n').forEach(function(line){
+    console.log('    ' + line);
+  });
   console.log();
 });
 
@@ -68,25 +65,11 @@ function run(err, opts){
       return process.stdin.destroy();
   }
 
-  // fserver.start({path:'./Resources/'});
-  //
-  // TODO move builder code from here and hook to lib
-  //
-  // copy liveview.js to users application Resources directory
-  //
-  // cp('-f', __dirname + '/../build/*.js', './Resources/');
-  //
-  // replace host place holder with users current local ip address
-  //
-  // require('dns').lookup(require('os').hostname(), function (err, add, fam) {
-  //   sed('-i', 'FSERVER_HOST', add, './Resources/liveview.js');
-  // });
-
   process.env.NODE_ENV = 'liveview';
 
   // start up titanium app
 
-  exec('ti build --liveview '+ opts, function(e){
+  exec('ti build --liveview --no-banner '+ opts, function(e){
     console.log(e);
   });
 }

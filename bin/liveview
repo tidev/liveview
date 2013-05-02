@@ -21,8 +21,8 @@ var program = require('commander')
   , debug = require('debug')('liveview:cli');
 
 console.log(' ');
-console.log(' liveview, Titanium Live file runner, version '+ pkgConf.version);
-console.log(' Copyright (c) 2013, Appcelerator, Inc.  All Rights Reserved.\n'.grey);
+console.log(' LiveView, Realtime App Devleopment, version '+ pkgConf.version);
+console.log(' Copyright (c) 2013, Appcelerator, Inc.  All Rights Reserved.'.grey);
 console.log(' Please report bugs to'.grey, 'http://jira.appcelerator.org/\n'.blue);
 
 // usage
@@ -36,9 +36,10 @@ program
 program.on('--help', function(){
   console.log('  Commands:');
   console.log();
-  console.log('    run [flags...]      build project in live mode');
-  console.log('    install <name>      install liveview components');
-  console.log('    rm <name>           remove liveview components');
+  console.log('    run [flags...]      build project with live updates');
+  console.log('    install <name>      install components');
+  console.log('    rm <name>           remove components');
+  console.log('    server [options]    file/event server');
   console.log();
   process.exit();
 });

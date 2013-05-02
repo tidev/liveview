@@ -187,6 +187,7 @@ exports.init = function(logger, config, cli) {
 			require('child_process').spawn(process.execPath, [
 			fserverBin,
 				'start',
+				'hook-call',
 				'--project-dir', cli.argv['project-dir']], {
 				detached: true,
 				stdio: 'inherit'

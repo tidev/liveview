@@ -4,14 +4,15 @@ require('shelljs/global');
 
 var program = require('commander'),
 	server = require('../lib/fserver'),
-	debug = require('debug')('liveview:cli');
+	debug = require('debug')('liveview:cli'),
+  util = require('util');
 
 program
-	.usage('<command> options');
+	.usage('<command> [options]');
 
 program
-	.option('-p, --project-dir [path]', 'path to project')
-	.parse(process.argv);
+  .option('-p, --project-dir [path]', 'path to project')
+  .option('-d, --daemonize', 'server as background daemon')
 
 // sub-command help
 
@@ -38,7 +39,6 @@ var args = process.argv.slice(3);
 // command
 
 var cmd = (program.args[0]||'').toLowerCase();
-
 
 if (!cmd) {
   process.stdout.write(program.helpInformation());

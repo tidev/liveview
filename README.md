@@ -15,7 +15,7 @@ $ npm install -g git+https://github.com/appcelerator/liveview.git
 Outputs usage. Optional command for its usage.
 
 ```
-$ liveview [command] --help
+$ liveview <command> --help
 ```
 
 ## liveview#install
@@ -44,6 +44,7 @@ Run liveview with the requested Titanium CLI Build Flags.
 ```
 $ liveview run [Titanium-CLI-Build-Flags]
 ```
+
 Run liveview via the [Titanium CLI Tools](https://github.com/appcelerator/titanium)
 
 ```
@@ -53,7 +54,7 @@ $ ti build --liveview [options]
 
 ## server#status
 
-Outputs Server Active Server Paths(s).
+Outputs Server Active Server(s) Paths(s).
 
 ```
 $ liveview server status
@@ -80,7 +81,7 @@ $ liveview server stop
 Start a liveview file/event server for given directory
 
 ```
-$ liveview server start --project-dir <project-dir-path>
+$ liveview server start [-p --project-dir] <project-dir-path> [-d --daemonize]
 ```
 
 ## License

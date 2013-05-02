@@ -51,12 +51,20 @@ $ ti build --liveview [options]
 ```
 
 
-## liveview#server
+## server#status
 
-Outputs Server Status. __not implemented__
+Outputs Server Active Server Paths(s).
 
 ```
-$ liveview server
+$ liveview server status
+```
+
+## server#pids
+
+Outputs Server Active Server(s) pid Paths(s).
+
+```
+$ liveview server status
 ```
 
 ## server#stop

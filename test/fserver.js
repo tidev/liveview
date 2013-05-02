@@ -23,6 +23,7 @@ describe('server', function() {
   it('should start up tcp event server', function (done){
     var client = net.connect({port: 8323}, function() {
       client.write('test');
+      server.stop();
       done();
     });
   });

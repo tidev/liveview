@@ -1,7 +1,14 @@
 require('shelljs/global');
 var debug = require('debug')('liveview:clihook');
 
+// export min cli version
+
 exports.cliVersion = '>=3.0.25';
+
+
+/**
+ * initialize cli hook
+ */
 
 exports.init = function(logger, config, cli) {
 
@@ -19,11 +26,8 @@ exports.init = function(logger, config, cli) {
 	cli.addHook('build.android.config', doConfig);
 	cli.addHook('build.ios.config', doConfig);
 
- 	if (process.argv.indexOf('--liveview') === -1) { return; }
-
 	var fs = require('fs'),
-		path = require('path'),
-		fserver = require('../lib/fserver');
+		path = require('path');
 
 	function iface(callback) {
 
@@ -77,6 +81,10 @@ exports.init = function(logger, config, cli) {
 		}());
 	};
 
+	/**
+	 * Replace and rename original app.js  file to execute liveview.js first
+	 */
+
 	cli.addHook('build.ios.copyResource', {
 		pre: function(data, finished) {
 			debug('Running pre:build.ios.copyResource hook');
@@ -104,6 +112,10 @@ exports.init = function(logger, config, cli) {
 		}
 	});
 
+	/**
+	 * Replace and rename original app.js  file to execute liveview.js first
+	 */
+
 	cli.addHook('build.ios.compileJsFile', {
 		pre: function(data, finished) {
 			debug('Running pre:build.ios.compileJsFile hook');
@@ -121,6 +133,10 @@ exports.init = function(logger, config, cli) {
 		}
 	});
 
+	/**
+	 * Set LiveView flag for legacy android builder.py
+	 */
+
 	cli.addHook('build.android.setBuilderPyEnv', {
 		priority: 2000,
 		pre: function(data, finished) {
@@ -131,6 +147,10 @@ exports.init = function(logger, config, cli) {
 			finished(data);
 		}
 	});
+
+	/**
+	 * Copy LiveView.js to Resources folder and Inject Server Address
+	 */
 
 	cli.addHook('build.pre.compile', {
 		priority: 2000,
@@ -178,6 +198,10 @@ exports.init = function(logger, config, cli) {
 			}
 		}
 	});
+
+	/**
+	 * Start event/file Server
+	 */
 
 	cli.addHook('build.post.compile', function(build, finished) {
 		debug('Running post:build.pre.compile hook');

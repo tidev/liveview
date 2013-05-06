@@ -204,10 +204,12 @@ exports.init = function(logger, config, cli) {
 	 */
 
 	cli.addHook('build.post.compile', function(build, finished) {
+		var fserverBin = path.normalize(__dirname + '/../bin/liveview-server');
 		debug('Running post:build.pre.compile hook');
 		if (cli.argv.liveview) {
-			var fserverBin = path.normalize(__dirname + '/../bin/liveview-server');
 			exec(fserverBin + ' start --project-dir ' + cli.argv['project-dir'] + ' --daemonize');
+		} else {
+			exec(fserverBin + ' stop', {silent: true});
 		}
 		finished();
 	});

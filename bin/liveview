@@ -25,7 +25,8 @@ var program = require('commander')
 program
   .version(pkgConf.version)
   .usage('<command> [options]')
-  .option('--no-banner', 'disable program banner output');
+  .option('--no-banner', 'disable program banner output')
+  .option('--no-colors', 'disable program cli color output');
 
 // sub-command help
 

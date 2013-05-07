@@ -1,5 +1,6 @@
 require('shelljs/global');
-var debug = require('debug')('liveview:clihook');
+var debug = require('debug')('liveview:clihook')
+	, util = require('util');
 
 // export min cli version
 
@@ -205,11 +206,12 @@ exports.init = function(logger, config, cli) {
 
 	cli.addHook('build.post.compile', function(build, finished) {
 		var fserverBin = path.normalize(__dirname + '/../bin/liveview-server');
-		debug('Running post:build.pre.compile hook');
+		debug('Running post:build.post.compile hook');
 		if (cli.argv.liveview) {
-			exec(fserverBin + ' start --project-dir ' + cli.argv['project-dir'] + ' --daemonize');
+			var useColors = (cli.argv.colors) ? '' : '--no-colors';
+			exec(fserverBin + ' start --project-dir ' + cli.argv['project-dir'] + ' --daemonize ' + useColors, {async: true});
 		} else {
-			exec(fserverBin + ' stop', {silent: true});
+			exec(fserverBin + ' stop', {silent: true, async: true });
 		}
 		finished();
 	});

@@ -3,16 +3,17 @@
 require('shelljs/global');
 
 var program = require('commander'),
-	server = require('../lib/fserver'),
-	debug = require('debug')('liveview:cli'),
+  server = require('../lib/fserver'),
+  debug = require('debug')('liveview:cli'),
   util = require('util');
 
 program
-	.usage('<command> [options]');
+  .usage('<command> [options]');
 
 program
   .option('-p, --project-dir [path]', 'path to project')
   .option('-d, --daemonize', 'server as background daemon')
+  .option('--no-colors', 'disable cli coloring');
 
 // sub-command help
 
@@ -47,8 +48,8 @@ if (!cmd) {
 }
 
 try {
-	var func = server[program.args[0]](program);
+  var func = server[program.args[0]](program);
 } catch(e) {
-	debug(e);
-	program.help();
+  debug(e);
+  program.help();
 }

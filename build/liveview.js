@@ -395,7 +395,11 @@ Module.patch = function (globalCtx, port, url) {
 
   this.global.reload = function(){
     console.log('[LiveView] Reloading App');
-    require('app');
+    try {
+      Ti.App._restart();
+    } catch(e){
+      require('app');
+    }
   };
 
   var retryInterval = null;

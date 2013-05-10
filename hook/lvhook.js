@@ -205,7 +205,7 @@ exports.init = function(logger, config, cli) {
 	 */
 
 	cli.addHook('build.post.compile', function(build, finished) {
-		var fserverBin = path.normalize(__dirname + '/../bin/liveview-server');
+		var fserverBin = path.normalize(__dirname + '/../bin/liveview-server').replace(/\s/g, '\\ ');
 		debug('Running post:build.post.compile hook');
 		if (cli.argv.liveview) {
 			var useColors = (cli.argv.colors) ? '' : '--no-colors';

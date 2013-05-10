@@ -437,7 +437,7 @@ Module.patch = function (globalCtx, port, url) {
   client.on('error', function(e){
     var err = e.error;
     var code = ~~e.code;
-    if (code === 61) { err = 'Event Sever unavailable. Connection Refused'; }
+    if (code === 61) { err = 'Event Server unavailable. Connection Refused'; }
     console.error('[LiveView] ' + err);
   });
 
@@ -535,7 +535,7 @@ Module.prototype._getRemoteSource = function(file,timeout){
       rsp = request.responseText;
     } else if ((expireTime -  (new Date()).getTime()) <= 0) {
       rsp = true;
-      throw new Error('[LiveView]', 'File Sever unavailable. Host Unreachable');
+      throw new Error('[LiveView]', 'File Server unavailable. Host Unreachable');
     }
   }
 

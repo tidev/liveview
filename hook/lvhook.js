@@ -1,5 +1,9 @@
 require('shelljs/global');
+
 var debug = require('debug')('liveview:clihook')
+	, path = require('path')
+	, join = path.join
+	, fs = require('fs')
 	, util = require('util');
 
 // export min cli version
@@ -26,9 +30,6 @@ exports.init = function(logger, config, cli) {
 
 	cli.addHook('build.android.config', doConfig);
 	cli.addHook('build.ios.config', doConfig);
-
-	var fs = require('fs'),
-		path = require('path');
 
 	function iface(callback) {
 
@@ -93,10 +94,10 @@ exports.init = function(logger, config, cli) {
 				var srcFile = data.args[0],
 					destFile = data.args[1];
 
-				if (srcFile == path.join(this.projectDir, 'Resources', 'app.js')) {
-					data.args[1] = path.join(path.dirname(destFile), '_app.js');
-				} else if (srcFile == path.join(this.projectDir, 'Resources', 'liveview.js')) {
-					data.args[1] = path.join(path.dirname(destFile), 'app.js');
+				if (srcFile == join(this.projectDir, 'Resources', 'app.js')) {
+					data.args[1] = join(path.dirname(destFile), '_app.js');
+				} else if (srcFile == join(this.projectDir, 'Resources', 'liveview.js')) {
+					data.args[1] = join(path.dirname(destFile), 'app.js');
 				}
 			}
 			finished(data);
@@ -122,10 +123,10 @@ exports.init = function(logger, config, cli) {
 			debug('Running pre:build.ios.compileJsFile hook');
 			if (cli.argv.liveview) {
 				var target = data.args[0];
-				if (target.from == path.join(this.projectDir, 'Resources', 'app.js')) {
+				if (target.from == join(this.projectDir, 'Resources', 'app.js')) {
 					target.path = '_app.js';
 					target.to = target.to.substring(0, target.to.length - 13) + 'liveview.js';
-				} else if (target.from == path.join(this.projectDir, 'Resources', 'liveview.js')) {
+				} else if (target.from == join(this.projectDir, 'Resources', 'liveview.js')) {
 					target.path = 'app.js';
 					target.to = target.to.substring(0, target.to.length - 13) + 'app.js';
 				}
@@ -160,9 +161,9 @@ exports.init = function(logger, config, cli) {
 			if (cli.argv.liveview) {
 
 				var resourceDir = path.resolve(cli.argv['project-dir'], 'Resources');
-				var liveviewJS = path.join(resourceDir, 'liveview.js');
+				var liveviewJS = join(resourceDir, 'liveview.js');
 
-				cp('-f', __dirname + '/../build/liveview.js', path.join(resourceDir, 'liveview.js'));
+				cp('-f', join(__dirname, '/../build/liveview.js'), join(resourceDir, 'liveview.js'));
 
 				iface(function(interfaces) {
 					var names = Object.keys(interfaces).sort(),
@@ -205,11 +206,22 @@ exports.init = function(logger, config, cli) {
 	 */
 
 	cli.addHook('build.post.compile', function(build, finished) {
-		var fserverBin = path.normalize(__dirname + '/../bin/liveview-server').replace(/\s/g, '\\ ');
 		debug('Running post:build.post.compile hook');
 		if (cli.argv.liveview) {
 			var useColors = (cli.argv.colors) ? '' : '--no-colors';
-			exec(fserverBin + ' start --project-dir ' + cli.argv['project-dir'] + ' --daemonize ' + useColors, {async: true});
+			var fserverBin = join(__dirname, '/../bin/liveview-server');
+
+			var cmdOpts = [
+				fserverBin,
+				'start',
+				'--project-dir',
+				cli.argv['project-dir']
+			];
+
+			require('child_process').spawn(process.execPath, cmdOpts, {
+				detached: true,
+				stdio: 'inherit'
+			});
 		} else {
 			exec(fserverBin + ' stop', {silent: true, async: true });
 		}

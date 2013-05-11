@@ -209,7 +209,7 @@ exports.init = function(logger, config, cli) {
 		debug('Running post:build.post.compile hook');
 		if (cli.argv.liveview) {
 			var useColors = (cli.argv.colors) ? '' : '--no-colors';
-			var fserverBin = join(__dirname, '/../bin/liveview-server');
+			var fserverBin = join(__dirname.replace(/\s/g, '\\ '), '/../bin/liveview-server');
 
 			var cmdOpts = [
 				fserverBin,

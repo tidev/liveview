@@ -46,7 +46,7 @@ if (pkg === 'clihook') { rmHook(); }
  */
 
 function rmHook() {
-  var hook = path.normalize(__dirname + '/../hook');
+  var hook = path.join(__dirname, '../hook').replace(/\s/g, '\\ ');
   exec('liveview server stop --no-banner');
   exec('titanium -q config paths.hooks -r ' + hook, function (res) {
     var outcome = (res.code) ? 'not removed'.red : 'removed'.green;

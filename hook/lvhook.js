@@ -84,6 +84,17 @@ exports.init = function(logger, config, cli) {
 	};
 
 	/**
+	 * [escape description]
+	 * @param  {[type]} str [description]
+	 * @return {[type]}     [description]
+	 */
+
+	function escape() {
+		var args = join.apply(this, [].slice.call(arguments));
+		return '"' + args + '"';
+	}
+
+	/**
 	 * Replace and rename original app.js  file to execute liveview.js first
 	 */
 
@@ -155,15 +166,15 @@ exports.init = function(logger, config, cli) {
 	 */
 
 	cli.addHook('build.pre.compile', {
-		priority: 2000,
+		priority: 3000,
 		post: function(build, finished) {
-			debug('Running post:build.pre.compile hook');
+			exec(escape(__dirname, '../bin/liveview-server') + ' stop');
 			if (cli.argv.liveview) {
-
+				debug('Running post:build.pre.compile hook');
 				var resourceDir = path.resolve(cli.argv['project-dir'], 'Resources');
 				var liveviewJS = join(resourceDir, 'liveview.js');
 
-				cp('-f', join(__dirname, '/../build/liveview.js'), join(resourceDir, 'liveview.js'));
+				cp('-f', join(__dirname, '../build/liveview.js'), liveviewJS);
 
 				iface(function(interfaces) {
 					var names = Object.keys(interfaces).sort(),
@@ -208,22 +219,20 @@ exports.init = function(logger, config, cli) {
 	cli.addHook('build.post.compile', function(build, finished) {
 		debug('Running post:build.post.compile hook');
 		if (cli.argv.liveview) {
-			var useColors = (cli.argv.colors) ? '' : '--no-colors';
-			var fserverBin = join(__dirname.replace(/\s/g, '\\ '), '/../bin/liveview-server');
-
+			var binDIR = join(__dirname, '../bin/liveview-server');
 			var cmdOpts = [
-				fserverBin,
+				binDIR,
 				'start',
 				'--project-dir',
 				cli.argv['project-dir']
 			];
 
+			if (!cli.argv.colors) { cmdOpts.push('--no-colors'); }
+			debug('Spawning detached process with command:', cmdOpts);
 			require('child_process').spawn(process.execPath, cmdOpts, {
 				detached: true,
 				stdio: 'inherit'
 			});
-		} else {
-			exec(fserverBin + ' stop', {silent: true, async: true });
 		}
 		finished();
 	});

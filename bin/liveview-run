@@ -58,17 +58,7 @@ function buildFlags(cb){
 
 function run(err, opts){
 
-  // start static file server
-
-  if (!ls(process.cwd()+'/tiapp.xml').length){
-      console.error('[ERROR]'.red, 'Not a valid Titanium Project Directory \n');
-      return process.stdin.destroy();
-  }
-
-  process.env.NODE_ENV = 'liveview';
-
   // start up titanium app
-
   exec('ti build --liveview --no-banner '+ opts, function(e){
     console.log(e);
   });

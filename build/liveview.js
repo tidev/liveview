@@ -386,7 +386,6 @@ Module.patch = function (globalCtx, port, url) {
   Module._url = url || 'FSERVER_HOST';
   Module._port = port || 8324;
   Module._requireNative = globalCtx.require;
-  globalCtx.require = Module.require;
 
   /**
    * [reload description]
@@ -442,7 +441,7 @@ Module.patch = function (globalCtx, port, url) {
   });
 
   client.connect();
-  require('app');
+  Module.require('app');
 };
 
 /**
@@ -455,7 +454,7 @@ Module.patch = function (globalCtx, port, url) {
 Module.include = function(id) {
   var file = id.replace('.js', '');
   var src = Module.prototype._getRemoteSource(file,10000);
-  return eval(src);
+  eval(src);
 };
 
 /**

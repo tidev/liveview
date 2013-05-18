@@ -107,8 +107,9 @@ exports.init = function(logger, config, cli) {
 
 				if (srcFile == join(this.projectDir, 'Resources', 'app.js')) {
 					data.args[1] = join(path.dirname(destFile), '_app.js');
-				} else if (srcFile == join(this.projectDir, 'Resources', 'liveview.js')) {
-					data.args[1] = join(path.dirname(destFile), 'app.js');
+					var lvSrc = join(tempdir(),'liveview.js');
+					var lvDest =  join(data.ctx.xcodeAppDir,'app.js');
+					cat(lvSrc).to(lvDest);
 				}
 			}
 			finished(data);
@@ -129,22 +130,22 @@ exports.init = function(logger, config, cli) {
 	 * Replace and rename original app.js  file to execute liveview.js first
 	 */
 
-	cli.addHook('build.ios.compileJsFile', {
-		pre: function(data, finished) {
-			debug('Running pre:build.ios.compileJsFile hook');
-			if (cli.argv.liveview) {
-				var target = data.args[0];
-				if (target.from == join(this.projectDir, 'Resources', 'app.js')) {
-					target.path = '_app.js';
-					target.to = target.to.substring(0, target.to.length - 13) + 'liveview.js';
-				} else if (target.from == join(this.projectDir, 'Resources', 'liveview.js')) {
-					target.path = 'app.js';
-					target.to = target.to.substring(0, target.to.length - 13) + 'app.js';
-				}
-			}
-			finished(data);
-		}
-	});
+	// cli.addHook('build.ios.compileJsFile', {
+	// 	pre: function(data, finished) {
+	// 		debug('Running pre:build.ios.compileJsFile hook');
+	// 		if (cli.argv.liveview) {
+	// 			var target = data.args[0];
+	// 			if (target.from == join(this.projectDir, 'Resources', 'app.js')) {
+	// 				target.path = '_app.js';
+	// 				target.to = target.to.substring(0, target.to.length - 13) + 'liveview.js';
+	// 			} else if (target.from == join(this.projectDir, 'Resources', 'liveview.js')) {
+	// 				target.path = 'app.js';
+	// 				target.to = target.to.substring(0, target.to.length - 13) + 'app.js';
+	// 			}
+	// 		}
+	// 		finished(data);
+	// 	}
+	// });
 
 	/**
 	 * Set LiveView flag for legacy android builder.py
@@ -172,7 +173,7 @@ exports.init = function(logger, config, cli) {
 			if (cli.argv.liveview) {
 				debug('Running post:build.pre.compile hook');
 				var resourceDir = path.resolve(cli.argv['project-dir'], 'Resources');
-				var liveviewJS = join(resourceDir, 'liveview.js');
+				var liveviewJS = join(tempdir(), 'liveview.js');
 
 				cp('-f', join(__dirname, '../build/liveview.js'), liveviewJS);
 

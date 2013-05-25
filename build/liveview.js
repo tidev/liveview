@@ -238,8 +238,11 @@ Socket.prototype.close = function(serverEnded){
   self.closing = !serverEnded;
 
   if (self.closing){
-    self._proxy.close();
-    return self.emit('close');
+    self.write(function(){
+      self._proxy.close();
+      self.emit('close');
+    });
+    return
   }
 
   var retry = ~~self.retry;
@@ -260,11 +263,13 @@ Socket.prototype.write = function(data, fn) {
     data = null;
   }
 
+  data = (data) ?  ('' + data) : '';
+
+  var msg = Ti.createBuffer({value:  data});
+
   var callback = fn || function(){};
 
-  Ti.Stream.write(this._connection, Ti.createBuffer({
-    value:  '' + data
-  }), function(){
+  Ti.Stream.write(this._connection, msg, function(){
     callback([].slice(arguments));
   });
 
@@ -386,25 +391,39 @@ Module.patch = function (globalCtx, port, url) {
   Module._url = url || 'FSERVER_HOST';
   Module._port = port || 8324;
   Module._requireNative = globalCtx.require;
+  Module.evtServer && Module.evtServer.close();
+  Module.connectServer();
+  Module.require('app');
+}
 
-  /**
+/**
    * [reload description]
    * @return {[type]} [description]
    */
 
-  this.global.reload = function(){
+Module.global.reload = function(){
+  try {
+    Module.evtServer.close();
+    Module = null;
     console.log('[LiveView] Reloading App');
-    try {
-      Ti.App._restart();
-    } catch(e){
-      require('app');
-    }
-  };
+    Ti.App._restart();
+  } catch(e){
+    console.log('[LiveView] Reloading App via Legacy Method');
+    Module.require('app');
+  }
+};
+
+
+Module.connectServer = function() {
 
   var retryInterval = null;
 
-  var client = this.evtServer = new Socket({host: 'TCP_HOST', port: 8323}, function() {
+  var client = Module.evtServer = new Socket({host: 'TCP_HOST', port: 8323}, function() {
     console.log('[LiveView]', 'Connected to Event Server');
+  });
+
+  client.on('close', function(){
+    console.log('[LiveView]', 'Closed Previous Event Server client');
   });
 
   client.on('connect', function(){

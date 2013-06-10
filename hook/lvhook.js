@@ -106,10 +106,7 @@ exports.init = function(logger, config, cli) {
 					destFile = data.args[1];
 
 				if (srcFile == join(this.projectDir, 'Resources', 'app.js')) {
-					data.args[1] = join(path.dirname(destFile), '_app.js');
-					var lvSrc = join(tempdir(),'liveview.js');
-					var lvDest =  join(data.ctx.xcodeAppDir,'app.js');
-					cat(lvSrc).to(lvDest);
+					data.args[0] = join(tempdir(),'liveview.js');
 				}
 			}
 			finished(data);
@@ -125,27 +122,6 @@ exports.init = function(logger, config, cli) {
 			finished(data);
 		}
 	});
-
-	/**
-	 * Replace and rename original app.js  file to execute liveview.js first
-	 */
-
-	// cli.addHook('build.ios.compileJsFile', {
-	// 	pre: function(data, finished) {
-	// 		debug('Running pre:build.ios.compileJsFile hook');
-	// 		if (cli.argv.liveview) {
-	// 			var target = data.args[0];
-	// 			if (target.from == join(this.projectDir, 'Resources', 'app.js')) {
-	// 				target.path = '_app.js';
-	// 				target.to = target.to.substring(0, target.to.length - 13) + 'liveview.js';
-	// 			} else if (target.from == join(this.projectDir, 'Resources', 'liveview.js')) {
-	// 				target.path = 'app.js';
-	// 				target.to = target.to.substring(0, target.to.length - 13) + 'app.js';
-	// 			}
-	// 		}
-	// 		finished(data);
-	// 	}
-	// });
 
 	/**
 	 * Set LiveView flag for legacy android builder.py

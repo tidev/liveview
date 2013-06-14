@@ -145,7 +145,6 @@ exports.init = function(logger, config, cli) {
 	cli.addHook('build.pre.compile', {
 		priority: 3000,
 		post: function(build, finished) {
-			exec(escape(__dirname, '../bin/liveview-server') + ' stop');
 			if (cli.argv.liveview) {
 				debug('Running post:build.pre.compile hook');
 				var resourceDir = path.resolve(cli.argv['project-dir'], 'Resources');
@@ -194,8 +193,9 @@ exports.init = function(logger, config, cli) {
 	 */
 
 	cli.addHook('build.post.compile', function(build, finished) {
-		debug('Running post:build.post.compile hook');
+		exec(escape(__dirname, '../bin/liveview-server') + ' stop --no-colors');
 		if (cli.argv.liveview) {
+			debug('Running post:build.post.compile hook');
 			var binDIR = join(__dirname, '../bin/liveview-server');
 			var cmdOpts = [
 				binDIR,

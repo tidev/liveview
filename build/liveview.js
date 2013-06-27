@@ -387,8 +387,13 @@ Module._includeNative = function(){
  * @api private
  */
 
-Module.patch = function (globalCtx, port, url) {
-  Module._url = url || 'FSERVER_HOST';
+Module.patch = function (globalCtx, url, port) {
+
+  var defaultURL = (process.platform === 'android' && process.hardware === 'sdk')
+    ? '10.0.2.2'
+    : 'FSERVER_HOST';
+
+  Module._url = url || defaultURL;
   Module._port = port || 8324;
   Module._requireNative = globalCtx.require;
   Module.evtServer && Module.evtServer.close();
@@ -543,7 +548,6 @@ Module.prototype._getRemoteSource = function(file,timeout){
   request.cache = false;
   request.open("GET", file);
   request.send();
-
   while(!rsp){
     if (request.readyState === 4 ) {
       if (request.status !== 200) {
@@ -553,7 +557,7 @@ Module.prototype._getRemoteSource = function(file,timeout){
       rsp = request.responseText;
     } else if ((expireTime -  (new Date()).getTime()) <= 0) {
       rsp = true;
-      throw new Error('[LiveView]', 'File Server unavailable. Host Unreachable');
+      throw new Error('[LiveView] File Server unavailable. Host Unreachable');
     }
   }
 

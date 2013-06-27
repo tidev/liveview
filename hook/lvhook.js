@@ -155,11 +155,6 @@ exports.init = function(logger, config, cli) {
 				iface(function(interfaces) {
 					var names = Object.keys(interfaces).sort(),
 						ipAddr;
-
-					if (cli.argv.platform == 'android' && cli.argv.target == 'emulator') {
-						// android emulator is special
-						ipAddr = '10.0.2.2';
-					} else {
 						// note: this finds the first physical interface which may not necessarily be the default gateway interface
 						for (var i = 0; i < names.length; i++) {
 							if (interfaces[names[i]].macAddress) {
@@ -173,7 +168,6 @@ exports.init = function(logger, config, cli) {
 								break;
 							}
 						}
-					}
 
 					if (ipAddr) {
 						fs.writeFileSync(liveviewJS, fs.readFileSync(liveviewJS).toString().replace(/FSERVER_HOST/g, ipAddr).replace(/TCP_HOST/g, ipAddr));

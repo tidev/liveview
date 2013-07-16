@@ -3,7 +3,27 @@
  * liveview Titanium CommonJS require with some Node.js love and dirty hacks
  * Copyright (c) 2013 Appcelerator
  */
+(function(globalScope) {
+/**
+ * Initialize a new `Process`.
+ *
+ * @api public
+ */
 
+function Process() {
+  if (!(this instanceof Process)) return new Process();
+  this.title = 'titanium';
+  this.version = '';
+  this.moduleLoadList = [];
+  this.versions = {};
+  this.arch = Ti.Platform.architecture;
+  this.platform = Ti.Platform.name;
+  this.hardware = Ti.Platform.model;
+}
+
+// inherit from EventEmitter
+
+Process.prototype.__proto__ = Emitter.prototype;
 /*!
  * Event Emitters
  */
@@ -294,38 +314,9 @@ Socket.prototype.setKeepAlive = function(enable, initialDelay) {
 };
 
 /**
- * Initialize a new `Process`.
- *
- * @api public
- */
-
-function Process() {
-  if (!(this instanceof Process)){ return new Process(); }
-  this.title = 'titanium';
-  this.version = '';
-  this.moduleLoadList = [];
-  this.versions = {};
-  this.arch = Ti.Platform.architecture;
-  this.platform = Ti.Platform.name;
-  this.hardware = Ti.Platform.model;
-}
-
-// inherit from EventEmitter
-
-Process.prototype.__proto__ = Emitter.prototype;
-/**
  * Initialize a new `Module`.
  *
  * @api public
- */
-
-if (typeof module !== 'undefined') {
-  module.exports = Module;
-}
-
-/**
- * [Module description]
- * @param {[type]} id [description]
  */
 
 function Module(id) {
@@ -601,7 +592,7 @@ Module._wrap = function(source) {
 
 Module._errWrapper = [
   'try {',
-  '} catch (err) { process.emit("uncaughtException", {module: __filename, error: err})}'
+  '} catch (err) { lvGlobal.process.emit("uncaughtException", {module: __filename, error: err})}'
 ];
 
 /**
@@ -618,8 +609,14 @@ Module.prototype._compile = function() {
     return;
   }
   var source = Module._wrap(src);
-  var fn = Function('exports, require, module, __filename, __dirname',source);
-  fn(this.exports, Module.require, this, this.filename, this.__dirname);
+
+  try{
+    var fn = Function('exports, require, module, __filename, __dirname, lvGlobal',source);
+    fn(this.exports, Module.require, this, this.filename, this.__dirname, global);
+  } catch(err) {
+    process.emit("uncaughtException", {module: this.filename, error: err});
+  }
+
   this.loaded = true;
 };
 
@@ -640,11 +637,15 @@ Module.prototype.cache = function() {
  * @return {[type]} [description]
  */
 
-(function(globalCtx) {
-
-  Module.patch(globalCtx);
-  Module.global.process.on('uncaughtException', function (err) {
-    console.error('[LiveView]', err);
+  process.on('uncaughtException', function (err) {
+    console.log('[LiveView] Error Evaluating', err.module, '@ Line:', err.error.line);
+    console.error('' + err.error);
+    console.error('File:', err.module);
+    console.error('Line:', err.error.line);
+    console.error('SourceId:', err.error.sourceId);
+    console.error('Backtrace:\n', err.error.backtrace.replace(/'\n'/g, '\n'));
   });
+
+  Module.patch(globalScope);
 
 })(this);

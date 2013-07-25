@@ -16,7 +16,8 @@ program.Command.prototype.unknownOption = function(){};
 
 // usage
 
-program.usage('run [options]');
+program
+  .usage('run [options]');
 
 // examples
 

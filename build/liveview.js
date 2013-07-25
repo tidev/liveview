@@ -17,7 +17,7 @@ function Process() {
   this.moduleLoadList = [];
   this.versions = {};
   this.arch = Ti.Platform.architecture;
-  this.platform = Ti.Platform.name;
+  this.platform = Ti.Platform.osname;
   this.hardware = ('' + Ti.Platform.model).replace('google_');
 }
 
@@ -468,7 +468,7 @@ Module.connectServer = function() {
 
 Module.include = function(ctx,id) {
   var file = id.replace('.js', '');
-  var src = Module.prototype._getRemoteSource(file,10000);
+  var src = Module.prototype._getRemoteSource(file,1000);
   eval.call(ctx,src);
 };
 
@@ -538,6 +538,7 @@ Module.prototype._getRemoteSource = function(file,timeout){
   var file = 'http://' + Module._url + ':' + Module._port + '/' + (file || this.id) + '.js';
   request.cache = false;
   request.open("GET", file);
+  request.setRequestHeader('x-platform', process.platform);
   request.send();
   while(!rsp){
     if (request.readyState === 4 ) {

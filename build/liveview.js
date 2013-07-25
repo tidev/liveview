@@ -451,7 +451,7 @@ Module.connectServer = function() {
   client.on('error', function(e){
     var err = e.error;
     var code = ~~e.code;
-    if (code === 61) { err = 'Event Server unavailable. Connection Refused'; }
+    if (code === 61) { err = 'Event Server unavailable. Connection Refused @ ' + Module._url + ':' + Module._port + '\n[LiveView] Please ensure your device and computer are on the same network and the port is not blocked.'; }
     console.error('[LiveView] ' + err);
   });
 
@@ -548,7 +548,7 @@ Module.prototype._getRemoteSource = function(file,timeout){
       rsp = request.responseText;
     } else if ((expireTime -  (new Date()).getTime()) <= 0) {
       rsp = true;
-      throw new Error('[LiveView] File Server unavailable. Host Unreachable');
+      throw new Error('[LiveView] File Server unavailable. Host Unreachable @ ' + Module._url + ':' + Module._port + '\n[LiveView] Please ensure your device and computer are on the same network and the port is not blocked.');
     }
   }
 
@@ -643,7 +643,7 @@ Module.prototype.cache = function() {
     console.error('File:', err.module);
     console.error('Line:', err.error.line);
     console.error('SourceId:', err.error.sourceId);
-    console.error('Backtrace:\n', err.error.backtrace.replace(/'\n'/g, '\n'));
+    console.error('Backtrace:\n', ('' + err.error.backtrace).replace(/'\n'/g, '\n'));
   });
 
   Module.patch(globalScope);

@@ -13,7 +13,8 @@ program
 program
   .option('-p, --project-dir [path]', 'path to project')
   .option('-d, --daemonize', 'server as background daemon')
-  .option('--no-colors', 'disable cli coloring');
+  .option('--no-colors', 'disable cli coloring')
+  .option('--platform [platform]', 'build platform *required for alloy compiles');
 
 // sub-command help
 

@@ -194,8 +194,8 @@ exports.init = function(logger, config, cli) {
 			var cmdOpts = [
 				binDIR,
 				'start',
-				'--project-dir',
-				cli.argv['project-dir']
+				'--project-dir', cli.argv['project-dir'],
+				'--platform', cli.argv['platform']
 			];
 
 			if (!cli.argv.colors) { cmdOpts.push('--no-colors'); }

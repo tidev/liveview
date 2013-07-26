@@ -434,7 +434,7 @@ Module.connectServer = function() {
     try{
       var evt = JSON.parse(''+data);
       if (evt.type === 'event' && evt.name === 'reload') {
-        Module._cache = [];
+        Module._cache = {};
         Module.global.reload();
       }
     } catch (e) { /*discard non JSON data for now*/ }
@@ -585,7 +585,18 @@ Module.prototype._getSource = function() {
  */
 
 Module._wrap = function(source) {
-  source = source.replace(/T[i||itanium]+.include\([\'|\"]([^\"\'\r\n$]*)[\'|\"]\)/g, 'Module.include(this,\'$1\')');
+  source = source.replace(/T[i||itanium]+.include\([\'|\"]([^\"\'\r\n$]*)[\'|\"]\)/g, function(exp, val) {
+    var file = ('' + val).replace('.js', '');
+    var _src = Module.prototype._getRemoteSource(file,1000);
+    var evalSrc = '' +
+        'try{ ' +
+          _src.replace(/\/\/(.*)$/gm, '').replace(/\n/g, '') +
+        '}catch(err){ ' +
+          'lvGlobal.process.emit("uncaughtException", {module: "' + val + '", error: err})' +
+        '}';
+
+    return evalSrc;
+  });
   return (global.CATCH_ERRORS) ? Module._errWrapper[0] + source + Module._errWrapper[1] : source;
 };
 
@@ -593,7 +604,7 @@ Module._wrap = function(source) {
 
 Module._errWrapper = [
   'try {',
-  '} catch (err) { lvGlobal.process.emit("uncaughtException", {module: __filename, error: err})}'
+  '} catch (err) { lvGlobal.process.emit("uncaughtException", {module: __filename, error: err, source: module.source})}'
 ];
 
 /**
@@ -609,13 +620,13 @@ Module.prototype._compile = function() {
     this.loaded = true;
     return;
   }
-  var source = Module._wrap(src);
+  this.source = Module._wrap(src);
 
   try{
-    var fn = Function('exports, require, module, __filename, __dirname, lvGlobal',source);
+    var fn = Function('exports, require, module, __filename, __dirname, lvGlobal',this.source);
     fn(this.exports, Module.require, this, this.filename, this.__dirname, global);
   } catch(err) {
-    process.emit("uncaughtException", {module: this.filename, error: err});
+    process.emit("uncaughtException", {module: this.id, error: err, source: ('' + this.source).split('\n')});
   }
 
   this.loaded = true;
@@ -640,6 +651,7 @@ Module.prototype.cache = function() {
 
   process.on('uncaughtException', function (err) {
     console.log('[LiveView] Error Evaluating', err.module, '@ Line:', err.error.line);
+    // console.error('Line ' + err.error.line, ':', err.source[err.error.line]);
     console.error('' + err.error);
     console.error('File:', err.module);
     console.error('Line:', err.error.line);

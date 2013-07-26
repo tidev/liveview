@@ -657,10 +657,6 @@ Module.prototype.cache = function() {
     console.error('Line:', err.error.line);
     console.error('SourceId:', err.error.sourceId);
     console.error('Backtrace:\n', ('' + err.error.backtrace).replace(/'\n'/g, '\n'));
-
-
-    var win = Ti.UI.createWindow({backgroundColor:'red'});
-    win.add(Ti.UI.createLabel({text:JSON.stringify(err)}));
   });
 
   Module.patch(globalScope);

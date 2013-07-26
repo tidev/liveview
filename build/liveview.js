@@ -626,7 +626,7 @@ Module.prototype._compile = function() {
     var fn = Function('exports, require, module, __filename, __dirname, lvGlobal',this.source);
     fn(this.exports, Module.require, this, this.filename, this.__dirname, global);
   } catch(err) {
-    process.emit("uncaughtException", {module: this.id, error: err, source: this.source.split('\n')});
+    process.emit("uncaughtException", {module: this.id, error: err, source: ('' + this.source).split('\n')});
   }
 
   this.loaded = true;
@@ -651,7 +651,7 @@ Module.prototype.cache = function() {
 
   process.on('uncaughtException', function (err) {
     console.log('[LiveView] Error Evaluating', err.module, '@ Line:', err.error.line);
-    console.error('Line ' + err.error.line, ':', err.source[err.error.line]);
+    // console.error('Line ' + err.error.line, ':', err.source[err.error.line]);
     console.error('' + err.error);
     console.error('File:', err.module);
     console.error('Line:', err.error.line);

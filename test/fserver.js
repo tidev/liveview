@@ -1,30 +1,68 @@
-var server = require('../lib/fserver')
+
+var Fserver = require('../lib/fserver')
   , path = require('path')
-  , request = require('supertest')
-  , net = require('net');
+  , join = path.join;
 
-describe('server', function() {
+//
+var FixtureApp = join(__dirname, 'platform');
 
-  it('should start up http file server', function (done) {
+describe('FServer', function(){
 
-    server.start({
-      path: __dirname + '/platform'
+  describe('#start()', function(){
+
+    it('should start TCP and HTTP server', function(){
+      Fserver.start({
+        projectDir: FixtureApp,
+        fport:9011,
+        eport:9012
+      });
     });
 
-    request('http://127.0.0.1:8324')
-      .get('/')
-      .expect('Content-Type', /text/)
-      .expect(200)
-      .end(function(err){
-        done(err);
+    it('should start 2 server instances', function(){
+
+      Fserver.start({
+        projectDir: FixtureApp,
+        fport:9021,
+        eport:9022
       });
+
+      Fserver.start({
+        projectDir: FixtureApp,
+        fport:9023,
+        eport:9024
+      });
+    });
   });
 
-  it('should start up tcp event server', function (done){
-    var client = net.connect({port: 8323}, function() {
-      client.write('test');
-      server.stop();
-      done();
+  describe('#pids()', function(){
+
+    it('should return an empty Array', function(){
+      Fserver.pids().should.be.an.instanceOf(Array);
     });
+
+    var server1 = null;
+    var server2 = null;
+
+    before(function(){
+      Fserver.start({
+        projectDir: FixtureApp
+      });
+
+      server1 = Fserver.pidFile;
+
+      Fserver.start({
+        projectDir: FixtureApp,
+        fport:9033,
+        eport:9034
+      });
+      server2 = Fserver.pidFile;
+    });
+
+    it('should return an Array of PIDS', function(done){
+      var pids = Fserver.pids();
+      pids.should.be.an.instanceOf(Array);
+      pids.should.include(server1,server2);
+    });
+
   });
 });

@@ -414,7 +414,7 @@ Module.connectServer = function() {
 
   var retryInterval = null;
 
-  var client = Module.evtServer = new Socket({host: 'TCP_HOST', port: 8323}, function() {
+  var client = Module.evtServer = new Socket({host: Module._url, port: 8323}, function() {
     console.log('[LiveView]', 'Connected to Event Server');
   });
 
@@ -468,7 +468,7 @@ Module.connectServer = function() {
 
 Module.include = function(ctx,id) {
   var file = id.replace('.js', '');
-  var src = Module.prototype._getRemoteSource(file,1000);
+  var src = Module.prototype._getRemoteSource(file,10000);
   eval.call(ctx,src);
 };
 
@@ -568,7 +568,7 @@ Module.prototype._getSource = function() {
   var isRemote = /^(http|https)$/.test(id) || (global.ENV === 'liveview');
 
   if (isRemote){
-    return this._getRemoteSource(null,1000);
+    return this._getRemoteSource(null,10000);
   } else {
     if (id === 'app') { id = '_app'; }
     var file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, id + '.js');
@@ -587,7 +587,7 @@ Module.prototype._getSource = function() {
 Module._wrap = function(source) {
   source = source.replace(/T[i||itanium]+.include\([\'|\"]([^\"\'\r\n$]*)[\'|\"]\)/g, function(exp, val) {
     var file = ('' + val).replace('.js', '');
-    var _src = Module.prototype._getRemoteSource(file,1000);
+    var _src = Module.prototype._getRemoteSource(file,10000);
     var evalSrc = '' +
         'try{ ' +
           _src.replace(/\/\/(.*)$/gm, '').replace(/\n/g, '') +

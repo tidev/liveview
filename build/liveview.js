@@ -18,7 +18,7 @@ function Process() {
   this.versions = {};
   this.arch = Ti.Platform.architecture;
   this.platform = Ti.Platform.osname;
-  this.hardware = ('' + Ti.Platform.model).replace('google_');
+  this.hardware = Ti.Platform.model;
 }
 
 // inherit from EventEmitter
@@ -380,7 +380,9 @@ Module._includeNative = function(){
 
 Module.patch = function (globalCtx, url, port) {
 
-  var defaultURL = (process.platform === 'android' && process.hardware === 'sdk')
+  console.log(Ti.Platform.model, Ti.Platform.osname)
+
+  var defaultURL = (Ti.Platform.model === 'android' && !!~Ti.Platform.model.indexOf('sdk'))
     ? '10.0.2.2'
     : 'FSERVER_HOST';
   globalCtx.Alloy = null;
@@ -399,8 +401,8 @@ Module.patch = function (globalCtx, url, port) {
 
 Module.global.reload = function(){
   try {
-    Module.evtServer.close();
-    Module = null;
+    // Module.evtServer.close();
+    // Module = null;
     console.log('[LiveView] Reloading App');
     Ti.App._restart();
   } catch(e){

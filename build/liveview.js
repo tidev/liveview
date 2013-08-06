@@ -383,7 +383,8 @@ Module.patch = function (globalCtx, url, port) {
   var defaultURL = (process.platform === 'android' && process.hardware === 'sdk')
     ? '10.0.2.2'
     : 'FSERVER_HOST';
-  globalCtx.Alloy = null;
+  Module._globalCtx = globalCtx;
+  global._globalCtx = globalCtx;
   Module._url = url || defaultURL;
   Module._port = port || 8324;
   Module._requireNative = globalCtx.require;

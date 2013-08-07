@@ -52,7 +52,7 @@
     "chokidar": "~0.6.2",
     "coloring": "~0.1.0",
     "debug": "~0.7.2",
-    "lexical-scope": "~0.0.14"
+    "jsparse-tools": "~0.0.1"
   },
   "devDependencies": {
     "should": "~1.2.2",

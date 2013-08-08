@@ -1,10 +1,10 @@
 require('shelljs/global');
 
-var debug = require('debug')('liveview:clihook')
-	, path = require('path')
-	, join = path.join
-	, fs = require('fs')
-	, util = require('util');
+var debug = require('debug')('liveview:clihook'),
+	path = require('path'),
+	join = path.join,
+	fs = require('fs'),
+	util = require('util');
 
 // export min cli version
 
@@ -31,58 +31,6 @@ exports.init = function(logger, config, cli) {
 	cli.addHook('build.android.config', doConfig);
 	cli.addHook('build.ios.config', doConfig);
 
-	function iface(callback) {
-
-		var ifaces = require('os').networkInterfaces(),
-			exec = require('child_process').exec,
-			cmds = ['ifconfig', 'ipconfig /all'];
-
-		// need to re-map the interface structure to make room for the mac address
-		Object.keys(ifaces).forEach(function(dev) {
-			ifaces[dev] = {
-				ipAddresses: ifaces[dev]
-			};
-		});
-
-		callback = callback || function() {};
-
-		(function go() {
-			var cmd = cmds.shift();
-			if (cmd) {
-				exec(cmd, function(err, stdout, stderr) {
-					if (err) {
-						go();
-						return;
-					}
-
-					var macs = {};
-
-					// parse the mac addresses
-					stdout.replace(/\r\n|\r/g, '\n') // remove all \r
-					.replace(/\n\n/g, '\n') // remove double lines
-					.replace(/[\n][\t ]/g, ' ') // if the next line indents, bring it up a line
-					.replace(/   /g, '~') // if indented with spaces, mark with ~ so we can match
-					.replace(/ethernet adapter ([^:]*:)\n/ig, '$1') // on Windows, remove Ethernet adapter
-					.split('\n').forEach(function(line) {
-						if (line = line.trim()) {
-							var m = line.match(/([^:~]*).*?((?:[0-9A-F][0-9A-F][:-]){5}[0-9A-F][0-9A-F])/i);
-							m && m.length > 1 && m[2] && (macs[m[1]] = m[2])
-						}
-					});
-
-					// set the mac address, if it exists
-					Object.keys(ifaces).forEach(function(dev) {
-						macs[dev] && (ifaces[dev].macAddress = macs[dev]);
-					});
-
-					callback(interfaces = ifaces);
-				});
-			} else {
-				callback(interfaces = ifaces);
-			}
-		}());
-	};
-
 	/**
 	 * [escape description]
 	 * @param  {[type]} str [description]
@@ -106,7 +54,7 @@ exports.init = function(logger, config, cli) {
 					destFile = data.args[1];
 
 				if (srcFile == join(this.projectDir, 'Resources', 'app.js')) {
-					data.args[0] = join(tempdir(),'liveview.js');
+					data.args[0] = join(tempdir(), 'liveview.js');
 				}
 			}
 			finished(data);
@@ -149,33 +97,21 @@ exports.init = function(logger, config, cli) {
 				debug('Running post:build.pre.compile hook');
 				var resourceDir = path.resolve(cli.argv['project-dir'], 'Resources');
 				var liveviewJS = join(tempdir(), 'liveview.js');
-
 				cp('-f', join(__dirname, '../build/liveview.js'), liveviewJS);
 
-				iface(function(interfaces) {
-					var names = Object.keys(interfaces).sort(),
-						ipAddr;
-						// note: this finds the first physical interface which may not necessarily be the default gateway interface
-						for (var i = 0; i < names.length; i++) {
-							if (interfaces[names[i]].macAddress) {
-								var ips = interfaces[names[i]].ipAddresses;
-								for (var j = 0; j < ips.length; j++) {
-									ipAddr = ips[j].address;
-									if (ips[j].family.toLowerCase() == 'ipv4') {
-										break;
-									}
-								}
-								break;
-							}
-						}
+				var ipAddr = getNetworkIp();
 
-					if (ipAddr) {
-						fs.writeFileSync(liveviewJS, fs.readFileSync(liveviewJS).toString().replace(/FSERVER_HOST/g, ipAddr).replace(/TCP_HOST/g, ipAddr));
-					} else {
-						logger.error('Unable to detect IP address');
-					}
-					finished();
-				});
+				if (ipAddr) {
+					fs.writeFileSync(liveviewJS,
+						fs.readFileSync(liveviewJS)
+						.toString()
+						.replace(/FSERVER_HOST/g, ipAddr)
+						.replace(/TCP_HOST/g, ipAddr)
+					);
+				} else {
+					logger.error('Unable to detect IP address');
+				}
+				finished();
 			} else {
 				finished();
 			}
@@ -198,7 +134,9 @@ exports.init = function(logger, config, cli) {
 				'--platform', cli.argv['platform']
 			];
 
-			if (!cli.argv.colors) { cmdOpts.push('--no-colors'); }
+			if (!cli.argv.colors) {
+				cmdOpts.push('--no-colors');
+			}
 			debug('Spawning detached process with command:', cmdOpts);
 			require('child_process').spawn(process.execPath, cmdOpts, {
 				detached: true,
@@ -208,3 +146,21 @@ exports.init = function(logger, config, cli) {
 		finished();
 	});
 };
+
+/**
+ * getNetworkIp
+ * get users local network ip address
+ *
+ * @return Number
+ */
+function getNetworkIp() {
+	var n = require('os').networkInterfaces();
+	var ip = []
+	for (var k in n) {
+		var inter = n[k]
+		for (var j in inter)
+			if (inter[j].family === 'IPv4' && !inter[j].internal) {
+				return inter[j].address
+			}
+	}
+}

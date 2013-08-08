@@ -1,10 +1,16 @@
 
-0.1.31 / 2013-08-07
+0.1.32 / 2013-08-07
 ==================
 
  * Merge pull request #53 from euforic/bug/ipdetect
  * bump version
  * fix incorrect resolution of users network ip address
+
+0.1.31 / 2013-08-07
+==================
+
+ * cleanup debug console output
+ * bump version
 
 0.1.30 / 2013-08-06
 ==================

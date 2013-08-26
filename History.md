@@ -1,4 +1,14 @@
 
+0.1.33 / 2013-08-26
+==================
+
+ * Merge pull request #56 from euforic/TIMOB-14836
+ * throw error instead of logging to console when server is unavailalbe
+ * Merge pull request #55 from euforic/TIMOB-14489
+ * TIMOB-14489 - error with Ti.pump attempting to read stream on close causing reload to hang
+ * Merge pull request #54 from euforic/linuxTMPDIR
+ * fix pid path unreachable due to permission on linux
+
 0.1.32 / 2013-08-07
 ==================
 

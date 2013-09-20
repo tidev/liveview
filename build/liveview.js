@@ -230,10 +230,12 @@ Socket.prototype.connect = function(opts, fn){
 
       Ti.Stream.pump(e.socket, function(e){
         if (e.bytesProcessed < 0 || !!e.errorStatus) {
+          self._proxy.close();
           self.close(true);
           return;
+        } else {
+          self.emit('data', '' + e.buffer);
         }
-        self.emit('data', '' + e.buffer);
       }, 1024, true);
     },
     error: function(e) {
@@ -400,7 +402,7 @@ Module.patch = function (globalCtx, url, port) {
 
 Module.global.reload = function(){
   try {
-    Module.evtServer.close();
+    Module.evtServer._proxy.close();
     Module = null;
     console.log('[LiveView] Reloading App');
     Ti.App._restart();

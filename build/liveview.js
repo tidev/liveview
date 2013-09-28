@@ -391,8 +391,12 @@ Module.patch = function (globalCtx, url, port) {
   Module._port = port || 8324;
   Module._requireNative = globalCtx.require;
   Module.evtServer && Module.evtServer.close();
+
+  globalCtx.localeStrings = Module.require('localeStrings');
+  globalCtx.L = function (name, filler) {
+    return (globalCtx.localeStrings[Ti.Locale.currentLanguage] || {})[name] || filler;
+  };
   Module.connectServer();
-  Module.require('app');
 }
 
 /**
@@ -624,7 +628,6 @@ Module.prototype._compile = function() {
     return;
   }
   this.source = Module._wrap(src);
-
   try{
     var fn = Function('exports, require, module, __filename, __dirname, lvGlobal',this.source);
     fn(this.exports, Module.require, this, this.filename, this.__dirname, global);

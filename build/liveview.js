@@ -394,7 +394,7 @@ Module.patch = function (globalCtx, url, port) {
 
   globalCtx.localeStrings = Module.require('localeStrings');
   globalCtx.L = function (name, filler) {
-    return (globalCtx.localeStrings[Ti.Locale.currentLanguage] || {})[name] || filler;
+    return (globalCtx.localeStrings[Ti.Locale.currentLanguage] || {})[name] || filler || name;
   };
   Module.connectServer();
 }

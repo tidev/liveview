@@ -46,19 +46,19 @@
     "liveview-rm": "bin/liveview-rm"
   },
   "dependencies": {
-    "shelljs": "~0.1.2",
-    "commander": "~1.1.1",
     "win-fork": "~1.1.1",
-    "chokidar": "~0.6.2",
     "coloring": "~0.1.0",
+    "commander": "~2.0.0",
+    "hypar": "~0.1.0",
     "debug": "~0.7.2",
-    "jsparse-tools": "~0.1.0",
-    "hypar": "~0.1.0"
+    "chokidar": "~0.6.3",
+    "shelljs": "~0.2.6",
+    "jsparse-tools": "~0.1.0"
   },
   "devDependencies": {
-    "should": "~1.2.2",
-    "mocha": "~1.9.0",
-    "supertest": "~0.6.0"
+    "should": "~1.3.0",
+    "mocha": "~1.13.0",
+    "supertest": "~0.8.0"
   },
   "engines": {
     "node": "0.8.x || 0.10.x"

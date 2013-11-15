@@ -1,8 +1,17 @@
 
-0.1.34 / 2013-09-30 
+0.1.34 / 2013-09-30
 ==================
 
- * Merge pull request #59 from euforic/locale
+* remove nulling of Module namespace on restart
+* default to string name for locale
+* add locale feature
+* Merge pull request #58 from euforic/TIMOB-15009
+* remove console logging for debugging
+* [TIMOB-15009] update jsparse-tools to new 0.1.0 and remove var from global variable declarations in app.js
+* Merge pull request #57 from euforic/TIMOB-14489
+* bumb version to 0.1.34
+* [TIMOB-14489] properly shutdown client socket before restart to speedup restart
+
 
 0.1.33 / 2013-08-26
 ==================

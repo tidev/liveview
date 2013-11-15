@@ -46,45 +46,32 @@ exports.init = function(logger, config, cli) {
 	 * Replace and rename original app.js  file to execute liveview.js first
 	 */
 
-	cli.addHook('build.ios.copyResource', {
-		pre: function(data, finished) {
-			debug('Running pre:build.ios.copyResource hook');
-			if (cli.argv.liveview) {
-				var srcFile = data.args[0],
-					destFile = data.args[1];
+ function copyResource(data, finished) {
+		debug('Running pre:build.'+cli.argv.platform+'.copyResource hook');
+		if (cli.argv.liveview) {
+			var srcFile = data.args[0],
+				destFile = data.args[1];
 
-				if (srcFile == join(this.projectDir, 'Resources', 'app.js')) {
-					data.args[0] = join(tempdir(), 'liveview.js');
-				}
+			if (srcFile == join(this.projectDir, 'Resources', 'app.js')) {
+				data.args[0] = join(tempdir(), 'liveview.js');
 			}
-			finished(data);
 		}
-	});
+		finished(data);
+	}
 
-	cli.addHook('build.ios.writeBuildManifest', {
-		pre: function(data, finished) {
-			debug('Running pre:build.ios.writeBuildManifest hook');
-			if (cli.argv.liveview) {
-				data.args[0].liveview = true;
-			}
-			finished(data);
+	function writeBuildManifest(data, finished) {
+		debug('Running pre:build.'+cli.argv.platform+'.writeBuildManifest hook');
+		if (cli.argv.liveview) {
+			data.args[0].liveview = true;
 		}
-	});
+		finished(data);
+	}
 
-	/**
-	 * Set LiveView flag for legacy android builder.py
-	 */
+	cli.addHook('build.ios.copyResource', { pre: copyResource });
+	cli.addHook('build.ios.writeBuildManifest', { pre: writeBuildManifest });
 
-	cli.addHook('build.android.setBuilderPyEnv', {
-		priority: 2000,
-		pre: function(data, finished) {
-			debug('Running pre:build.ios.compileJsFile hook');
-			if (cli.argv.liveview) {
-				data.args[0].LIVEVIEW = '1';
-			}
-			finished(data);
-		}
-	});
+	cli.addHook('build.android.copyResource', { pre: copyResource });
+	cli.addHook('build.android.writeBuildManifest', { pre: writeBuildManifest });
 
 	/**
 	 * Copy LiveView.js to Resources folder and Inject Server Address

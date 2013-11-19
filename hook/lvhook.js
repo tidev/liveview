@@ -51,8 +51,7 @@ exports.init = function(logger, config, cli) {
 		if (cli.argv.liveview) {
 			var srcFile = data.args[0],
 				destFile = data.args[1];
-
-			if (srcFile == join(this.projectDir, 'Resources', 'app.js')) {
+			if (new RegExp('^' + join(this.projectDir, 'Resources') + '(\/(android|ipad|ios|iphone))?\/app.js$').test(srcFile)) {
 				data.args[0] = join(tempdir(), 'liveview.js');
 			}
 		}

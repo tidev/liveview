@@ -397,7 +397,7 @@ Module.patch = function (globalCtx, url, port) {
     return (globalCtx.localeStrings[Ti.Locale.currentLanguage] || {})[name] || filler || name;
   };
   Module.connectServer();
-}
+};
 
 /**
    * [reload description]
@@ -438,12 +438,12 @@ Module.connectServer = function() {
   client.on('data', function(data) {
     if (!data) { return; }
     try{
-      var evt = JSON.parse(''+data);
-      if (evt.type === 'event' && evt.name === 'reload') {
-        Module._cache = {};
-        Module.global.reload();
-      }
-    } catch (e) { /*discard non JSON data for now*/ }
+      var evt = JSON.parse( '' + data );
+      if (evt.type !== 'event' || evt.name !== 'reload') { return; }
+      if (evt.platform !== process.platform && evt.platform !== 'all') { return; }
+      Module._cache = {};
+      Module.global.reload();
+    } catch (e) { console.log('[ERROR]:', e); }
   });
 
   client.on('end', function () {

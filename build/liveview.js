@@ -669,4 +669,8 @@ Module.prototype.cache = function() {
 
   Module.patch(globalScope);
 
+  // Prevent display from sleeping
+
+  Titanium.App.idleTimerDisabled = true;
+
 })(this);

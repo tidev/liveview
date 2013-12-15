@@ -544,7 +544,11 @@ Module.prototype._getRemoteSource = function(file,timeout){
   var expireTime  = new Date().getTime() + timeout;
   var request = Ti.Network.createHTTPClient();
   var rsp = null;
-  var file = 'http://' + Module._url + ':' + Module._port + '/' + (file || this.id) + '.js';
+  var platformPath = null;
+  if (this.id !== 'localeStrings') {
+  	platformPath = (process.platform === 'ipad') ? 'iphone' : process.platform;
+  }
+  var file = 'http://' + Module._url + ':' + Module._port + '/' + ((platformPath === null) ? '' : (platformPath + '/')) + (file || this.id) + '.js';
   request.cache = false;
   request.open("GET", file);
   request.setRequestHeader('x-platform', process.platform);

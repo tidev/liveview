@@ -531,6 +531,16 @@ Module.exists = function(id) {
   return file.exists();
 };
 
+Module.prototype._getPlatformDir = function() {
+	return (process.platform === 'ipad') ? 'iphone' : process.platform;
+}
+
+Module.prototype._platformFileExists = function(id) {
+  var platformPath = Ti.Filesystem.resourcesDirectory + 'alloy.js';
+  var platformFile = Ti.Filesystem.getFile(platformPath);
+  return platformFile.exists();
+};
+
 /**
  * shady xhrSync request
  *
@@ -544,11 +554,7 @@ Module.prototype._getRemoteSource = function(file,timeout){
   var expireTime  = new Date().getTime() + timeout;
   var request = Ti.Network.createHTTPClient();
   var rsp = null;
-  var platformPath = null;
-  if (this.id !== 'localeStrings') {
-  	platformPath = (process.platform === 'ipad') ? 'iphone' : process.platform;
-  }
-  var file = 'http://' + Module._url + ':' + Module._port + '/' + ((platformPath === null) ? '' : (platformPath + '/')) + (file || this.id) + '.js';
+  var file = 'http://' + Module._url + ':' + Module._port + '/' + (this._platformFileExists(this.id) && this.id !== 'localeStrings' ? (this._getPlatformDir() + '/') : '') + (file || this.id) + '.js';
   request.cache = false;
   request.open("GET", file);
   request.setRequestHeader('x-platform', process.platform);

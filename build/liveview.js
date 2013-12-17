@@ -324,6 +324,7 @@ Socket.prototype.setKeepAlive = function(enable, initialDelay) {
 function Module(id) {
   this.filename = id + '.js';
   this.id = id;
+  this.platform = (process.platform === 'ipad') ? 'iphone' : process.platform;
   this.exports = {};
   this.loaded = false;
 }
@@ -393,7 +394,7 @@ Module.patch = function (globalCtx, url, port) {
   Module.evtServer && Module.evtServer.close();
 
   // FIX for android bug
-  Ti.App.Properties.setBool('ti.android.bug2373.finishfalseroot', false)
+  try { Ti.App.Properties.setBool('ti.android.bug2373.finishfalseroot', false); } catch(e){}
 
   globalCtx.localeStrings = Module.require('localeStrings');
   globalCtx.L = function (name, filler) {
@@ -528,17 +529,13 @@ Module.getCached = function(id) {
 Module.exists = function(id) {
   var path = Ti.Filesystem.resourcesDirectory + id + '.js';
   var file = Ti.Filesystem.getFile(path);
-  return file.exists();
-};
 
-Module.prototype._getPlatformDir = function() {
-	return (process.platform === 'ipad') ? 'iphone' : process.platform;
-}
+  if (file.exists()) return true;
 
-Module.prototype._platformFileExists = function(id) {
-  var platformPath = Ti.Filesystem.resourcesDirectory + 'alloy.js';
-  var platformFile = Ti.Filesystem.getFile(platformPath);
-  return platformFile.exists();
+  var pFolderPath = Ti.Filesystem.resourcesDirectory + '/' + this.platform + '/' + id + '.js';
+  var pFile = Ti.Filesystem.getFile(pFolderPath)
+
+  return pFile.exists();
 };
 
 /**
@@ -554,10 +551,10 @@ Module.prototype._getRemoteSource = function(file,timeout){
   var expireTime  = new Date().getTime() + timeout;
   var request = Ti.Network.createHTTPClient();
   var rsp = null;
-  var file = 'http://' + Module._url + ':' + Module._port + '/' + (this._platformFileExists(this.id) && this.id !== 'localeStrings' ? (this._getPlatformDir() + '/') : '') + (file || this.id) + '.js';
+  var file = 'http://' + Module._url + ':' + Module._port + '/' + (file || this.id) + '.js';
   request.cache = false;
   request.open("GET", file);
-  request.setRequestHeader('x-platform', process.platform);
+  request.setRequestHeader('x-platform', this.platform);
   request.send();
   while(!rsp){
     if (request.readyState === 4 ) {

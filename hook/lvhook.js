@@ -61,7 +61,7 @@ exports.init = function(logger, config, cli) {
 
 		// backwards compatibility
 
-		if (simpVer(cli.version) < 320) { return finished(data); }
+		if (simpVer(cli.version) < 321) { return finished(data); }
 
 		finished(null, data);
 	}
@@ -74,7 +74,7 @@ exports.init = function(logger, config, cli) {
 
 		// backwards compatibility
 
-		if (simpVer(cli.version) < 320) { return finished(data); }
+		if (simpVer(cli.version) < 321) { return finished(data); }
 
 		finished(null, data);
 	}

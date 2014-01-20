@@ -58,7 +58,12 @@ exports.init = function(logger, config, cli) {
 				data.args[0] = join(tempdir(), 'liveview.js');
 			}
 		}
-		finished(data);
+
+		// backwards compatibility
+
+		if (simpVer(cli.version) < 320) { return finished(data); }
+
+		finished(null, data);
 	}
 
 	function writeBuildManifest(data, finished) {
@@ -66,7 +71,12 @@ exports.init = function(logger, config, cli) {
 		if (cli.argv.liveview) {
 			data.args[0].liveview = true;
 		}
-		finished(data);
+
+		// backwards compatibility
+
+		if (simpVer(cli.version) < 320) { return finished(data); }
+
+		finished(null, data);
 	}
 
 	cli.addHook('build.ios.copyResource', { pre: copyResource });
@@ -152,4 +162,14 @@ function getNetworkIp() {
 				return inter[j].address
 			}
 	}
+}
+
+/**
+ * output version as integer
+ * @param  {String} version
+ * @return {Number}
+ */
+
+function simpVer (version) {
+	return parseInt(version.split('-')[0].replace(/\./g, ''));
 }

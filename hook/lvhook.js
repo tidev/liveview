@@ -19,7 +19,7 @@ exports.init = function(logger, config, cli) {
 
 	function doConfig(data, finished) {
 		debug('Runningbuild.[PLATFORM].config hook');
-		var r = data.result || {};
+		var r = ((simpVer(cli.version) < 321) ? data.result : data.result[0]) || {};
 		r.flags || (r.flags = {});
 		r.flags.liveview = {
 			default: false,

@@ -53,8 +53,8 @@ exports.init = function(logger, config, cli) {
 
 			var srcFile = data.args[0];
 			var destFile = data.args[1];
-
-			if (join(RESOURCES_DIR, 'app.js') === srcFile || (new RegExp('^' + RESOURCES_DIR + '(\/(android|ipad|ios|iphone))?\/app.js$').test(srcFile))) {
+			if (join(RESOURCES_DIR, 'app.js') === srcFile || 
+					(new RegExp('^' + RESOURCES_DIR.replace(/\\/g, '/') + '(\/(android|ipad|ios|iphone))?\/app.js$').test(srcFile.replace(/\\/g, '/')))) {
 				data.args[0] = join(tempdir(), 'liveview.js');
 			}
 		}

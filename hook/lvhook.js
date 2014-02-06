@@ -2,6 +2,7 @@ require('shelljs/global');
 
 var debug = require('debug')('liveview:clihook'),
 	path = require('path'),
+	http = require('http'),
 	join = path.join,
 	fs = require('fs'),
 	util = require('util');
@@ -54,7 +55,7 @@ exports.init = function(logger, config, cli) {
 
 			var srcFile = data.args[0];
 			var destFile = data.args[1];
-			if (join(RESOURCES_DIR, 'app.js') === srcFile || 
+			if (join(RESOURCES_DIR, 'app.js') === srcFile ||
 					(new RegExp('^' + RESOURCES_DIR.replace(/\\/g, '/') + '(\/(android|ipad|ios|iphone))?\/app.js$').test(srcFile.replace(/\\/g, '/')))) {
 				data.args[0] = join(tempdir(), 'liveview.js');
 			}
@@ -123,7 +124,11 @@ exports.init = function(logger, config, cli) {
 	 */
 
 	cli.addHook('build.post.compile', function(build, finished) {
-		exec(escape(__dirname, '../bin/liveview-server') + ' stop --no-colors');
+    // kill running server via fserver http api
+		http
+			.get('http://localhost:8324/kill', function(res){})
+			.on('error', function(e){});
+
 		if (cli.argv.liveview) {
 			debug('Running post:build.post.compile hook');
 			var binDIR = join(__dirname, '../bin/liveview-server');

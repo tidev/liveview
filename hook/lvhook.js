@@ -19,7 +19,8 @@ exports.init = function(logger, config, cli) {
 
 	function doConfig(data, finished) {
 		debug('Runningbuild.[PLATFORM].config hook');
-		var r = ((simpVer(cli.version) < 321) ? data.result : simpVer(cli.sdk.name) < 321 ? data.result[0] : data.result[1]) || {};
+		var sdkVersion = (cli.sdk && cli.sdk.name) || (cli.manifest && cli.manifest.version);
+		var r = ((simpVer(cli.version) < 321) ? data.result : (sdkVersion && simpVer(sdkVersion) < 321) ? data.result[0] : data.result[1]) || {};
 		r.flags || (r.flags = {});
 		r.flags.liveview = {
 			default: false,

@@ -15,7 +15,7 @@ all: clean liveview.js liveview.min.js
 # 			--sim-type iphone > $(tty))
 
 test:
-	@DEBUG=liveview:* ./node_modules/.bin/mocha \
+	@SILENT=TRUE ./node_modules/.bin/mocha \
 		--require should \
 		--reporter spec
 

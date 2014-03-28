@@ -120,15 +120,23 @@ exports.init = function(logger, config, cli) {
 	});
 
 	/**
-	 * Start event/file Server
+	 * Start event/file server
 	 */
-
 	cli.addHook('build.post.compile', function(build, finished) {
-    // kill running server via fserver http api
+		// kill running server via fserver http api
+		debug('invoke kill');
 		http
 			.get('http://localhost:8324/kill', function(res){})
-			.on('error', function(e){});
+			.on('error', function(e){
+				startServer(finished);
+			})
+			.on('data', function(e){})
+			.on('end', function(e){
+				startServer(finished);
+			});
+	});
 
+	function startServer(finished) {
 		if (cli.argv.liveview) {
 			debug('Running post:build.post.compile hook');
 			var binDIR = join(__dirname, '../bin/liveview-server');
@@ -149,7 +157,7 @@ exports.init = function(logger, config, cli) {
 			});
 		}
 		finished();
-	});
+	}
 };
 
 /**

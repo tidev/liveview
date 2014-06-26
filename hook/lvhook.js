@@ -128,10 +128,9 @@ exports.init = function(logger, config, cli) {
 		http
 			.get('http://localhost:8324/kill', function(res){})
 			.on('error', function(e){
-				startServer(finished);
 			})
 			.on('data', function(e){})
-			.on('end', function(e){
+			.on('close', function(e){
 				startServer(finished);
 			});
 	});

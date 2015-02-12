@@ -125,14 +125,23 @@ exports.init = function(logger, config, cli) {
 	cli.addHook('build.post.compile', function(build, finished) {
 		// kill running server via fserver http api
 		debug('invoke kill');
-		http
-			.get('http://localhost:8324/kill', function(res){})
-			.on('error', function(e){
-			})
-			.on('data', function(e){})
-			.on('close', function(e){
-				startServer(finished);
-			});
+
+		var domain = require('domain').create();
+
+		domain.on('error', function(err) {
+			debug(err);
+		});
+
+		domain.run(function() {
+			http
+				.get('http://localhost:8324/kill', function(res){})
+				.on('error', function(e){
+				})
+				.on('data', function(e){})
+				.on('close', function(e){
+					startServer(finished);
+				});
+		});
 	});
 
 	function startServer(finished) {

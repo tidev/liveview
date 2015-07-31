@@ -5,6 +5,7 @@ var debug = require('debug')('liveview:clihook'),
 	http = require('http'),
 	join = path.join,
 	fs = require('fs'),
+	spawn = require('child_process').spawn,
 	util = require('util');
 
 // export min cli version
@@ -158,11 +159,17 @@ exports.init = function(logger, config, cli) {
 			if (!cli.argv.colors) {
 				cmdOpts.push('--no-colors');
 			}
+
 			debug('Spawning detached process with command:', cmdOpts);
-			require('child_process').spawn(process.execPath, cmdOpts, {
-				detached: true,
-				stdio: 'inherit'
+			var child = spawn(process.execPath, cmdOpts, {
+				detached: true
 			});
+
+			child.on('error', function(err) {
+				console.error('\n %s\n', err);
+			});
+
+			child.stdout.pipe(process.stdout);
 		}
 		finished();
 	}

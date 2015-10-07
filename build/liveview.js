@@ -552,7 +552,14 @@ Module.prototype._getRemoteSource = function(file,timeout){
   var request = Ti.Network.createHTTPClient();
   var rsp = null;
   var done = false;
-  var file = 'http://' + Module._url + ':' + Module._port + '/' + (file || this.id) + '.js';
+  var file;
+  if (Module._url.indexOf('.') === -1) {
+      file = 'http://[' + Module._url + ']:' + Module._port + '/' + (file || this.id) + '.js';
+  } else {
+      file = 'http://' + Module._url + ':' + Module._port + '/' + (file || this.id) + '.js';
+  }
+  console.log('[LiveView] get remote resource :', file);
+
   request.cache = false;
   request.open('GET', file);
   request.setRequestHeader('x-platform', this.platform);

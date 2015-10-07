@@ -183,13 +183,20 @@ exports.init = function(logger, config, cli) {
  */
 function getNetworkIp() {
 	var n = require('os').networkInterfaces();
-	var ip = []
+	var ip = [];
+	var host;
 	for (var k in n) {
-		var inter = n[k]
-		for (var j in inter)
-			if (inter[j].family === 'IPv4' && !inter[j].internal) {
-				return inter[j].address
+		var inter = n[k];
+		for (var j in inter) {
+			if (!inter[j].internal) {
+				if (inter[j].family === 'IPv6') {
+					host = inter[j].address.replace('::', ':' + inter[j].scopeid + '::')
+				} else {
+					host = inter[j].address;
+				}
+				return host;
 			}
+		}
 	}
 }
 

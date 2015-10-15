@@ -5,8 +5,6 @@ var debug = require('debug')('liveview:clihook'),
 	http = require('http'),
 	join = path.join,
 	fs = require('fs'),
-	async = require('async'),
-	exec = require('child_process').exec,
 	spawn = require('child_process').spawn,
 	util = require('util');
 
@@ -103,32 +101,19 @@ exports.init = function(logger, config, cli) {
 				var liveviewJS = join(tempdir(), 'liveview.js');
 				cp('-f', join(__dirname, '../build/liveview.js'), liveviewJS);
 
-				var ipAddr;
-				async.series([
-					function (cb) {
-						getNetworkIp(function(err, result) {
-							ipAddr = result;
-							debug('network ip ' + ipAddr);
-							cb();
-						});
-					},
+				var ipAddr = getNetworkIp();
 
-					function (cb) {
-						if (ipAddr) {
-							fs.writeFileSync(liveviewJS,
-								fs.readFileSync(liveviewJS)
-								.toString()
-								.replace(/FSERVER_HOST/g, ipAddr)
-								.replace(/TCP_HOST/g, ipAddr)
-							);
-						} else {
-							logger.error('Unable to detect IP address');
-						}
-						cb();
-					}
-				], function (err){
-					finished();
-				});
+				if (ipAddr) {
+					fs.writeFileSync(liveviewJS,
+						fs.readFileSync(liveviewJS)
+						.toString()
+						.replace(/FSERVER_HOST/g, ipAddr)
+						.replace(/TCP_HOST/g, ipAddr)
+					);
+				} else {
+					logger.error('Unable to detect IP address');
+				}
+				finished();
 			} else {
 				finished();
 			}
@@ -190,78 +175,27 @@ exports.init = function(logger, config, cli) {
 	}
 };
 
-
-/**
- * getScopeId
- * get IPv6 local-link scope id
- *
- * @return Number
- */
-function getScopeId(inter, callback) {
-	var regrex = /^[\w\W]*scopeid\s+(0x\d+)[\w\W]*?/;
-    debug('executing ifconfig ' + inter.interName);
-    exec('ifconfig ' + inter.interName, function(err, stdout, stderr) {
-        if (err) {
-            return callback(err);
-        }
-
-        var regex = /^[\w\W]*scopeid\s+(0x\d+)[\w\W]*?/;
-        var match = stdout.match(regex);
-        var scopeid;
-        if (match) {
-            scopeid = parseInt(match[1], 16);
-        }
-
-        callback(null, scopeid);
-    });
-}
-
-
 /**
  * getNetworkIp
  * get users local network ip address
  *
  * @return Number
  */
-function getNetworkIp(callback) {
+function getNetworkIp() {
 	var n = require('os').networkInterfaces();
-	var isWin = /^win/.test(process.platform);
-	var interObj = {};
+	var ip = [];
 	var host;
-	var selected;
-
 	for (var k in n) {
 		var inter = n[k];
 		for (var j in inter) {
-			if (!inter[j].internal & !interObj[inter[j].family]) {
-				interObj[inter[j].family] = {
-					address: inter[j].address,
-					scopeid: inter[j].scopeid,
-					interName: k,
-				};
-			}
-		}
-	}
-
-	if (isWin || !interObj['IPv6']) {
-		selected = interObj['IPv4'];
-		host = selected && selected.address;
-		callback(null, host);
-	} else {
-		selected = interObj['IPv6'];
-		if (selected.scopeid) {
-			host = selected.address.replace('::', ':' + selected.scopeid + '::');
-			callback(null, host);
-		} else {
-			getScopeId(selected, function (err, id) {
-				if (err) {
-					// fallback to IPv4
-					host = interObj['IPv4'] && interObj['IPv4'].address;
+			if (!inter[j].internal) {
+				if (inter[j].family === 'IPv6') {
+					host = inter[j].address.replace('::', ':' + inter[j].scopeid + '::')
 				} else {
-					host = selected.address.replace('::', ':' + id + '::');
+					host = inter[j].address;
 				}
-				callback(null, host);
-			});
+				return host;
+			}
 		}
 	}
 }

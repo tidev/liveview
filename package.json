@@ -1,6 +1,6 @@
 {
   "name": "liveview",
-  "version": "1.0.9",
+  "version": "1.0.8",
   "description": "Titanium Live Realtime App Development",
   "main": "index.js",
   "private": true,
@@ -46,7 +46,6 @@
     "liveview-rm": "bin/liveview-rm"
   },
   "dependencies": {
-    "async": "~1.4.2",
     "win-fork": "~1.1.1",
     "coloring": "~0.1.0",
     "commander": "~2.0.0",

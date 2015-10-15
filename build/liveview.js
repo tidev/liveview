@@ -385,7 +385,7 @@ Module.patch = function (globalCtx, url, port) {
 
   var defaultURL = (process.platform === 'android' && process.hardware === 'sdk')
     ? '10.0.2.2'
-    : 'FSERVER_HOST';
+    : (Ti.Platform.model === 'Simulator' ? '127.0.0.1' : 'FSERVER_HOST');
   Module._globalCtx = globalCtx;
   global._globalCtx = globalCtx;
   Module._url = url || defaultURL;

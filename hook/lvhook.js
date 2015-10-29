@@ -33,6 +33,7 @@ exports.init = function(logger, config, cli) {
 
 	cli.addHook('build.android.config', doConfig);
 	cli.addHook('build.ios.config', doConfig);
+	cli.addHook('build.windows.config', doConfig);
 
 	/**
 	 * [escape description]
@@ -57,7 +58,7 @@ exports.init = function(logger, config, cli) {
 			var srcFile = data.args[0];
 			var destFile = data.args[1];
 			if (join(RESOURCES_DIR, 'app.js') === srcFile ||
-					(new RegExp('^' + RESOURCES_DIR.replace(/\\/g, '/') + '(\/(android|ipad|ios|iphone))?\/app.js$').test(srcFile.replace(/\\/g, '/')))) {
+					(new RegExp('^' + RESOURCES_DIR.replace(/\\/g, '/') + '(\/(android|ipad|ios|iphone|windows))?\/app.js$').test(srcFile.replace(/\\/g, '/')))) {
 				data.args[0] = join(tempdir(), 'liveview.js');
 			}
 		}
@@ -87,6 +88,9 @@ exports.init = function(logger, config, cli) {
 
 	cli.addHook('build.android.copyResource', { pre: copyResource });
 	cli.addHook('build.android.writeBuildManifest', { pre: writeBuildManifest });
+
+	cli.addHook('build.windows.copyResource', { pre: copyResource });
+	cli.addHook('build.windows.writeBuildManifest', { pre: writeBuildManifest });
 
 	/**
 	 * Copy LiveView.js to Resources folder and Inject Server Address

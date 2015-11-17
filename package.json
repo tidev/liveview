@@ -11,8 +11,8 @@
   "scripts": {
     "build": "make",
     "test": "make test",
-    "postinstall": "./bin/liveview install clihook",
-    "postuninstall": "./bin/liveview rm clihook"
+    "postinstall": "node bin/liveview install clihook",
+    "postuninstall": "node bin/liveview rm clihook"
   },
   "repository": {
     "type": "git",

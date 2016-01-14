@@ -47,7 +47,7 @@ program.parse(process.argv);
 
 if (program.banner) {
   console.log(' ');
-  console.log(' LiveView, Realtime App Devleopment, version '+ pkgConf.version);
+  console.log(' LiveView, Realtime App Development, version '+ pkgConf.version);
   console.log(' Copyright (c) 2013, Appcelerator, Inc.  All Rights Reserved.'.grey);
   console.log(' Please report bugs to'.grey, 'http://jira.appcelerator.org/\n'.blue);
 }

@@ -496,6 +496,25 @@ Module.require = function(id) {
     return cached.exports;
   }
 
+  if (!Module.exists(fullPath)) {
+    var hlDir = '/hyperloop/';
+    if (fullPath.indexOf('.*') !== -1) {
+        fullPath = id.slice(0, id.length - 2);
+    }
+
+    if (Module.exists(hlDir + fullPath)) {
+      fullPath = hlDir + fullPath;
+    } else if (fullPath.indexOf('.') === -1 && Module.exists(hlDir + fullPath + '/' + fullPath)) {
+      fullPath = hlDir + fullPath + '/' + fullPath;
+    } else {
+      var lastIndex = fullPath.lastIndexOf('.');
+      var tempPath = hlDir + fullPath.slice(0, lastIndex) + '$' + fullPath.slice(lastIndex + 1);
+      if (Module.exists(fullPath)) {
+          fullPath = tempPath;
+      }
+    }
+  }
+
   var freshModule = new Module(fullPath);
 
   freshModule.cache();

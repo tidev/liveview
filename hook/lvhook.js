@@ -191,7 +191,9 @@ function getNetworkIp() {
 	for (var k in n) {
 		var inter = n[k]
 		for (var j in inter)
-			if (inter[j].family === 'IPv4' && !inter[j].internal) {
+			if (inter[j].family === 'IPv4' && !inter[j].internal &&
+				// skip Windows virtual adapter for Windows Phone Emulator
+				!(inter[j].mac.startsWith('00:15:5d') && k.indexOf('Windows Phone Emulator') > 0)) {
 				return inter[j].address
 			}
 	}

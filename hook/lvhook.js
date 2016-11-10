@@ -28,6 +28,23 @@ exports.init = function(logger, config, cli) {
 			default: false,
 			desc: 'enables LiveView'
 		};
+
+		r.options || (r.options = {});
+		r.options['liveview-ip'] = {
+			default: null,
+			desc: 'LiveView Server IP address'
+		}
+
+		r.options['liveview-fport'] = {
+			default: null,
+			desc: 'LiveView file server port'
+		}
+
+		r.options['liveview-eport'] = {
+			default: null,
+			desc: 'LiveView event server port'
+		}
+
 		finished(null, data);
 	}
 
@@ -105,13 +122,17 @@ exports.init = function(logger, config, cli) {
 				var liveviewJS = join(tempdir(), 'liveview.js');
 				cp('-f', join(__dirname, '../build/liveview.js'), liveviewJS);
 
-				var ipAddr = getNetworkIp();
+				var ipAddr = cli.argv['liveview-host'] || getNetworkIp();
+				var fileServerPort = cli.argv['liveview-fport'] || 8324;
+				var eventServerPort = cli.argv['liveview-eport'] || 8323;
 
 				if (ipAddr) {
 					fs.writeFileSync(liveviewJS,
 						fs.readFileSync(liveviewJS)
 						.toString()
 						.replace(/FSERVER_HOST/g, ipAddr)
+						.replace(/FSERVER_PORT/g, fileServerPort)
+						.replace(/ESERVER_PORT/g, eventServerPort)
 						.replace(/TCP_HOST/g, ipAddr)
 					);
 				} else {
@@ -151,6 +172,10 @@ exports.init = function(logger, config, cli) {
 
 	function startServer(finished) {
 		if (cli.argv.liveview) {
+			var ipAddr = cli.argv['liveview-ip'];
+			var fileServerPort = cli.argv['liveview-fport'];
+			var eventServerPort = cli.argv['liveview-eport'];
+
 			debug('Running post:build.post.compile hook');
 			var binDIR = join(__dirname, '../bin/liveview-server');
 			var cmdOpts = [
@@ -163,6 +188,10 @@ exports.init = function(logger, config, cli) {
 			if (!cli.argv.colors) {
 				cmdOpts.push('--no-colors');
 			}
+
+			ipAddr && cmdOpts.push('--liveview-ip', ipAddr);
+			fileServerPort && cmdOpts.push('--liveview-fport', fileServerPort);
+			eventServerPort && cmdOpts.push('--liveview-eport', eventServerPort);
 
 			debug('Spawning detached process with command:', cmdOpts);
 			var child = spawn(process.execPath, cmdOpts, {

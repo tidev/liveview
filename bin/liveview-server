@@ -11,6 +11,9 @@ program
   .usage('<command> [options]');
 
 program
+  .option('--liveview-ip [host]', 'server IP address')
+  .option('--liveview-fport [fport]', 'file server port')
+  .option('--liveview-eport [eport]', 'event server port')
   .option('-p, --project-dir [path]', 'path to project')
   .option('-d, --daemonize', 'server as background daemon')
   .option('--no-colors', 'disable cli coloring')

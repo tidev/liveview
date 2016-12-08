@@ -67,7 +67,7 @@ exports.init = function(logger, config, cli) {
 	 * Replace and rename original app.js  file to execute liveview.js first
 	 */
 
- function copyResource(data, finished) {
+	function copyResource(data, finished) {
 		debug('Running pre:build.'+cli.argv.platform+'.copyResource hook');
 		if (cli.argv.liveview) {
 			var RESOURCES_DIR = join(this.projectDir, 'Resources');

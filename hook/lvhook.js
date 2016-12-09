@@ -91,6 +91,9 @@ exports.init = function(logger, config, cli) {
 		debug('Running pre:build.'+cli.argv.platform+'.writeBuildManifest hook');
 		if (cli.argv.liveview) {
 			data.args[0].liveview = true;
+
+			var tempAppJS = path.resolve(cli.argv['project-dir'], 'Resources', '.liveviewapp.js');
+			fs.existsSync(tempAppJS) && fs.unlinkSync(tempAppJS);
 		}
 
 		// backwards compatibility
@@ -121,6 +124,7 @@ exports.init = function(logger, config, cli) {
 				var resourceDir = path.resolve(cli.argv['project-dir'], 'Resources');
 				var liveviewJS = join(tempdir(), 'liveview.js');
 				cp('-f', join(__dirname, '../build/liveview.js'), liveviewJS);
+				cp('-f', join(resourceDir, 'app.js'), join(resourceDir, '.liveviewapp.js'));
 
 				var ipAddr = cli.argv['liveview-host'] || getNetworkIp();
 				var fileServerPort = cli.argv['liveview-fport'] || 8324;

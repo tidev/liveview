@@ -126,7 +126,7 @@ exports.init = function(logger, config, cli) {
 				cp('-f', join(__dirname, '../build/liveview.js'), liveviewJS);
 				cp('-f', join(resourceDir, 'app.js'), join(resourceDir, '.liveviewapp.js'));
 
-				var ipAddr = cli.argv['liveview-host'] || getNetworkIp();
+				var ipAddr = cli.argv['liveview-ip'] || getNetworkIp();
 				var fileServerPort = cli.argv['liveview-fport'] || 8324;
 				var eventServerPort = cli.argv['liveview-eport'] || 8323;
 

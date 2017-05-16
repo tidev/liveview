@@ -324,7 +324,13 @@ Socket.prototype.setKeepAlive = function(enable, initialDelay) {
 function Module(id) {
   this.filename = id + '.js';
   this.id = id;
-  this.platform = (process.platform === 'ipad') ? 'iphone' : process.platform;
+  if (process.platform === 'ipad') {
+	  this.platform = 'iphone';
+  } else if (process.platform === 'windowsphone' || process.platform === 'windowsstore') {
+	  this.platform = 'windows';
+  } else {
+	  this.platform = process.platform;
+  }
   this.exports = {};
   this.loaded = false;
 }

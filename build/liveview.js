@@ -508,12 +508,15 @@ Module.require = function(id) {
         fullPath = id.slice(0, id.length - 2);
     }
 
+    var modLowerCase = fullPath.toLowerCase();
     if (Module.exists(hlDir + fullPath)) {
       fullPath = hlDir + fullPath;
-    } else if (Module.exists(hlDir + fullPath.toLowerCase())) {
-      fullPath = hlDir + fullPath.toLowerCase();
+    } else if (Module.exists(hlDir + modLowerCase)) {
+      fullPath = hlDir + modLowerCase;
     } else if (fullPath.indexOf('.') === -1 && Module.exists(hlDir + fullPath + '/' + fullPath)) {
       fullPath = hlDir + fullPath + '/' + fullPath;
+    } else if (fullPath.indexOf('.') === -1 && Module.exists(hlDir + modLowerCase + '/' + modLowerCase)) {
+      fullPath = hlDir + modLowerCase + '/' + modLowerCase;
     } else {
       var lastIndex = fullPath.lastIndexOf('.');
       var tempPath = hlDir + fullPath.slice(0, lastIndex) + '$' + fullPath.slice(lastIndex + 1);
@@ -558,7 +561,7 @@ Module.exists = function(id) {
   var file = Ti.Filesystem.getFile(path);
 
   if (file.exists()) return true;
-
+  if (!this.platform) return false;
   var pFolderPath = Ti.Filesystem.resourcesDirectory + '/' + this.platform + '/' + id + '.js';
   var pFile = Ti.Filesystem.getFile(pFolderPath)
 

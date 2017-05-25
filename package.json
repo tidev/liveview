@@ -53,7 +53,7 @@
     "debug": "~0.7.2",
     "chokidar": "~0.6.3",
     "shelljs": "~0.2.6",
-    "jsparse-tools": "~0.1.0"
+    "jsparse-tools2": "~1.0.0"
   },
   "devDependencies": {
     "should": "~3.1.2",

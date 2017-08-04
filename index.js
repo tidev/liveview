@@ -1,2 +1,2 @@
 
-module.exports = require('./lib/liveview');
+module.exports = require('./build/liveview');

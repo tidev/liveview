@@ -1,7 +1,8 @@
 
-var Fserver = require('../lib/fserver')
-  , path = require('path')
-  , join = path.join;
+var Fserver = require('../lib/fserver'),
+  path = require('path'),
+  join = path.join,
+  should = require('should');
 
 //
 var FixtureApp = join(__dirname, 'platform');

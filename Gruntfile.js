@@ -28,7 +28,8 @@ module.exports = function(grunt) {
 			options: {
 				force: false
 			},
-			src: ['index.js', 'lib/**/*.js', 'test/*.js', 'hook/**/*.js', 'bin/*']
+			// Don't lint lib/_head.js or lib/_tail.js because they're fragments
+			src: ['index.js', 'lib/**/!(_)*.js', 'test/*.js', 'hook/**/*.js', 'bin/*']
 		},
 		bump: {
 			options: {
@@ -74,7 +75,8 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-mocha-istanbul');
 
 	grunt.registerTask('build', ['clean:dist', 'concat:dist', 'uglify:dist']);
-	grunt.registerTask('test', ['appcJs', 'clean:test', 'mocha_istanbul:coverage']);
+	grunt.registerTask('lint', ['appcJs']);
+	grunt.registerTask('test', ['build', 'lint', 'clean:test', 'mocha_istanbul:coverage']);
 	grunt.registerTask('default', ['build']);
 
 };

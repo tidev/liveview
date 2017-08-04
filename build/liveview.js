@@ -3,7 +3,7 @@
  * liveview Titanium CommonJS require with some Node.js love and dirty hacks
  * Copyright (c) 2013 Appcelerator
  */
-(function(globalScope) {
+(function(globalScope) {/* globals Emitter */
 /**
  * Initialize a new `Process`.
  *
@@ -11,7 +11,9 @@
  */
 
 function Process() {
-  if (!(this instanceof Process)) return new Process();
+  if (!(this instanceof Process)) {
+    return new Process();
+  }
   this.title = 'titanium';
   this.version = '';
   this.moduleLoadList = [];
@@ -24,6 +26,7 @@ function Process() {
 // inherit from EventEmitter
 
 Process.prototype.__proto__ = Emitter.prototype;
+
 /*!
  * Event Emitters
  */
@@ -109,7 +112,7 @@ Emitter.prototype.off = function(event, fn){
   if (!callbacks) { return this; }
 
   // remove all handlers
-  if (1 == arguments.length) {
+  if (1 === arguments.length) {
     delete this._callbacks[event];
     return this;
   }
@@ -168,6 +171,7 @@ Emitter.prototype.listeners = function(event){
 Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
+/* globals Emitter */
 /**
  * Expose `Socket`.
  */
@@ -210,7 +214,7 @@ Socket.prototype.connect = function(opts, fn){
   var self = this;
   opts = opts || {};
   var reConnect = !!opts.reConnect;
-  if ('function' == typeof opts) {
+  if ('function' === typeof opts) {
     fn = opts;
     opts = {};
   }
@@ -264,13 +268,13 @@ Socket.prototype.close = function(serverEnded){
       self._proxy.close();
       self.emit('close');
     });
-    return
+    return;
   }
 
   var retry = ~~self.retry;
 
   self.emit('end');
-  if(!retry) { return };
+  if(!retry) { return; }
 
   setTimeout(function(){
     self.emit('reconnecting');
@@ -280,7 +284,7 @@ Socket.prototype.close = function(serverEnded){
 
 
 Socket.prototype.write = function(data, fn) {
-  if ('function' == typeof data) {
+  if ('function' === typeof data) {
     fn = data;
     data = null;
   }
@@ -314,6 +318,7 @@ Socket.prototype.setKeepAlive = function(enable, initialDelay) {
     self.write('ping');
   },initialDelay || 300000);
 };
+/* globals Process, Socket */
 
 /**
  * Initialize a new `Module`.
@@ -341,7 +346,7 @@ var global = Module._global = Module.global = {};
 
 // main process
 
-var process = global.process = Process();
+var process = global.process = new Process();
 
 // set environment type
 
@@ -389,8 +394,8 @@ Module._includeNative = function(){
 
 Module.patch = function (globalCtx, url, port) {
 
-  var defaultURL = (process.platform === 'android' && process.hardware === 'sdk')
-    ? '10.0.2.2'
+  var defaultURL = (process.platform === 'android' && process.hardware === 'sdk') ?
+    '10.0.2.2'
     : (Ti.Platform.model === 'Simulator' ? '127.0.0.1' : 'FSERVER_HOST');
   Module._globalCtx = globalCtx;
   global._globalCtx = globalCtx;
@@ -407,7 +412,7 @@ Module.patch = function (globalCtx, url, port) {
     return (globalCtx.localeStrings[Ti.Locale.currentLanguage] || {})[name] || filler || name;
   };
   Module.connectServer();
-}
+};
 
 /**
    * [reload description]
@@ -560,10 +565,10 @@ Module.exists = function(id) {
   var path = Ti.Filesystem.resourcesDirectory + id + '.js';
   var file = Ti.Filesystem.getFile(path);
 
-  if (file.exists()) return true;
-  if (!this.platform) return false;
+  if (file.exists()) { return true; }
+  if (!this.platform) { return false; }
   var pFolderPath = Ti.Filesystem.resourcesDirectory + '/' + this.platform + '/' + id + '.js';
-  var pFile = Ti.Filesystem.getFile(pFolderPath)
+  var pFile = Ti.Filesystem.getFile(pFolderPath);
 
   return pFile.exists();
 };
@@ -571,7 +576,7 @@ Module.exists = function(id) {
 /**
  * shady xhrSync request
  *
- * @param  {String} url
+ * @param  {String} file
  * @param  {Number} timeout
  * @return {String}
  * @api private
@@ -582,9 +587,9 @@ Module.prototype._getRemoteSource = function(file,timeout){
   var request = Ti.Network.createHTTPClient();
   var rsp = null;
   var done = false;
-  var file = 'http://' + Module._url + ':' + Module._port + '/' + (file || this.id) + '.js';
+  var url = 'http://' + Module._url + ':' + Module._port + '/' + (file || this.id) + '.js';
   request.cache = false;
-  request.open('GET', file);
+  request.open('GET', url);
   request.setRequestHeader('x-platform', this.platform);
   request.send();
   while(!done){
@@ -666,8 +671,8 @@ Module.prototype._compile = function() {
     return;
   }
   this.source = Module._wrap(src);
-  try{
-    var fn = Function('exports, require, module, __filename, __dirname, lvGlobal',this.source);
+  try {
+    var fn = new Function('exports, require, module, __filename, __dirname, lvGlobal', this.source); // jshint ignore:line
     fn(this.exports, Module.require, this, this.filename, this.__dirname, global);
   } catch(err) {
     process.emit("uncaughtException", {module: this.id, error: err, source: ('' + this.source).split('\n')});

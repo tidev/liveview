@@ -10,15 +10,15 @@
 
 require('shelljs/global');
 
-var program = require('commander')
-  , colors = require('coloring')
-  , spawn = require('win-fork')
-  , path = require('path')
-  , fs = require('fs')
-  , join = path.join
-  , exists = fs.existsSync
-  , pkgConf = require('../package')
-  , debug = require('debug')('liveview:cli');
+var program = require('commander'),
+  colors = require('coloring'),
+  spawn = require('win-fork'),
+  path = require('path'),
+  fs = require('fs'),
+  join = path.join,
+  exists = fs.existsSync,
+  pkgConf = require('../package'),
+  debug = require('debug')('liveview:cli');
 
 // usage
 

@@ -5,12 +5,12 @@
  */
 
 // inject shelljs to the global scope
-
+/* globals exec */
 require('shelljs/global');
 
-var program = require('commander')
-  , colors = require('coloring')
-  , fserver = require('../lib/fserver');
+var program = require('commander'),
+  colors = require('coloring'),
+  fserver = require('../lib/fserver');
 
 program.Command.prototype.unknownOption = function(){};
 
@@ -22,7 +22,7 @@ program
 // examples
 
 program.on('--help', function(){
-  console.log('  Ti-Options:\n')
+  console.log('  Ti-Options:\n');
   exec('ti build --no-banner --help', {silent:true}).output.split('\n').forEach(function(line){
     console.log('    ' + line);
   });

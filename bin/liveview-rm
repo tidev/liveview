@@ -5,12 +5,12 @@
  */
 
 // inject shelljs to the global scope
-
+/* globals exec */
 require('shelljs/global');
 
-var program = require('commander')
-  , colors = require('coloring')
-  , path = require('path');
+var program = require('commander'),
+  colors = require('coloring'),
+  path = require('path');
 
 program.Command.prototype.unknownOption = function(){};
 

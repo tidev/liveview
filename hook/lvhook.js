@@ -1,3 +1,5 @@
+// inject shelljs to the global scope
+/* globals cp, tempdir */
 require('shelljs/global');
 
 var debug = require('debug')('liveview:clihook'),
@@ -33,17 +35,17 @@ exports.init = function(logger, config, cli) {
 		r.options['liveview-ip'] = {
 			default: null,
 			desc: 'LiveView Server IP address'
-		}
+		};
 
 		r.options['liveview-fport'] = {
 			default: null,
 			desc: 'LiveView file server port'
-		}
+		};
 
 		r.options['liveview-eport'] = {
 			default: null,
 			desc: 'LiveView event server port'
-		}
+		};
 
 		finished(null, data);
 	}
@@ -186,7 +188,7 @@ exports.init = function(logger, config, cli) {
 				binDIR,
 				'start',
 				'--project-dir', cli.argv['project-dir'],
-				'--platform', cli.argv['platform']
+				'--platform', cli.argv.platform
 			];
 
 			if (!cli.argv.colors) {
@@ -220,13 +222,14 @@ exports.init = function(logger, config, cli) {
  */
 function getNetworkIp() {
 	var n = require('os').networkInterfaces();
-	var ip = []
+	var ip = [];
 	for (var k in n) {
-		var inter = n[k]
-		for (var j in inter)
+		var inter = n[k];
+		for (var j in inter) {
 			if (inter[j].family === 'IPv4' && !inter[j].internal) {
-				return inter[j].address
+				return inter[j].address;
 			}
+		}
 	}
 }
 

@@ -9,47 +9,41 @@
 require('shelljs/global');
 
 var program = require('commander'),
-  colors = require('coloring'),
-  path = require('path');
+	colors = require('coloring'),
+	path = require('path');
 
-program.Command.prototype.unknownOption = function(){};
+/**
+ * no-op on unknown options handling
+ */
+program.Command.prototype.unknownOption = function () {};
 
 // usage
-
-program
-  .usage('rm <name> [options]');
+program.usage('rm <name> [options]');
 
 // examples
-
-program.on('--help', function(){
-  console.log('  Examples:');
-  console.log();
-  console.log('    # remove cli hook');
-  console.log('    $ liveview rm clihook');
-  console.log();
+program.on('--help', function () {
+	console.log('  Examples:');
+	console.log();
+	console.log('    # remove cli hook');
+	console.log('    $ liveview rm clihook');
+	console.log();
 });
 
 // parse argv
-
 program.parse(process.argv);
 
-
 // package
-
-var pkg = (program.args.shift()||'').toLowerCase();
-
+var pkg = (program.args.shift() || '').toLowerCase();
 if (pkg === 'clihook') { rmHook(); }
 
 /**
  * [installHook description]
- * @return {[type]} [description]
  */
-
 function rmHook() {
-  var hook = path.join(__dirname, '../hook').replace(/\s/g, '\\ ');
-  exec('liveview server stop --no-banner');
-  exec('titanium -q config paths.hooks -r ' + hook, function (res) {
-    var outcome = (res.code) ? 'not removed'.red : 'removed'.green;
-    console.log(' Titanium CLI Hook ' + outcome + '\n');
-  });
+	var hook = path.join(__dirname, '../hook').replace(/\s/g, '\\ ');
+	exec('liveview server stop --no-banner');
+	exec('titanium -q config paths.hooks -r ' + hook, function (res) {
+		var outcome = (res.code) ? 'not removed'.red : 'removed'.green;
+		console.log(' Titanium CLI Hook ' + outcome + '\n');
+	});
 }

@@ -11,16 +11,18 @@ var debug = require('debug')('liveview:clihook'),
 	util = require('util');
 
 // export min cli version
-
 exports.cliVersion = '>=3.0.25';
-
 
 /**
  * initialize cli hook
  */
+exports.init = function (logger, config, cli) {
 
-exports.init = function(logger, config, cli) {
-
+	/**
+	 * [doConfig description]
+	 * @param  {Object} data     [description]
+	 * @param  {Function} finished [description]
+	 */
 	function doConfig(data, finished) {
 		debug('Runningbuild.[PLATFORM].config hook');
 		var sdkVersion = (cli.sdk && cli.sdk.name) || (cli.manifest && cli.manifest.version);
@@ -56,21 +58,20 @@ exports.init = function(logger, config, cli) {
 
 	/**
 	 * [escape description]
-	 * @param  {[type]} str [description]
-	 * @return {[type]}     [description]
+	 * @return {string}     [description]
 	 */
-
 	function escape() {
 		var args = join.apply(this, [].slice.call(arguments));
 		return '"' + args + '"';
 	}
 
 	/**
-	 * Replace and rename original app.js  file to execute liveview.js first
+	 * Replace and rename original app.js file to execute liveview.js first
+	 * @param  {Object} data     [description]
+	 * @param  {Function} finished [description]
 	 */
-
 	function copyResource(data, finished) {
-		debug('Running pre:build.'+cli.argv.platform+'.copyResource hook');
+		debug('Running pre:build.' + cli.argv.platform + '.copyResource hook');
 		if (cli.argv.liveview) {
 			var RESOURCES_DIR = join(this.projectDir, 'Resources');
 
@@ -83,14 +84,18 @@ exports.init = function(logger, config, cli) {
 		}
 
 		// backwards compatibility
-
 		if (simpVer(cli.version) < 321) { return finished(data); }
 
 		finished(null, data);
 	}
 
+	/**
+	 * [writeBuildManifest description]
+	 * @param  {Object} data     [description]
+	 * @param  {Function} finished [description]
+	 */
 	function writeBuildManifest(data, finished) {
-		debug('Running pre:build.'+cli.argv.platform+'.writeBuildManifest hook');
+		debug('Running pre:build.' + cli.argv.platform + '.writeBuildManifest hook');
 		if (cli.argv.liveview) {
 			data.args[0].liveview = true;
 
@@ -99,28 +104,31 @@ exports.init = function(logger, config, cli) {
 		}
 
 		// backwards compatibility
-
 		if (simpVer(cli.version) < 321) { return finished(data); }
 
 		finished(null, data);
 	}
 
-	cli.addHook('build.ios.copyResource', { pre: copyResource });
-	cli.addHook('build.ios.writeBuildManifest', { pre: writeBuildManifest });
+	cli.addHook('build.ios.copyResource', {pre: copyResource});
+	cli.addHook('build.ios.writeBuildManifest', {pre: writeBuildManifest});
 
-	cli.addHook('build.android.copyResource', { pre: copyResource });
-	cli.addHook('build.android.writeBuildManifest', { pre: writeBuildManifest });
+	cli.addHook('build.android.copyResource', {pre: copyResource});
+	cli.addHook('build.android.writeBuildManifest', {pre: writeBuildManifest});
 
-	cli.addHook('build.windows.copyResource', { pre: copyResource });
-	cli.addHook('build.windows.writeBuildManifest', { pre: writeBuildManifest });
+	cli.addHook('build.windows.copyResource', {pre: copyResource});
+	cli.addHook('build.windows.writeBuildManifest', {pre: writeBuildManifest});
 
 	/**
 	 * Copy LiveView.js to Resources folder and Inject Server Address
 	 */
-
 	cli.addHook('build.pre.compile', {
 		priority: 3000,
-		post: function(build, finished) {
+		/**
+		 * [description]
+		 * @param  {Object} build    [description]
+		 * @param  {Function} finished [description]
+		 */
+		post: function (build, finished) {
 			if (cli.argv.liveview) {
 				debug('Running post:build.pre.compile hook');
 				var resourceDir = path.resolve(cli.argv['project-dir'], 'Resources');
@@ -154,28 +162,31 @@ exports.init = function(logger, config, cli) {
 	/**
 	 * Start event/file server
 	 */
-	cli.addHook('build.post.compile', function(build, finished) {
+	cli.addHook('build.post.compile', function (build, finished) {
 		// kill running server via fserver http api
 		debug('invoke kill');
 
 		var domain = require('domain').create();
 
-		domain.on('error', function(err) {
+		domain.on('error', function (err) {
 			debug(err);
 		});
 
-		domain.run(function() {
+		domain.run(function () {
 			http
-				.get('http://localhost:8324/kill', function(res){})
-				.on('error', function(e){
-				})
-				.on('data', function(e){})
-				.on('close', function(e){
+				.get('http://localhost:8324/kill', function (res) {})
+				.on('error', function (e) {})
+				.on('data', function (e) {})
+				.on('close', function (e) {
 					startServer(finished);
 				});
 		});
 	});
 
+	/**
+	 * [startServer description]
+	 * @param  {Function} finished [description]
+	 */
 	function startServer(finished) {
 		if (cli.argv.liveview) {
 			var ipAddr = cli.argv['liveview-ip'];
@@ -204,7 +215,7 @@ exports.init = function(logger, config, cli) {
 				detached: true
 			});
 
-			child.on('error', function(err) {
+			child.on('error', function (err) {
 				console.error('\n %s\n', err);
 			});
 
@@ -218,7 +229,7 @@ exports.init = function(logger, config, cli) {
  * getNetworkIp
  * get users local network ip address
  *
- * @return Number
+ * @return {string}
  */
 function getNetworkIp() {
 	var n = require('os').networkInterfaces();
@@ -235,10 +246,9 @@ function getNetworkIp() {
 
 /**
  * output version as integer
- * @param  {String} version
- * @return {Number}
+ * @param  {string} version
+ * @return {number}
  */
-
 function simpVer (version) {
 	return parseInt(version.split('-')[0].replace(/\./g, ''));
 }

@@ -9,64 +9,57 @@
 require('shelljs/global');
 
 var program = require('commander'),
-  colors = require('coloring'),
-  fserver = require('../lib/fserver');
+	colors = require('coloring'),
+	fserver = require('../lib/fserver');
 
-program.Command.prototype.unknownOption = function(){};
+/**
+ * no-op on unknown options handling
+ */
+program.Command.prototype.unknownOption = function () {};
 
 // usage
-
-program
-  .usage('run [options]');
+program.usage('run [options]');
 
 // examples
-
-program.on('--help', function(){
-  console.log('  Ti-Options:\n');
-  exec('ti build --no-banner --help', {silent:true}).output.split('\n').forEach(function(line){
-    console.log('    ' + line);
-  });
-  console.log();
+program.on('--help', function () {
+	console.log('  Ti-Options:\n');
+	exec('ti build --no-banner --help', {silent:true}).output.split('\n').forEach(function (line) {
+		console.log('    ' + line);
+	});
+	console.log();
 });
 
 // parse argv
-
 program.parse(process.argv);
 
 // build flags for ti cli
-
 var buildOpts = process.argv.slice(2).join(' ');
 
 /**
  * [buildFlags description]
  * @param  {Function} cb [description]
- * @return {[type]}      [description]
  */
-
-function buildFlags(cb){
-  program.prompt('build-flags: ', function(opts){
-    if (!opts) { return buildFlags(cb); }
-    cb(null,opts);
-  });
+function buildFlags(cb) {
+	program.prompt('build-flags: ', function (opts) {
+		if (!opts) { return buildFlags(cb); }
+		cb(null,opts);
+	});
 }
 
 /**
  * [run description]
- * @param  {[type]} err  [description]
- * @param  {[type]} opts [description]
- * @return {[type]}      [description]
+ * @param  {Object} err  [description]
+ * @param  {Object} opts [description]
  */
-
-function run(err, opts){
-
-  // start up titanium app
-  exec('ti build --liveview --no-banner '+ opts, function(e){
-    console.log(e);
-  });
+function run(err, opts) {
+	// start up titanium app
+	exec('ti build --liveview --no-banner ' + opts, function (e) {
+		console.log(e);
+	});
 }
 
-if (buildOpts){
-  run(null, buildOpts);
+if (buildOpts) {
+	run(null, buildOpts);
 } else {
-  buildFlags(run);
+	buildFlags(run);
 }

@@ -56,12 +56,15 @@
     "jsparse-tools2": "~1.0.0"
   },
   "devDependencies": {
+    "eslint": "^4.3.0",
+    "eslint-config-axway": "^2.0.1",
+    "eslint-plugin-mocha": "^4.11.0",
     "grunt": "^1.0.1",
-    "grunt-appc-js": "^1.0.24",
     "grunt-bump": "^0.8.0",
     "grunt-contrib-clean": "^1.0.0",
     "grunt-contrib-concat": "^1.0.1",
     "grunt-contrib-uglify": "^3.0.1",
+    "grunt-eslint": "^20.0.0",
     "grunt-mocha-istanbul": "^5.0.2",
     "istanbul": "^0.4.5",
     "mocha": "~1.17.1",

@@ -24,6 +24,10 @@ module.exports = function(grunt) {
 			test: ['tmp', 'coverage'],
 			dist: ['build']
 		},
+		eslint: {
+			
+			target: ['index.js', 'lib/**/!(_)*.js', 'test/*.js', 'hook/**/*.js', 'bin/*']
+		},
 		appcJs: {
 			options: {
 				force: false
@@ -67,7 +71,7 @@ module.exports = function(grunt) {
 	});
 
 	// Load grunt plugins for modules
-	grunt.loadNpmTasks('grunt-appc-js');
+	grunt.loadNpmTasks('grunt-eslint');
 	grunt.loadNpmTasks('grunt-bump');
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-concat');
@@ -75,7 +79,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-mocha-istanbul');
 
 	grunt.registerTask('build', ['clean:dist', 'concat:dist', 'uglify:dist']);
-	grunt.registerTask('lint', ['appcJs']);
+	grunt.registerTask('lint', ['eslint']);
 	grunt.registerTask('test', ['build', 'lint', 'clean:test', 'mocha_istanbul:coverage']);
 	grunt.registerTask('default', ['build']);
 

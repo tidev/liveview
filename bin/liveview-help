@@ -1,17 +1,13 @@
 #!/usr/bin/env node
-
-/**
- * Module dependencies.
- */
 var program = require('commander'),
-	colors = require('coloring'),
-	exec = require('child_process').exec;
+	exec = require('child_process').exec,
+	cmd;
 
 // parse argv
 program.parse(process.argv);
 
 // output available commands
-var cmd = program.args[0] ? 'liveview ' + program.args[0] + ' --help' : 'liveview --help';
+cmd = program.args[0] ? 'liveview ' + program.args[0] + ' --help' : 'liveview --help';
 
 exec(cmd, function (err, stdout) {
 	if (err) {

@@ -1,11 +1,10 @@
 #!/usr/bin/env node
-
-require('shelljs/global');
-
 var program = require('commander'),
 	server = require('../lib/fserver'),
 	debug = require('debug')('liveview:cli'),
-	util = require('util');
+	cmd;
+
+require('shelljs/global');
 
 program.usage('<command> [options]');
 
@@ -34,11 +33,8 @@ program.on('--help', function () {
 // parse argv
 program.parse(process.argv);
 
-// args void of cmd
-var args = process.argv.slice(3);
-
 // command
-var cmd = (program.args[0] || '').toLowerCase();
+cmd = (program.args[0] || '').toLowerCase();
 if (!cmd) {
 	process.stdout.write(program.helpInformation());
 	program.emit('--help');
@@ -46,7 +42,7 @@ if (!cmd) {
 }
 
 try {
-	var func = server[program.args[0]](program);
+	server[program.args[0]](program);
 } catch (e) {
 	debug(e);
 	program.help();

@@ -1,26 +1,23 @@
 #!/usr/bin/env node
-
 /**
  *   Appcelerator Titanium Live Reload Development Tool
  */
-
-/**
- * Module dependencies.
- */
-require('shelljs/global');
-
 var program = require('commander'),
-	colors = require('coloring'),
 	spawn = require('win-fork'),
 	path = require('path'),
 	fs = require('fs'),
 	join = path.join,
 	exists = fs.existsSync,
 	pkgConf = require('../package'),
-	debug = require('debug')('liveview:cli');
+	args,
+	cmd,
+	bin,
+	local,
+	proc;
+
+require('shelljs/global');
 
 // usage
-
 program
 	.version(pkgConf.version)
 	.usage('<command> [options]')
@@ -28,7 +25,6 @@ program
 	.option('--no-colors', 'disable program cli color output');
 
 // sub-command help
-
 program.on('--help', function () {
 	console.log('  Commands:');
 	console.log();
@@ -51,16 +47,20 @@ if (program.banner) {
 }
 
 // args void of cmd
-var args = process.argv.slice(3);
+args = process.argv.slice(3);
 
 // command
-var cmd = (program.args[0] || '').toLowerCase();
+cmd = (program.args[0] || '').toLowerCase();
 
 // alias "build" as "run"
-if ('build' === cmd) { cmd = 'run'; }
+if (cmd === 'build') {
+	cmd = 'run';
+}
 
 // alias "rm" as "remove"
-if ('remove' === cmd) { cmd = 'rm'; }
+if (cmd === 'remove') {
+	cmd = 'rm';
+}
 
 // display help
 if (!cmd) {
@@ -70,14 +70,16 @@ if (!cmd) {
 }
 
 // executable
-var bin = 'liveview-' + cmd;
+bin = 'liveview-' + cmd;
 
 // local
-var local = join(__dirname, bin);
-if (exists(local)) { bin = local; }
+local = join(__dirname, bin);
+if (exists(local)) {
+	bin = local;
+}
 
 // spawn
-var proc = spawn(bin, args, {stdio: 'inherit'});
+proc = spawn(bin, args, { stdio: 'inherit' });
 
 // catch invalid commands
 proc.on('error', function () {

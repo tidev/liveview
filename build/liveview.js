@@ -7,7 +7,7 @@
 /* globals Emitter */
 /**
  * Initialize a new `Process`.
- *
+ * @returns {Process}
  * @public
  */
 function Process() {
@@ -24,30 +24,35 @@ function Process() {
 }
 
 // inherit from EventEmitter
-Process.prototype.__proto__ = Emitter.prototype;
+Object.setPrototypeOf(Process.prototype, Emitter.prototype);
 
-/*!
+/*
  * Event Emitters
  */
 
 /**
  * Initialize a new `Emitter`.
  *
+ * @param {Object} obj Object to be mixed in to emitter
+ * @returns {Emitter}
  * @public
  */
 function Emitter(obj) {
-	if (obj) { return mixin(obj); }
+	if (obj) {
+		return mixin(obj);
+	}
 }
 
 /**
  * Mixin the emitter properties.
  *
- * @param {Object} obj
- * @return {Object}
+ * @param {Object} obj object to be mixed in
+ * @return {Object} object with Emitter properties mixed in
  * @private
  */
 function mixin(obj) {
-	for (var key in Emitter.prototype) {
+	var key;
+	for (key in Emitter.prototype) {
 		obj[key] = Emitter.prototype[key];
 	}
 	return obj;
@@ -56,9 +61,9 @@ function mixin(obj) {
 /**
  * Listen on the given `event` with `fn`.
  *
- * @param {string} event
- * @param {Function} fn
- * @return {Emitter}
+ * @param {string} event event name to hook callback to
+ * @param {Function} fn callback function
+ * @return {Emitter} this
  * @public
  */
 Emitter.prototype.on = function (event, fn) {
@@ -72,9 +77,9 @@ Emitter.prototype.on = function (event, fn) {
  * Adds an `event` listener that will be invoked a single
  * time then automatically removed.
  *
- * @param {string} event
- * @param {Function} fn
- * @return {Emitter}
+ * @param {string} event event name to hook callback to
+ * @param {Function} fn callback function
+ * @return {Emitter} this
  * @public
  */
 Emitter.prototype.once = function (event, fn) {
@@ -82,7 +87,7 @@ Emitter.prototype.once = function (event, fn) {
 	this._callbacks = this._callbacks || {};
 
 	/**
-	 * [on description]
+	 * single-fire callback for event
 	 */
 	function on() {
 		self.off(event, on);
@@ -98,44 +103,53 @@ Emitter.prototype.once = function (event, fn) {
  * Remove the given callback for `event` or all
  * registered callbacks.
  *
- * @param {string} event
- * @param {Function} fn
- * @return {Emitter}
+ * @param {string} event event name to remove callback from
+ * @param {Function} fn callback function
+ * @return {Emitter} this
  * @public
  */
 Emitter.prototype.off = function (event, fn) {
+	var callbacks,
+		i;
 	this._callbacks = this._callbacks || {};
-	var callbacks = this._callbacks[event];
-	if (!callbacks) { return this; }
+	callbacks = this._callbacks[event];
+	if (!callbacks) {
+		return this;
+	}
 
 	// remove all handlers
-	if (1 === arguments.length) {
+	if (arguments.length === 1) {
 		delete this._callbacks[event];
 		return this;
 	}
 
 	// remove specific handler
-	var i = callbacks.indexOf(fn._off || fn);
-	if (~i) { callbacks.splice(i, 1); }
+	i = callbacks.indexOf(fn._off || fn);
+	if (~i) {
+		callbacks.splice(i, 1);
+	}
 	return this;
 };
 
 /**
  * Emit `event` with the given args.
  *
- * @param {string} event
- * @param {Mixed} ...
+ * @param {string} event event name
  * @return {Emitter}
  * @public
  */
 Emitter.prototype.emit = function (event) {
+	var args,
+		callbacks,
+		i,
+		len;
 	this._callbacks = this._callbacks || {};
-	var args = [].slice.call(arguments, 1);
-	var callbacks = this._callbacks[event];
+	args = [].slice.call(arguments, 1);
+	callbacks = this._callbacks[event];
 
 	if (callbacks) {
 		callbacks = callbacks.slice(0);
-		for (var i = 0, len = callbacks.length; i < len; ++i) {
+		for (i = 0, len = callbacks.length; i < len; ++i) {
 			callbacks[i].apply(this, args);
 		}
 	}
@@ -146,8 +160,8 @@ Emitter.prototype.emit = function (event) {
 /**
  * Return array of callbacks for `event`.
  *
- * @param {string} event
- * @return {Array}
+ * @param {string} event event name
+ * @return {Array} array of callbacks registered for that event
  * @public
  */
 Emitter.prototype.listeners = function (event) {
@@ -158,7 +172,7 @@ Emitter.prototype.listeners = function (event) {
 /**
  * Check if this emitter has `event` handlers.
  *
- * @param {string} event
+ * @param {string} event event name
  * @return {boolean}
  * @public
  */
@@ -176,6 +190,7 @@ if (typeof module !== 'undefined') {
 /**
  * [Socket description]
  * @param {Object} opts [description]
+ * @returns {Socket}
  */
 function Socket(opts) {
 	if (!(this instanceof Socket)) {
@@ -194,7 +209,7 @@ function Socket(opts) {
 /**
  * Inherit from `Emitter.prototype`.
  */
-Socket.prototype.__proto__ = Emitter.prototype;
+Object.setPrototypeOf(Socket.prototype, Emitter.prototype);
 
 /**
  * [connect description]
@@ -202,10 +217,11 @@ Socket.prototype.__proto__ = Emitter.prototype;
  * @param  {Function} fn   [description]
  */
 Socket.prototype.connect = function (opts, fn) {
-	var self = this;
+	var self = this,
+		reConnect;
 	opts = opts || {};
-	var reConnect = !!opts.reConnect;
-	if ('function' === typeof opts) {
+	reConnect = !!opts.reConnect;
+	if (typeof opts === 'function') {
 		fn = opts;
 		opts = {};
 	}
@@ -240,10 +256,13 @@ Socket.prototype.connect = function (opts, fn) {
 		/**
 		 * [description]
 		 * @param  {Object} e [description]
+		 * @returns {undefined}
 		 */
 		error: function (e) {
-			var err = {code: e.errorCode, error: e.error};
-			if (!~self.ignore.indexOf(err.code)) { return self.emit('error',  err); }
+			var err = { code: e.errorCode, error: e.error };
+			if (!~self.ignore.indexOf(err.code)) {
+				return self.emit('error',  err);
+			}
 			self.emit('error ignored', err);
 		}
 	});
@@ -256,7 +275,8 @@ Socket.prototype.connect = function (opts, fn) {
  * @param {boolean} serverEnded [description]
  */
 Socket.prototype.close = function (serverEnded) {
-	var self = this;
+	var self = this,
+		retry;
 
 	self.connected = false;
 	self.closing = !serverEnded;
@@ -269,14 +289,16 @@ Socket.prototype.close = function (serverEnded) {
 		return;
 	}
 
-	var retry = ~~self.retry;
+	retry = ~~self.retry;
 
 	self.emit('end');
-	if (!retry) { return; }
+	if (!retry) {
+		return;
+	}
 
 	setTimeout(function () {
 		self.emit('reconnecting');
-		self.connect({reConnect:true});
+		self.connect({ reConnect: true });
 	}, retry);
 };
 
@@ -286,16 +308,18 @@ Socket.prototype.close = function (serverEnded) {
  * @param  {Function} fn   [description]
  */
 Socket.prototype.write = function (data, fn) {
-	if ('function' === typeof data) {
+	var msg,
+		callback;
+	if (typeof data === 'function') {
 		fn = data;
 		data = null;
 	}
 
 	data = (data) ?  ('' + data) : '';
 
-	var msg = Ti.createBuffer({value:  data});
+	msg = Ti.createBuffer({ value:  data });
 
-	var callback = fn || function () {};
+	callback = fn || function () {};
 
 	Ti.Stream.write(this._connection, msg, function () {
 		callback([].slice(arguments));
@@ -320,10 +344,12 @@ Socket.prototype.setKeepAlive = function (enable, initialDelay) {
 	}, initialDelay || 300000);
 };
 /* globals Process, Socket */
+var global,
+	process;
 
 /**
  * Initialize a new `Module`.
- *
+ * @param {string} id The module identifier
  * @public
  */
 function Module(id) {
@@ -341,10 +367,10 @@ function Module(id) {
 }
 
 // global namespace
-var global = Module._global = Module.global = {};
+global = Module._global = Module.global = {};
 
 // main process
-var process = global.process = new Process();
+process = global.process = new Process();
 
 // set environment type
 global.ENV = 'liveview';
@@ -379,14 +405,15 @@ Module._includeNative = function () {
 /**
  * replace built in `require` function
  *
- * @param  {Object} globalCtx
- * @return {Function}
+ * @param  {Object} globalCtx Global context
+ * @param  {string} url The URL to use (default is '127.0.0.1', or '10.0.2.2' on android emulator)
+ * @param  {number} port The port to use (default is 8324)
  * @private
  */
 Module.patch = function (globalCtx, url, port) {
 
-	var defaultURL = (process.platform === 'android' && process.hardware === 'sdk') ?
-		'10.0.2.2'
+	var defaultURL = (process.platform === 'android' && process.hardware === 'sdk')
+		? '10.0.2.2'
 		: (Ti.Platform.model === 'Simulator' ? '127.0.0.1' : 'FSERVER_HOST');
 	Module._globalCtx = globalCtx;
 	global._globalCtx = globalCtx;
@@ -433,10 +460,10 @@ Module.global.reload = function () {
  * [description]
  */
 Module.connectServer = function () {
-	var retryInterval = null;
-	var client = Module.evtServer = new Socket({host: Module._url, port: parseInt('ESERVER_PORT', 10)}, function () {
-		console.log('[LiveView]', 'Connected to Event Server');
-	});
+	var retryInterval = null,
+		client = Module.evtServer = new Socket({ host: Module._url, port: parseInt('ESERVER_PORT', 10) }, function () {
+			console.log('[LiveView]', 'Connected to Event Server');
+		});
 
 	client.on('close', function () {
 		console.log('[LiveView]', 'Closed Previous Event Server client');
@@ -450,14 +477,17 @@ Module.connectServer = function () {
 	});
 
 	client.on('data', function (data) {
-		if (!data) { return; }
+		var evt;
+		if (!data) {
+			return;
+		}
 		try {
-			var evt = JSON.parse('' + data);
+			evt = JSON.parse('' + data);
 			if (evt.type === 'event' && evt.name === 'reload') {
 				Module._cache = {};
 				Module.global.reload();
 			}
-		} catch (e) { /*discard non JSON data for now*/ }
+		} catch (e) { /* discard non JSON data for now */ }
 	});
 
 	client.on('end', function () {
@@ -469,12 +499,12 @@ Module.connectServer = function () {
 	});
 
 	client.on('error', function (e) {
-		var err = e.error;
-		var code = ~~e.code;
+		var err = e.error,
+			code = ~~e.code;
 		if (code === 61) {
-			err = 'Event Server unavailable. Connection Refused @ ' +
-				Module._url + ':' + Module._port +
-				'\n[LiveView] Please ensure your device and computer are on the same network and the port is not blocked.';
+			err = 'Event Server unavailable. Connection Refused @ '
+				+ Module._url + ':' + Module._port
+				+ '\n[LiveView] Please ensure your device and computer are on the same network and the port is not blocked.';
 		}
 		throw new Error('[LiveView] ' + err);
 	});
@@ -485,36 +515,42 @@ Module.connectServer = function () {
 
 /**
  * include script loader
- * @param  {string} id
- *
+ * @param  {string} ctx context
+ * @param  {string} id module identifier
  * @public
  */
-Module.include = function (ctx,id) {
-	var file = id.replace('.js', '');
-	var src = Module.prototype._getRemoteSource(file,10000);
-	eval.call(ctx,src);
+Module.include = function (ctx, id) {
+	var file = id.replace('.js', ''),
+		src = Module.prototype._getRemoteSource(file, 10000);
+	eval.call(ctx, src); // eslint-disable-line no-eval
 };
 
 /**
  * commonjs module loader
- * @param  {string} id
- *
+ * @param  {string} id module identifier
+ * @returns {Object}
  * @public
  */
 Module.require = function (id) {
-	var fullPath = id;
-	var cached = Module.getCached(fullPath);
-	if (!!cached) {
+	var fullPath = id,
+		cached = Module.getCached(fullPath),
+		hlDir,
+		modLowerCase,
+		lastIndex,
+		tempPath,
+		freshModule;
+
+	if (cached) {
 		return cached.exports;
 	}
 
 	if (!Module.exists(fullPath)) {
-		var hlDir = '/hyperloop/';
+		hlDir = '/hyperloop/';
 		if (fullPath.indexOf('.*') !== -1) {
 			fullPath = id.slice(0, id.length - 2);
 		}
 
-		var modLowerCase = fullPath.toLowerCase();
+		modLowerCase = fullPath.toLowerCase();
 		if (Module.exists(hlDir + fullPath)) {
 			fullPath = hlDir + fullPath;
 		} else if (Module.exists(hlDir + modLowerCase)) {
@@ -524,28 +560,28 @@ Module.require = function (id) {
 		} else if (fullPath.indexOf('.') === -1 && Module.exists(hlDir + modLowerCase + '/' + modLowerCase)) {
 			fullPath = hlDir + modLowerCase + '/' + modLowerCase;
 		} else {
-			var lastIndex = fullPath.lastIndexOf('.');
-			var tempPath = hlDir + fullPath.slice(0, lastIndex) + '$' + fullPath.slice(lastIndex + 1);
+			lastIndex = fullPath.lastIndexOf('.');
+			tempPath = hlDir + fullPath.slice(0, lastIndex) + '$' + fullPath.slice(lastIndex + 1);
 			if (Module.exists(fullPath)) {
 				fullPath = tempPath;
 			}
 		}
 	}
 
-	var freshModule = new Module(fullPath);
+	freshModule = new Module(fullPath);
 
 	freshModule.cache();
 	freshModule._compile();
 
-	while (!freshModule.loaded) {}
+	while (!freshModule.loaded) { /* no-op */ }
 
 	return freshModule.exports;
 };
 
 /**
  * [getCached description]
- * @param  {string} id
- * @return {Object}
+ * @param  {string} id moduel identifier
+ * @return {Module} cached module
  *
  * @public
  */
@@ -556,28 +592,34 @@ Module.getCached = function (id) {
 /**
  * check if module file exists
  *
- * @param  {string} id
- * @return {boolean}    [description]
+ * @param  {string} id module identifier
+ * @return {boolean} whether the module exists
  * @public
  */
 Module.exists = function (id) {
-	var path = Ti.Filesystem.resourcesDirectory + id + '.js';
-	var file = Ti.Filesystem.getFile(path);
+	var path = Ti.Filesystem.resourcesDirectory + id + '.js',
+		file = Ti.Filesystem.getFile(path),
+		pFolderPath,
+		pFile;
 
-	if (file.exists()) { return true; }
-	if (!this.platform) { return false; }
-	var pFolderPath = Ti.Filesystem.resourcesDirectory + '/' + this.platform + '/' + id + '.js';
-	var pFile = Ti.Filesystem.getFile(pFolderPath);
+	if (file.exists()) {
+		return true;
+	}
+	if (!this.platform) {
+		return false;
+	}
 
+	pFolderPath = Ti.Filesystem.resourcesDirectory + '/' + this.platform + '/' + id + '.js';
+	pFile = Ti.Filesystem.getFile(pFolderPath);
 	return pFile.exists();
 };
 
 /**
  * shady xhrSync request
  *
- * @param  {string} file
- * @param  {number} timeout
- * @return {string}
+ * @param  {string} file file to load
+ * @param  {number} timeout in milliseconds
+ * @return {(string|boolean)} file contents if successful, false if not
  * @private
  */
 Module.prototype._getRemoteSource = function (file, timeout) {
@@ -597,9 +639,9 @@ Module.prototype._getRemoteSource = function (file, timeout) {
 		} else if ((expireTime -  (new Date()).getTime()) <= 0) {
 			rsp = false;
 			done = true;
-			throw new Error('[LiveView] File Server unavailable. Host Unreachable @ ' +
-				Module._url + ':' + Module._port +
-				'\n[LiveView] Please ensure your device and computer are on the same network and the port is not blocked.');
+			throw new Error('[LiveView] File Server unavailable. Host Unreachable @ '
+				+ Module._url + ':' + Module._port
+				+ '\n[LiveView] Please ensure your device and computer are on the same network and the port is not blocked.');
 		}
 	}
 
@@ -612,14 +654,17 @@ Module.prototype._getRemoteSource = function (file, timeout) {
  * @private
  */
 Module.prototype._getSource = function () {
-	var id = this.id;
-	var isRemote = /^(http|https)$/.test(id) || (global.ENV === 'liveview');
+	var id = this.id,
+		isRemote = /^(http|https)$/.test(id) || (global.ENV === 'liveview'),
+		file;
 
 	if (isRemote) {
-		return this._getRemoteSource(null,10000);
+		return this._getRemoteSource(null, 10000);
 	} else {
-		if (id === 'app') { id = '_app'; }
-		var file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, id + '.js');
+		if (id === 'app') {
+			id = '_app';
+		}
+		file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, id + '.js');
 		return (file.read() || {}).text;
 	}
 };
@@ -627,20 +672,20 @@ Module.prototype._getSource = function () {
 /**
  * wrap module source text in commonjs anon function wrapper
  *
- * @param  {string} script
+ * @param  {string} source The raw source we're wrapping in an IIFE
  * @return {string}
  * @private
  */
 Module._wrap = function (source) {
-	source = source.replace(/T[i||itanium]+.include\([\'|\"]([^\"\'\r\n$]*)[\'|\"]\)/g, function (exp, val) {
+	source = source.replace(/T[i||itanium]+.include\(['|"]([^"'\r\n$]*)['|"]\)/g, function (exp, val) {
 		var file = ('' + val).replace('.js', '');
-		var _src = Module.prototype._getRemoteSource(file,10000);
-		var evalSrc = '' +
-				'try{ ' +
-					_src.replace(/\/\/(.*)$/gm, '').replace(/\n/g, '') +
-				'}catch(err){ ' +
-					'lvGlobal.process.emit("uncaughtException", {module: "' + val + '", error: err})' +
-				'}';
+		var _src = Module.prototype._getRemoteSource(file, 10000);
+		var evalSrc = ''
+			+ 'try{ '
+			+ _src.replace(/\/\/(.*)$/gm, '').replace(/\n/g, '')
+			+ '}catch(err){ '
+			+ 'lvGlobal.process.emit("uncaughtException", {module: "' + val + '", error: err})'
+			+ '}';
 
 		return evalSrc;
 	});
@@ -659,7 +704,8 @@ Module._errWrapper = [
  * @private
  */
 Module.prototype._compile = function () {
-	var src = this._getSource();
+	var src = this._getSource(),
+		fn;
 	if (!src) {
 		this.exports = Module._requireNative(this.id);
 		this.loaded = true;
@@ -667,10 +713,10 @@ Module.prototype._compile = function () {
 	}
 	this.source = Module._wrap(src);
 	try {
-		var fn = new Function('exports, require, module, __filename, __dirname, lvGlobal', this.source); // jshint ignore:line
+		fn = new Function('exports, require, module, __filename, __dirname, lvGlobal', this.source); // eslint-disable-line no-new-func
 		fn(this.exports, Module.require, this, this.filename, this.__dirname, global);
 	} catch (err) {
-		process.emit('uncaughtException', {module: this.id, error: err, source: ('' + this.source).split('\n')});
+		process.emit('uncaughtException', { module: this.id, error: err, source: ('' + this.source).split('\n') });
 	}
 
 	this.loaded = true;

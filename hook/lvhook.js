@@ -1,20 +1,23 @@
-// inject shelljs to the global scope
-/* globals cp, tempdir */
-require('shelljs/global');
-
 var debug = require('debug')('liveview:clihook'),
 	path = require('path'),
 	http = require('http'),
 	join = path.join,
 	fs = require('fs'),
-	spawn = require('child_process').spawn,
-	util = require('util');
+	spawn = require('child_process').spawn;
+
+// inject shelljs to the global scope
+/* globals cp, tempdir */
+require('shelljs/global');
 
 // export min cli version
 exports.cliVersion = '>=3.0.25';
 
 /**
  * initialize cli hook
+ * @param  {Object} logger The Titanium CLI logger
+ * @param  {Object} config Titanium CLI build config
+ * @param  {Object} cli    Titanium CLI builder
+ * @return {undefined}        [description]
  */
 exports.init = function (logger, config, cli) {
 
@@ -24,9 +27,11 @@ exports.init = function (logger, config, cli) {
 	 * @param  {Function} finished [description]
 	 */
 	function doConfig(data, finished) {
+		var sdkVersion,
+			r;
 		debug('Runningbuild.[PLATFORM].config hook');
-		var sdkVersion = (cli.sdk && cli.sdk.name) || (cli.manifest && cli.manifest.version);
-		var r = ((simpVer(cli.version) < 321) ? data.result : (sdkVersion && simpVer(sdkVersion) < 321) ? data.result[0] : data.result[1]) || {};
+		sdkVersion = (cli.sdk && cli.sdk.name) || (cli.manifest && cli.manifest.version);
+		r = ((simpVer(cli.version) < 321) ? data.result : (sdkVersion && simpVer(sdkVersion) < 321) ? data.result[0] : data.result[1]) || {};
 		r.flags || (r.flags = {});
 		r.flags.liveview = {
 			default: false,
@@ -57,34 +62,31 @@ exports.init = function (logger, config, cli) {
 	cli.addHook('build.windows.config', doConfig);
 
 	/**
-	 * [escape description]
-	 * @return {string}     [description]
-	 */
-	function escape() {
-		var args = join.apply(this, [].slice.call(arguments));
-		return '"' + args + '"';
-	}
-
-	/**
 	 * Replace and rename original app.js file to execute liveview.js first
 	 * @param  {Object} data     [description]
-	 * @param  {Function} finished [description]
+	 * @param  {Function} finished Callback function
+	 * @returns {undefined}
 	 */
 	function copyResource(data, finished) {
-		debug('Running pre:build.' + cli.argv.platform + '.copyResource hook');
-		if (cli.argv.liveview) {
-			var RESOURCES_DIR = join(this.projectDir, 'Resources');
+		var RESOURCES_DIR,
+			srcFile;
 
-			var srcFile = data.args[0];
-			var destFile = data.args[1];
-			if (join(RESOURCES_DIR, 'app.js') === srcFile ||
-					(new RegExp('^' + RESOURCES_DIR.replace(/\\/g, '/') + '(\/(android|ipad|ios|iphone|windows))?\/app.js$').test(srcFile.replace(/\\/g, '/')))) {
+		debug('Running pre:build.' + cli.argv.platform + '.copyResource hook');
+
+		if (cli.argv.liveview) {
+			RESOURCES_DIR = join(this.projectDir, 'Resources');
+
+			srcFile = data.args[0];
+			if (join(RESOURCES_DIR, 'app.js') === srcFile
+				|| (new RegExp('^' + RESOURCES_DIR.replace(/\\/g, '/') + '(/(android|ipad|ios|iphone|windows))?/app.js$').test(srcFile.replace(/\\/g, '/')))) {
 				data.args[0] = join(tempdir(), 'liveview.js');
 			}
 		}
 
 		// backwards compatibility
-		if (simpVer(cli.version) < 321) { return finished(data); }
+		if (simpVer(cli.version) < 321) {
+			return finished(data);
+		}
 
 		finished(null, data);
 	}
@@ -92,31 +94,37 @@ exports.init = function (logger, config, cli) {
 	/**
 	 * [writeBuildManifest description]
 	 * @param  {Object} data     [description]
-	 * @param  {Function} finished [description]
+	 * @param  {Function} finished Callback function
+	 * @returns {undefined}
 	 */
 	function writeBuildManifest(data, finished) {
+		var tempAppJS;
+
 		debug('Running pre:build.' + cli.argv.platform + '.writeBuildManifest hook');
+
 		if (cli.argv.liveview) {
 			data.args[0].liveview = true;
 
-			var tempAppJS = path.resolve(cli.argv['project-dir'], 'Resources', '.liveviewapp.js');
+			tempAppJS = path.resolve(cli.argv['project-dir'], 'Resources', '.liveviewapp.js');
 			fs.existsSync(tempAppJS) && fs.unlinkSync(tempAppJS);
 		}
 
 		// backwards compatibility
-		if (simpVer(cli.version) < 321) { return finished(data); }
+		if (simpVer(cli.version) < 321) {
+			return finished(data);
+		}
 
 		finished(null, data);
 	}
 
-	cli.addHook('build.ios.copyResource', {pre: copyResource});
-	cli.addHook('build.ios.writeBuildManifest', {pre: writeBuildManifest});
+	cli.addHook('build.ios.copyResource', { pre: copyResource });
+	cli.addHook('build.ios.writeBuildManifest', { pre: writeBuildManifest });
 
-	cli.addHook('build.android.copyResource', {pre: copyResource});
-	cli.addHook('build.android.writeBuildManifest', {pre: writeBuildManifest});
+	cli.addHook('build.android.copyResource', { pre: copyResource });
+	cli.addHook('build.android.writeBuildManifest', { pre: writeBuildManifest });
 
-	cli.addHook('build.windows.copyResource', {pre: copyResource});
-	cli.addHook('build.windows.writeBuildManifest', {pre: writeBuildManifest});
+	cli.addHook('build.windows.copyResource', { pre: copyResource });
+	cli.addHook('build.windows.writeBuildManifest', { pre: writeBuildManifest });
 
 	/**
 	 * Copy LiveView.js to Resources folder and Inject Server Address
@@ -129,25 +137,31 @@ exports.init = function (logger, config, cli) {
 		 * @param  {Function} finished [description]
 		 */
 		post: function (build, finished) {
+			var resourceDir,
+				liveviewJS,
+				ipAddr,
+				fileServerPort,
+				eventServerPort;
+
 			if (cli.argv.liveview) {
 				debug('Running post:build.pre.compile hook');
-				var resourceDir = path.resolve(cli.argv['project-dir'], 'Resources');
-				var liveviewJS = join(tempdir(), 'liveview.js');
+				resourceDir = path.resolve(cli.argv['project-dir'], 'Resources');
+				liveviewJS = join(tempdir(), 'liveview.js');
 				cp('-f', join(__dirname, '../build/liveview.js'), liveviewJS);
 				cp('-f', join(resourceDir, 'app.js'), join(resourceDir, '.liveviewapp.js'));
 
-				var ipAddr = cli.argv['liveview-ip'] || getNetworkIp();
-				var fileServerPort = cli.argv['liveview-fport'] || 8324;
-				var eventServerPort = cli.argv['liveview-eport'] || 8323;
+				ipAddr = cli.argv['liveview-ip'] || getNetworkIp();
+				fileServerPort = cli.argv['liveview-fport'] || 8324;
+				eventServerPort = cli.argv['liveview-eport'] || 8323;
 
 				if (ipAddr) {
 					fs.writeFileSync(liveviewJS,
 						fs.readFileSync(liveviewJS)
-						.toString()
-						.replace(/FSERVER_HOST/g, ipAddr)
-						.replace(/FSERVER_PORT/g, fileServerPort)
-						.replace(/ESERVER_PORT/g, eventServerPort)
-						.replace(/TCP_HOST/g, ipAddr)
+							.toString()
+							.replace(/FSERVER_HOST/g, ipAddr)
+							.replace(/FSERVER_PORT/g, fileServerPort)
+							.replace(/ESERVER_PORT/g, eventServerPort)
+							.replace(/TCP_HOST/g, ipAddr)
 					);
 				} else {
 					logger.error('Unable to detect IP address');
@@ -163,21 +177,21 @@ exports.init = function (logger, config, cli) {
 	 * Start event/file server
 	 */
 	cli.addHook('build.post.compile', function (build, finished) {
+		var domain;
 		// kill running server via fserver http api
 		debug('invoke kill');
 
-		var domain = require('domain').create();
-
+		domain = require('domain').create();
 		domain.on('error', function (err) {
 			debug(err);
 		});
 
 		domain.run(function () {
 			http
-				.get('http://localhost:8324/kill', function (res) {})
-				.on('error', function (e) {})
-				.on('data', function (e) {})
-				.on('close', function (e) {
+				.get('http://localhost:8324/kill', function () {})
+				.on('error', function () {})
+				.on('data', function () {})
+				.on('close', function () {
 					startServer(finished);
 				});
 		});
@@ -188,14 +202,21 @@ exports.init = function (logger, config, cli) {
 	 * @param  {Function} finished [description]
 	 */
 	function startServer(finished) {
+		var ipAddr,
+			fileServerPort,
+			eventServerPort,
+			binDIR,
+			cmdOpts,
+			child;
+
 		if (cli.argv.liveview) {
-			var ipAddr = cli.argv['liveview-ip'];
-			var fileServerPort = cli.argv['liveview-fport'];
-			var eventServerPort = cli.argv['liveview-eport'];
+			ipAddr = cli.argv['liveview-ip'];
+			fileServerPort = cli.argv['liveview-fport'];
+			eventServerPort = cli.argv['liveview-eport'];
 
 			debug('Running post:build.post.compile hook');
-			var binDIR = join(__dirname, '../bin/liveview-server');
-			var cmdOpts = [
+			binDIR = join(__dirname, '../bin/liveview-server');
+			cmdOpts = [
 				binDIR,
 				'start',
 				'--project-dir', cli.argv['project-dir'],
@@ -211,7 +232,7 @@ exports.init = function (logger, config, cli) {
 			eventServerPort && cmdOpts.push('--liveview-eport', eventServerPort);
 
 			debug('Spawning detached process with command:', cmdOpts);
-			var child = spawn(process.execPath, cmdOpts, {
+			child = spawn(process.execPath, cmdOpts, {
 				detached: true
 			});
 
@@ -232,11 +253,13 @@ exports.init = function (logger, config, cli) {
  * @return {string}
  */
 function getNetworkIp() {
-	var n = require('os').networkInterfaces();
-	var ip = [];
-	for (var k in n) {
-		var inter = n[k];
-		for (var j in inter) {
+	var n = require('os').networkInterfaces(),
+		k,
+		inter,
+		j;
+	for (k in n) {
+		inter = n[k];
+		for (j in inter) {
 			if (inter[j].family === 'IPv4' && !inter[j].internal) {
 				return inter[j].address;
 			}
@@ -245,10 +268,10 @@ function getNetworkIp() {
 }
 
 /**
- * output version as integer
- * @param  {string} version
- * @return {number}
+ * output version as integer. Takes all input up to first '-', removes periods, tries to parse as integer
+ * @param  {string} version version string with - separators
+ * @return {number} First segment of version (split by '-'), with '.'s removed, parsed as an integer
  */
-function simpVer (version) {
+function simpVer(version) {
 	return parseInt(version.split('-')[0].replace(/\./g, ''));
 }

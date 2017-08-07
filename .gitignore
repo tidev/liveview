@@ -2,3 +2,4 @@ node_modules
 .DS_Store
 junit_report.xml
 coverage/
+retirejs.output.json

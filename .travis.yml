@@ -2,5 +2,5 @@ before_script:
   - mkdir $HOME/.titanium
 language: node_js
 node_js:
-  - "0.10"
-  - "0.11"
+  - "4"
+  - "6"

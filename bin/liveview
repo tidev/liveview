@@ -2,18 +2,13 @@
 /**
  *   Appcelerator Titanium Live Reload Development Tool
  */
-var program = require('commander'),
+const program = require('commander'),
 	spawn = require('win-fork'),
 	path = require('path'),
 	fs = require('fs'),
 	join = path.join,
 	exists = fs.existsSync,
-	pkgConf = require('../package'),
-	args,
-	cmd,
-	bin,
-	local,
-	proc;
+	pkgConf = require('../package');
 
 require('shelljs/global');
 
@@ -47,10 +42,10 @@ if (program.banner) {
 }
 
 // args void of cmd
-args = process.argv.slice(3);
+const args = process.argv.slice(3);
 
 // command
-cmd = (program.args[0] || '').toLowerCase();
+let cmd = (program.args[0] || '').toLowerCase();
 
 // alias "build" as "run"
 if (cmd === 'build') {
@@ -70,17 +65,16 @@ if (!cmd) {
 }
 
 // executable
-bin = 'liveview-' + cmd;
+let bin = 'liveview-' + cmd;
 
 // local
-local = join(__dirname, bin);
+const local = join(__dirname, bin);
 if (exists(local)) {
 	bin = local;
 }
 
 // spawn
-proc = spawn(bin, args, { stdio: 'inherit' });
-
+const proc = spawn(bin, args, { stdio: 'inherit' });
 // catch invalid commands
 proc.on('error', function () {
 	console.log('  [ERROR]'.red + ' invalid command: '.red + cmd);

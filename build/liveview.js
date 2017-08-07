@@ -51,8 +51,7 @@ function Emitter(obj) {
  * @private
  */
 function mixin(obj) {
-	var key;
-	for (key in Emitter.prototype) {
+	for (const key in Emitter.prototype) {
 		obj[key] = Emitter.prototype[key];
 	}
 	return obj;
@@ -83,7 +82,7 @@ Emitter.prototype.on = function (event, fn) {
  * @public
  */
 Emitter.prototype.once = function (event, fn) {
-	var self = this;
+	const self = this;
 	this._callbacks = this._callbacks || {};
 
 	/**
@@ -109,10 +108,8 @@ Emitter.prototype.once = function (event, fn) {
  * @public
  */
 Emitter.prototype.off = function (event, fn) {
-	var callbacks,
-		i;
 	this._callbacks = this._callbacks || {};
-	callbacks = this._callbacks[event];
+	let callbacks = this._callbacks[event];
 	if (!callbacks) {
 		return this;
 	}
@@ -124,7 +121,7 @@ Emitter.prototype.off = function (event, fn) {
 	}
 
 	// remove specific handler
-	i = callbacks.indexOf(fn._off || fn);
+	const i = callbacks.indexOf(fn._off || fn);
 	if (~i) {
 		callbacks.splice(i, 1);
 	}
@@ -139,17 +136,13 @@ Emitter.prototype.off = function (event, fn) {
  * @public
  */
 Emitter.prototype.emit = function (event) {
-	var args,
-		callbacks,
-		i,
-		len;
 	this._callbacks = this._callbacks || {};
-	args = [].slice.call(arguments, 1);
-	callbacks = this._callbacks[event];
+	const args = [].slice.call(arguments, 1);
+	let callbacks = this._callbacks[event];
 
 	if (callbacks) {
 		callbacks = callbacks.slice(0);
-		for (i = 0, len = callbacks.length; i < len; ++i) {
+		for (let i = 0, len = callbacks.length; i < len; ++i) {
 			callbacks[i].apply(this, args);
 		}
 	}
@@ -217,19 +210,18 @@ Object.setPrototypeOf(Socket.prototype, Emitter.prototype);
  * @param  {Function} fn   [description]
  */
 Socket.prototype.connect = function (opts, fn) {
-	var self = this,
-		reConnect;
 	opts = opts || {};
-	reConnect = !!opts.reConnect;
 	if (typeof opts === 'function') {
 		fn = opts;
 		opts = {};
 	}
 
+	const self = this;
 	self.host = opts.host || self.host || '127.0.0.1';
 	self.port = opts.port || self.port;
 	self.retry = opts.retry || self.retry;
 
+	const reConnect = !!opts.reConnect;
 	this._proxy = Ti.Network.Socket.createTCP({
 		host: self.host,
 		port: self.port,
@@ -259,7 +251,7 @@ Socket.prototype.connect = function (opts, fn) {
 		 * @returns {undefined}
 		 */
 		error: function (e) {
-			var err = { code: e.errorCode, error: e.error };
+			const err = { code: e.errorCode, error: e.error };
 			if (!~self.ignore.indexOf(err.code)) {
 				return self.emit('error',  err);
 			}
@@ -275,8 +267,7 @@ Socket.prototype.connect = function (opts, fn) {
  * @param {boolean} serverEnded [description]
  */
 Socket.prototype.close = function (serverEnded) {
-	var self = this,
-		retry;
+	const self = this;
 
 	self.connected = false;
 	self.closing = !serverEnded;
@@ -289,7 +280,7 @@ Socket.prototype.close = function (serverEnded) {
 		return;
 	}
 
-	retry = ~~self.retry;
+	const retry = ~~self.retry;
 
 	self.emit('end');
 	if (!retry) {
@@ -308,8 +299,6 @@ Socket.prototype.close = function (serverEnded) {
  * @param  {Function} fn   [description]
  */
 Socket.prototype.write = function (data, fn) {
-	var msg,
-		callback;
 	if (typeof data === 'function') {
 		fn = data;
 		data = null;
@@ -317,9 +306,9 @@ Socket.prototype.write = function (data, fn) {
 
 	data = (data) ?  ('' + data) : '';
 
-	msg = Ti.createBuffer({ value:  data });
+	const msg = Ti.createBuffer({ value:  data });
 
-	callback = fn || function () {};
+	const callback = fn || function () {};
 
 	Ti.Stream.write(this._connection, msg, function () {
 		callback([].slice(arguments));
@@ -333,7 +322,7 @@ Socket.prototype.write = function (data, fn) {
  * @param {number} initialDelay [description]
  */
 Socket.prototype.setKeepAlive = function (enable, initialDelay) {
-	var self = this;
+	const self = this;
 	if (!enable) {
 		self._keepAlive && clearInterval(self._keepAlive);
 		self._keepAlive = null;
@@ -411,8 +400,7 @@ Module._includeNative = function () {
  * @private
  */
 Module.patch = function (globalCtx, url, port) {
-
-	var defaultURL = (process.platform === 'android' && process.hardware === 'sdk')
+	const  defaultURL = (process.platform === 'android' && process.hardware === 'sdk')
 		? '10.0.2.2'
 		: (Ti.Platform.model === 'Simulator' ? '127.0.0.1' : 'FSERVER_HOST');
 	Module._globalCtx = globalCtx;
@@ -460,10 +448,10 @@ Module.global.reload = function () {
  * [description]
  */
 Module.connectServer = function () {
-	var retryInterval = null,
-		client = Module.evtServer = new Socket({ host: Module._url, port: parseInt('ESERVER_PORT', 10) }, function () {
-			console.log('[LiveView]', 'Connected to Event Server');
-		});
+	let retryInterval = null;
+	const client = Module.evtServer = new Socket({ host: Module._url, port: parseInt('ESERVER_PORT', 10) }, function () {
+		console.log('[LiveView]', 'Connected to Event Server');
+	});
 
 	client.on('close', function () {
 		console.log('[LiveView]', 'Closed Previous Event Server client');
@@ -477,12 +465,11 @@ Module.connectServer = function () {
 	});
 
 	client.on('data', function (data) {
-		var evt;
 		if (!data) {
 			return;
 		}
 		try {
-			evt = JSON.parse('' + data);
+			const evt = JSON.parse('' + data);
 			if (evt.type === 'event' && evt.name === 'reload') {
 				Module._cache = {};
 				Module.global.reload();
@@ -499,8 +486,8 @@ Module.connectServer = function () {
 	});
 
 	client.on('error', function (e) {
-		var err = e.error,
-			code = ~~e.code;
+		let err = e.error;
+		const code = ~~e.code;
 		if (code === 61) {
 			err = 'Event Server unavailable. Connection Refused @ '
 				+ Module._url + ':' + Module._port
@@ -520,7 +507,7 @@ Module.connectServer = function () {
  * @public
  */
 Module.include = function (ctx, id) {
-	var file = id.replace('.js', ''),
+	const file = id.replace('.js', ''),
 		src = Module.prototype._getRemoteSource(file, 10000);
 	eval.call(ctx, src); // eslint-disable-line no-eval
 };
@@ -532,25 +519,20 @@ Module.include = function (ctx, id) {
  * @public
  */
 Module.require = function (id) {
-	var fullPath = id,
-		cached = Module.getCached(fullPath),
-		hlDir,
-		modLowerCase,
-		lastIndex,
-		tempPath,
-		freshModule;
+	let fullPath = id;
+	const cached = Module.getCached(fullPath);
 
 	if (cached) {
 		return cached.exports;
 	}
 
 	if (!Module.exists(fullPath)) {
-		hlDir = '/hyperloop/';
+		const hlDir = '/hyperloop/';
 		if (fullPath.indexOf('.*') !== -1) {
 			fullPath = id.slice(0, id.length - 2);
 		}
 
-		modLowerCase = fullPath.toLowerCase();
+		const modLowerCase = fullPath.toLowerCase();
 		if (Module.exists(hlDir + fullPath)) {
 			fullPath = hlDir + fullPath;
 		} else if (Module.exists(hlDir + modLowerCase)) {
@@ -560,15 +542,15 @@ Module.require = function (id) {
 		} else if (fullPath.indexOf('.') === -1 && Module.exists(hlDir + modLowerCase + '/' + modLowerCase)) {
 			fullPath = hlDir + modLowerCase + '/' + modLowerCase;
 		} else {
-			lastIndex = fullPath.lastIndexOf('.');
-			tempPath = hlDir + fullPath.slice(0, lastIndex) + '$' + fullPath.slice(lastIndex + 1);
+			const lastIndex = fullPath.lastIndexOf('.');
+			const tempPath = hlDir + fullPath.slice(0, lastIndex) + '$' + fullPath.slice(lastIndex + 1);
 			if (Module.exists(fullPath)) {
 				fullPath = tempPath;
 			}
 		}
 	}
 
-	freshModule = new Module(fullPath);
+	const freshModule = new Module(fullPath);
 
 	freshModule.cache();
 	freshModule._compile();
@@ -597,10 +579,8 @@ Module.getCached = function (id) {
  * @public
  */
 Module.exists = function (id) {
-	var path = Ti.Filesystem.resourcesDirectory + id + '.js',
-		file = Ti.Filesystem.getFile(path),
-		pFolderPath,
-		pFile;
+	const path = Ti.Filesystem.resourcesDirectory + id + '.js',
+		file = Ti.Filesystem.getFile(path);
 
 	if (file.exists()) {
 		return true;
@@ -609,8 +589,8 @@ Module.exists = function (id) {
 		return false;
 	}
 
-	pFolderPath = Ti.Filesystem.resourcesDirectory + '/' + this.platform + '/' + id + '.js';
-	pFile = Ti.Filesystem.getFile(pFolderPath);
+	const pFolderPath = Ti.Filesystem.resourcesDirectory + '/' + this.platform + '/' + id + '.js';
+	const pFile = Ti.Filesystem.getFile(pFolderPath);
 	return pFile.exists();
 };
 
@@ -623,11 +603,11 @@ Module.exists = function (id) {
  * @private
  */
 Module.prototype._getRemoteSource = function (file, timeout) {
-	var expireTime  = new Date().getTime() + timeout;
-	var request = Ti.Network.createHTTPClient();
-	var rsp = null;
-	var done = false;
-	var url = 'http://' + Module._url + ':' + Module._port + '/' + (file || this.id) + '.js';
+	const expireTime  = new Date().getTime() + timeout;
+	const request = Ti.Network.createHTTPClient();
+	let rsp = null;
+	let done = false;
+	const url = 'http://' + Module._url + ':' + Module._port + '/' + (file || this.id) + '.js';
 	request.cache = false;
 	request.open('GET', url);
 	request.setRequestHeader('x-platform', this.platform);
@@ -654,17 +634,15 @@ Module.prototype._getRemoteSource = function (file, timeout) {
  * @private
  */
 Module.prototype._getSource = function () {
-	var id = this.id,
-		isRemote = /^(http|https)$/.test(id) || (global.ENV === 'liveview'),
-		file;
-
+	let id = this.id;
+	const isRemote = /^(http|https)$/.test(id) || (global.ENV === 'liveview');
 	if (isRemote) {
 		return this._getRemoteSource(null, 10000);
 	} else {
 		if (id === 'app') {
 			id = '_app';
 		}
-		file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, id + '.js');
+		const file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, id + '.js');
 		return (file.read() || {}).text;
 	}
 };
@@ -678,9 +656,9 @@ Module.prototype._getSource = function () {
  */
 Module._wrap = function (source) {
 	source = source.replace(/T[i||itanium]+.include\(['|"]([^"'\r\n$]*)['|"]\)/g, function (exp, val) {
-		var file = ('' + val).replace('.js', '');
-		var _src = Module.prototype._getRemoteSource(file, 10000);
-		var evalSrc = ''
+		const file = ('' + val).replace('.js', '');
+		const _src = Module.prototype._getRemoteSource(file, 10000);
+		const evalSrc = ''
 			+ 'try{ '
 			+ _src.replace(/\/\/(.*)$/gm, '').replace(/\n/g, '')
 			+ '}catch(err){ '
@@ -704,8 +682,7 @@ Module._errWrapper = [
  * @private
  */
 Module.prototype._compile = function () {
-	var src = this._getSource(),
-		fn;
+	const src = this._getSource();
 	if (!src) {
 		this.exports = Module._requireNative(this.id);
 		this.loaded = true;
@@ -713,7 +690,7 @@ Module.prototype._compile = function () {
 	}
 	this.source = Module._wrap(src);
 	try {
-		fn = new Function('exports, require, module, __filename, __dirname, lvGlobal', this.source); // eslint-disable-line no-new-func
+		const fn = new Function('exports, require, module, __filename, __dirname, lvGlobal', this.source); // eslint-disable-line no-new-func
 		fn(this.exports, Module.require, this, this.filename, this.__dirname, global);
 	} catch (err) {
 		process.emit('uncaughtException', { module: this.id, error: err, source: ('' + this.source).split('\n') });

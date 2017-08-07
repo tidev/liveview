@@ -25,7 +25,7 @@ module.exports = function(grunt) {
 			dist: ['build']
 		},
 		eslint: {
-			
+
 			target: ['index.js', 'lib/**/!(_)*.js', 'test/*.js', 'hook/**/*.js', 'bin/*']
 		},
 		appcJs: {
@@ -58,11 +58,10 @@ module.exports = function(grunt) {
 				dest: 'build/liveview.js',
 			},
 		},
-		uglify: {
-			options: {
-				mangle: false
-			},
-			dist: {
+		'node-minify': {
+			babili: {
+				compressor: 'babili',
+				// TODO Turn off mangle!
 				files: {
 					'build/liveview.min.js': ['build/liveview.js']
 				}
@@ -75,10 +74,10 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-bump');
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-concat');
-	grunt.loadNpmTasks('grunt-contrib-uglify');
+	grunt.loadNpmTasks('grunt-node-minify');
 	grunt.loadNpmTasks('grunt-mocha-istanbul');
 
-	grunt.registerTask('build', ['clean:dist', 'concat:dist', 'uglify:dist']);
+	grunt.registerTask('build', ['clean:dist', 'concat:dist', 'node-minify']);
 	grunt.registerTask('lint', ['eslint']);
 	grunt.registerTask('test', ['build', 'lint', 'clean:test', 'mocha_istanbul:coverage']);
 	grunt.registerTask('default', ['build']);

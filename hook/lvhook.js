@@ -1,4 +1,4 @@
-var debug = require('debug')('liveview:clihook'),
+const debug = require('debug')('liveview:clihook'),
 	path = require('path'),
 	http = require('http'),
 	join = path.join,
@@ -27,11 +27,9 @@ exports.init = function (logger, config, cli) {
 	 * @param  {Function} finished [description]
 	 */
 	function doConfig(data, finished) {
-		var sdkVersion,
-			r;
 		debug('Runningbuild.[PLATFORM].config hook');
-		sdkVersion = (cli.sdk && cli.sdk.name) || (cli.manifest && cli.manifest.version);
-		r = ((simpVer(cli.version) < 321) ? data.result : (sdkVersion && simpVer(sdkVersion) < 321) ? data.result[0] : data.result[1]) || {};
+		const sdkVersion = (cli.sdk && cli.sdk.name) || (cli.manifest && cli.manifest.version);
+		const r = ((simpVer(cli.version) < 321) ? data.result : (sdkVersion && simpVer(sdkVersion) < 321) ? data.result[0] : data.result[1]) || {};
 		r.flags || (r.flags = {});
 		r.flags.liveview = {
 			default: false,
@@ -68,15 +66,12 @@ exports.init = function (logger, config, cli) {
 	 * @returns {undefined}
 	 */
 	function copyResource(data, finished) {
-		var RESOURCES_DIR,
-			srcFile;
-
 		debug('Running pre:build.' + cli.argv.platform + '.copyResource hook');
 
 		if (cli.argv.liveview) {
-			RESOURCES_DIR = join(this.projectDir, 'Resources');
+			const RESOURCES_DIR = join(this.projectDir, 'Resources');
 
-			srcFile = data.args[0];
+			const srcFile = data.args[0];
 			if (join(RESOURCES_DIR, 'app.js') === srcFile
 				|| (new RegExp('^' + RESOURCES_DIR.replace(/\\/g, '/') + '(/(android|ipad|ios|iphone|windows))?/app.js$').test(srcFile.replace(/\\/g, '/')))) {
 				data.args[0] = join(tempdir(), 'liveview.js');
@@ -98,14 +93,12 @@ exports.init = function (logger, config, cli) {
 	 * @returns {undefined}
 	 */
 	function writeBuildManifest(data, finished) {
-		var tempAppJS;
-
 		debug('Running pre:build.' + cli.argv.platform + '.writeBuildManifest hook');
 
 		if (cli.argv.liveview) {
 			data.args[0].liveview = true;
 
-			tempAppJS = path.resolve(cli.argv['project-dir'], 'Resources', '.liveviewapp.js');
+			const tempAppJS = path.resolve(cli.argv['project-dir'], 'Resources', '.liveviewapp.js');
 			fs.existsSync(tempAppJS) && fs.unlinkSync(tempAppJS);
 		}
 
@@ -137,22 +130,16 @@ exports.init = function (logger, config, cli) {
 		 * @param  {Function} finished [description]
 		 */
 		post: function (build, finished) {
-			var resourceDir,
-				liveviewJS,
-				ipAddr,
-				fileServerPort,
-				eventServerPort;
-
 			if (cli.argv.liveview) {
 				debug('Running post:build.pre.compile hook');
-				resourceDir = path.resolve(cli.argv['project-dir'], 'Resources');
-				liveviewJS = join(tempdir(), 'liveview.js');
+				const resourceDir = path.resolve(cli.argv['project-dir'], 'Resources');
+				const liveviewJS = join(tempdir(), 'liveview.js');
 				cp('-f', join(__dirname, '../build/liveview.js'), liveviewJS);
 				cp('-f', join(resourceDir, 'app.js'), join(resourceDir, '.liveviewapp.js'));
 
-				ipAddr = cli.argv['liveview-ip'] || getNetworkIp();
-				fileServerPort = cli.argv['liveview-fport'] || 8324;
-				eventServerPort = cli.argv['liveview-eport'] || 8323;
+				const ipAddr = cli.argv['liveview-ip'] || getNetworkIp();
+				const fileServerPort = cli.argv['liveview-fport'] || 8324;
+				const eventServerPort = cli.argv['liveview-eport'] || 8323;
 
 				if (ipAddr) {
 					fs.writeFileSync(liveviewJS,
@@ -177,11 +164,10 @@ exports.init = function (logger, config, cli) {
 	 * Start event/file server
 	 */
 	cli.addHook('build.post.compile', function (build, finished) {
-		var domain;
 		// kill running server via fserver http api
 		debug('invoke kill');
 
-		domain = require('domain').create();
+		const domain = require('domain').create();
 		domain.on('error', function (err) {
 			debug(err);
 		});
@@ -202,21 +188,14 @@ exports.init = function (logger, config, cli) {
 	 * @param  {Function} finished [description]
 	 */
 	function startServer(finished) {
-		var ipAddr,
-			fileServerPort,
-			eventServerPort,
-			binDIR,
-			cmdOpts,
-			child;
-
 		if (cli.argv.liveview) {
-			ipAddr = cli.argv['liveview-ip'];
-			fileServerPort = cli.argv['liveview-fport'];
-			eventServerPort = cli.argv['liveview-eport'];
+			const ipAddr = cli.argv['liveview-ip'];
+			const fileServerPort = cli.argv['liveview-fport'];
+			const eventServerPort = cli.argv['liveview-eport'];
 
 			debug('Running post:build.post.compile hook');
-			binDIR = join(__dirname, '../bin/liveview-server');
-			cmdOpts = [
+			const binDIR = join(__dirname, '../bin/liveview-server');
+			const cmdOpts = [
 				binDIR,
 				'start',
 				'--project-dir', cli.argv['project-dir'],
@@ -232,7 +211,7 @@ exports.init = function (logger, config, cli) {
 			eventServerPort && cmdOpts.push('--liveview-eport', eventServerPort);
 
 			debug('Spawning detached process with command:', cmdOpts);
-			child = spawn(process.execPath, cmdOpts, {
+			const child = spawn(process.execPath, cmdOpts, {
 				detached: true
 			});
 
@@ -253,13 +232,11 @@ exports.init = function (logger, config, cli) {
  * @return {string}
  */
 function getNetworkIp() {
-	var n = require('os').networkInterfaces(),
-		k,
-		inter,
-		j;
-	for (k in n) {
-		inter = n[k];
-		for (j in inter) {
+	const n = require('os').networkInterfaces();
+
+	for (const k in n) {
+		const inter = n[k];
+		for (const j in inter) {
 			if (inter[j].family === 'IPv4' && !inter[j].internal) {
 				return inter[j].address;
 			}

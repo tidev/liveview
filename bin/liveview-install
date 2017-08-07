@@ -1,7 +1,6 @@
 #!/usr/bin/env node
-var program = require('commander'),
-	path = require('path'),
-	pkg;
+const program = require('commander'),
+	path = require('path');
 // inject shelljs to the global scope
 /* globals exec */
 require('shelljs/global');
@@ -27,7 +26,7 @@ program.on('--help', function () {
 program.parse(process.argv);
 
 // package
-pkg = program.args.shift();
+const pkg = program.args.shift();
 if ((pkg || '').toLowerCase() === 'clihook') {
 	installHook();
 }
@@ -37,8 +36,8 @@ if ((pkg || '').toLowerCase() === 'clihook') {
  * @returns {undefined}
  */
 function installHook() {
-	var hook = path.join(__dirname, '../hook').replace(/\s/g, '\\ ');
-	var ticonf = JSON.parse(exec('titanium config -o json', { silent:true }).output);
+	const hook = path.join(__dirname, '../hook').replace(/\s/g, '\\ '),
+		ticonf = JSON.parse(exec('titanium config -o json', { silent:true }).output);
 
 	if (~ticonf['paths.hooks'].indexOf(hook)) {
 		return console.log(' Titanium CLI Hook'.white, 'already installed\n'.yellow);
@@ -46,7 +45,7 @@ function installHook() {
 
 	exec('liveview server stop --no-banner');
 	exec('titanium -q config paths.hooks -a ' + hook, function (res) {
-		var outcome = (res.code) ? 'not installed'.red : 'installed'.green;
+		const outcome = (res.code) ? 'not installed'.red : 'installed'.green;
 		console.log(' Titanium CLI Hook ' + outcome + '\n');
 	});
 }

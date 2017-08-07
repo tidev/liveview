@@ -1,7 +1,6 @@
 #!/usr/bin/env node
-var program = require('commander'),
-	path = require('path'),
-	pkg;
+const program = require('commander'),
+	path = require('path');
 
 // inject shelljs to the global scope
 /* globals exec */
@@ -28,7 +27,7 @@ program.on('--help', function () {
 program.parse(process.argv);
 
 // package
-pkg = (program.args.shift() || '').toLowerCase();
+const pkg = (program.args.shift() || '').toLowerCase();
 if (pkg === 'clihook') {
 	rmHook();
 }

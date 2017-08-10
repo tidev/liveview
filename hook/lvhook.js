@@ -1,3 +1,4 @@
+'use strict';
 const debug = require('debug')('liveview:clihook'),
 	path = require('path'),
 	http = require('http'),

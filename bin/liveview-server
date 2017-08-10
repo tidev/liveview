@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+'use strict';
 const program = require('commander'),
 	server = require('../lib/fserver'),
 	debug = require('debug')('liveview:cli');

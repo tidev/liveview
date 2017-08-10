@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+'use strict';
 const program = require('commander'),
 	colors = require('coloring'), // eslint-disable-line no-unused-vars
 	path = require('path');

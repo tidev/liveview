@@ -1,16 +1,12 @@
 #!/usr/bin/env node
-
-/**
- * Module dependencies.
- */
+'use strict';
+const program = require('commander'),
+	colors = require('coloring'), // eslint-disable-line no-unused-vars
+	path = require('path');
 
 // inject shelljs to the global scope
 /* globals exec */
 require('shelljs/global');
-
-var program = require('commander'),
-	colors = require('coloring'),
-	path = require('path');
 
 /**
  * no-op on unknown options handling
@@ -33,8 +29,10 @@ program.on('--help', function () {
 program.parse(process.argv);
 
 // package
-var pkg = (program.args.shift() || '').toLowerCase();
-if (pkg === 'clihook') { rmHook(); }
+const pkg = (program.args.shift() || '').toLowerCase();
+if (pkg === 'clihook') {
+	rmHook();
+}
 
 /**
  * [installHook description]

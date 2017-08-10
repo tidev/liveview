@@ -1,16 +1,9 @@
 #!/usr/bin/env node
-
-/**
- * Module dependencies.
- */
-
+'use strict';
+const program = require('commander');
 // inject shelljs to the global scope
 /* globals exec */
 require('shelljs/global');
-
-var program = require('commander'),
-	colors = require('coloring'),
-	fserver = require('../lib/fserver');
 
 /**
  * no-op on unknown options handling
@@ -23,7 +16,7 @@ program.usage('run [options]');
 // examples
 program.on('--help', function () {
 	console.log('  Ti-Options:\n');
-	exec('ti build --no-banner --help', {silent:true}).output.split('\n').forEach(function (line) {
+	exec('ti build --no-banner --help', { silent:true }).output.split('\n').forEach(function (line) {
 		console.log('    ' + line);
 	});
 	console.log();
@@ -33,7 +26,7 @@ program.on('--help', function () {
 program.parse(process.argv);
 
 // build flags for ti cli
-var buildOpts = process.argv.slice(2).join(' ');
+const buildOpts = process.argv.slice(2).join(' ');
 
 /**
  * [buildFlags description]
@@ -41,8 +34,10 @@ var buildOpts = process.argv.slice(2).join(' ');
  */
 function buildFlags(cb) {
 	program.prompt('build-flags: ', function (opts) {
-		if (!opts) { return buildFlags(cb); }
-		cb(null,opts);
+		if (!opts) {
+			return buildFlags(cb);
+		}
+		cb(null, opts);
 	});
 }
 

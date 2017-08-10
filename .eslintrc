@@ -1,0 +1,10 @@
+{
+  "extends": [ "axway/env-node" ],
+  "globals": {
+    "Ti": false
+  },
+  "rules": {
+    "security/detect-child-process": 0,
+    "security/detect-non-literal-regexp": 0
+  }
+}

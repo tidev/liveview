@@ -1,5 +1,5 @@
 {
-  "extends": "./node_modules/eslint-config-axway/env-node.js",
+  "extends": [ "axway/env-node" ],
   "globals": {
     "Ti": false
   },

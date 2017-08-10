@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 const program = require('commander'),
+	colors = require('coloring'), // eslint-disable-line no-unused-vars
 	path = require('path');
 // inject shelljs to the global scope
 /* globals exec */

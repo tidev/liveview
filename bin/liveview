@@ -3,6 +3,7 @@
  *   Appcelerator Titanium Live Reload Development Tool
  */
 const program = require('commander'),
+	colors = require('coloring'), // eslint-disable-line no-unused-vars
 	spawn = require('win-fork'),
 	path = require('path'),
 	fs = require('fs'),

@@ -49,15 +49,16 @@ module.exports = function (grunt) {
 					'lib/platform/require.js',
 					'lib/platform/_tail.js'
 				],
-				dest: 'build/liveview.js',
+				dest: 'build/liveview.es6.js',
 			},
 		},
-		'node-minify': {
-			babili: {
-				compressor: 'babili',
-				// TODO Turn off mangle!
+		babel: {
+			options: {
+				presets: [ 'es2015' ]
+			},
+			dist: {
 				files: {
-					'build/liveview.min.js': [ 'build/liveview.js' ]
+					'build/liveview.js': [ 'build/liveview.es6.js' ]
 				}
 			}
 		}
@@ -68,10 +69,10 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-bump');
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-concat');
-	grunt.loadNpmTasks('grunt-node-minify');
+	grunt.loadNpmTasks('grunt-babel');
 	grunt.loadNpmTasks('grunt-mocha-istanbul');
 
-	grunt.registerTask('build', [ 'clean:dist', 'concat:dist', 'node-minify' ]);
+	grunt.registerTask('build', [ 'clean:dist', 'concat:dist', 'babel:dist' ]);
 	grunt.registerTask('lint', [ 'appcJs' ]);
 	grunt.registerTask('test', [ 'build', 'lint', 'clean:test', 'mocha_istanbul:coverage' ]);
 	grunt.registerTask('default', [ 'build' ]);

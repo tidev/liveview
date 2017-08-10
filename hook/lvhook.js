@@ -27,7 +27,7 @@ exports.init = function (logger, config, cli) {
 	 * @param  {Function} finished [description]
 	 */
 	function doConfig(data, finished) {
-		debug('Runningbuild.[PLATFORM].config hook');
+		debug('Running build.[PLATFORM].config hook');
 		const sdkVersion = (cli.sdk && cli.sdk.name) || (cli.manifest && cli.manifest.version);
 		const r = ((simpVer(cli.version) < 321) ? data.result : (sdkVersion && simpVer(sdkVersion) < 321) ? data.result[0] : data.result[1]) || {};
 		r.flags || (r.flags = {});
@@ -73,7 +73,7 @@ exports.init = function (logger, config, cli) {
 
 			const srcFile = data.args[0];
 			if (join(RESOURCES_DIR, 'app.js') === srcFile
-				|| (new RegExp('^' + RESOURCES_DIR.replace(/\\/g, '/') + '(/(android|ipad|ios|iphone|windows))?/app.js$').test(srcFile.replace(/\\/g, '/')))) {
+				|| (new RegExp('^' + RESOURCES_DIR.replace(/\\/g, '/') + '(/(android|ipad|ios|iphone|windows|blackberry|tizen))?/app.js$').test(srcFile.replace(/\\/g, '/')))) {
 				data.args[0] = join(tempdir(), 'liveview.js');
 			}
 		}

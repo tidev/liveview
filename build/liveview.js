@@ -512,9 +512,9 @@
 
 	/**
   * convert relative to absolute path
-  * @param  {string} parent
-  * @param  {string} relative
-  *
+  * @param  {string} parent parent file path
+  * @param  {string} relative relative path in require
+  * @return {string} absolute path of the required file
   * @public
   */
 	Module.toAbsolute = function (parent, relative) {
@@ -560,7 +560,7 @@
 				}
 			} else if (fullPath.indexOf('/') === 0) {
 				if (Module.exists(fullPath + '/index')) {
-					fullPath = fullPath + '/index';
+					fullPath += '/index';
 				}
 			} else {
 				var hlDir = '/hyperloop/';

@@ -728,4 +728,4 @@
 	// Prevent display from sleeping
 
 	Titanium.App.idleTimerDisabled = true;
-})(undefined);
+})(this);

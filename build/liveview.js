@@ -606,6 +606,20 @@
 		request.open('GET', url);
 		request.setRequestHeader('x-platform', this.platform);
 		request.send();
+
+		//
+		// Windows only API: waitForResponse() waits for the response from the server.
+		//
+		if (this.platfrom == 'windows' && request.waitForResponse) {
+			request.waitForResponse();
+			if (request.readyState === 4 || request.status === 404) {
+				rsp = request.status === 200 ? request.responseText : false;
+			} else {
+				throw new Error('[LiveView] File Server unavailable. Host Unreachable @ ' + Module._url + ':' + Module._port + '\n[LiveView] Please ensure your device and computer are on the same network and the port is not blocked.');
+			}
+			done = true;	
+		}
+
 		while (!done) {
 			if (request.readyState === 4 || request.status === 404) {
 				rsp = request.status === 200 ? request.responseText : false;

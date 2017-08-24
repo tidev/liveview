@@ -608,10 +608,10 @@
 		request.send();
 
 		//
-		// Windows only API: waitForResponse() waits for the response from the server.
+		// Windows only private API: _waitForResponse() waits for the response from the server.
 		//
-		if (this.platform == 'windows' && request.waitForResponse) {
-			request.waitForResponse();
+		if (this.platform == 'windows' && request._waitForResponse) {
+			request._waitForResponse();
 			if (request.readyState === 4 || request.status === 404) {
 				rsp = request.status === 200 ? request.responseText : false;
 			} else {

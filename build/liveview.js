@@ -545,6 +545,12 @@
   */
 	Module.require = function (id) {
 		var fullPath = id;
+
+		if (fullPath.indexOf('./') === 0 || fullPath.indexOf('../') === 0) {
+			var parent = Module._compileList[Module._compileList.length - 1];
+			fullPath = Module.toAbsolute(parent, fullPath);
+		}
+
 		var cached = Module.getCached(fullPath) || Module.getCached(fullPath + '/index');
 
 		if (cached) {
@@ -552,13 +558,7 @@
 		}
 
 		if (!Module.exists(fullPath)) {
-			if (fullPath.indexOf('./') === 0 || fullPath.indexOf('../') === 0) {
-				var parent = Module._compileList[Module._compileList.length - 1];
-				var tempFullPath = Module.toAbsolute(parent, fullPath);
-				if (Module.exists(tempFullPath)) {
-					fullPath = tempFullPath;
-				}
-			} else if (fullPath.indexOf('/') === 0) {
+			if (fullPath.indexOf('/') === 0) {
 				if (Module.exists(fullPath + '/index')) {
 					fullPath += '/index';
 				}

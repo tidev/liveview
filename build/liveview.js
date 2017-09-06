@@ -408,6 +408,7 @@
 		Module._port = parseInt(port, 10) || 8324;
 		Module._requireNative = globalCtx.require;
 		Module.evtServer && Module.evtServer.close();
+		Module._compileList = [];
 
 		// FIX for android bug
 		try {
@@ -510,6 +511,33 @@
 	};
 
 	/**
+  * convert relative to absolute path
+  * @param  {string} parent parent file path
+  * @param  {string} relative relative path in require
+  * @return {string} absolute path of the required file
+  * @public
+  */
+	Module.toAbsolute = function (parent, relative) {
+		var newPath = parent.split('/'),
+		    parts = relative.split('/');
+
+		newPath.pop();
+
+		for (var i = 0; i < parts.length; i++) {
+			if (parts[i] === '.') {
+				continue;
+			}
+
+			if (parts[i] === '..') {
+				newPath.pop();
+			} else {
+				newPath.push(parts[i]);
+			}
+		}
+		return newPath.join('/');
+	};
+
+	/**
   * commonjs module loader
   * @param  {string} id module identifier
   * @returns {Object}
@@ -517,32 +545,44 @@
   */
 	Module.require = function (id) {
 		var fullPath = id;
-		var cached = Module.getCached(fullPath);
+
+		if (fullPath.indexOf('./') === 0 || fullPath.indexOf('../') === 0) {
+			var parent = Module._compileList[Module._compileList.length - 1];
+			fullPath = Module.toAbsolute(parent, fullPath);
+		}
+
+		var cached = Module.getCached(fullPath) || Module.getCached(fullPath + '/index');
 
 		if (cached) {
 			return cached.exports;
 		}
 
 		if (!Module.exists(fullPath)) {
-			var hlDir = '/hyperloop/';
-			if (fullPath.indexOf('.*') !== -1) {
-				fullPath = id.slice(0, id.length - 2);
-			}
-
-			var modLowerCase = fullPath.toLowerCase();
-			if (Module.exists(hlDir + fullPath)) {
-				fullPath = hlDir + fullPath;
-			} else if (Module.exists(hlDir + modLowerCase)) {
-				fullPath = hlDir + modLowerCase;
-			} else if (fullPath.indexOf('.') === -1 && Module.exists(hlDir + fullPath + '/' + fullPath)) {
-				fullPath = hlDir + fullPath + '/' + fullPath;
-			} else if (fullPath.indexOf('.') === -1 && Module.exists(hlDir + modLowerCase + '/' + modLowerCase)) {
-				fullPath = hlDir + modLowerCase + '/' + modLowerCase;
+			if (fullPath.indexOf('/') === 0) {
+				if (Module.exists(fullPath + '/index')) {
+					fullPath += '/index';
+				}
 			} else {
-				var lastIndex = fullPath.lastIndexOf('.');
-				var tempPath = hlDir + fullPath.slice(0, lastIndex) + '$' + fullPath.slice(lastIndex + 1);
-				if (Module.exists(fullPath)) {
-					fullPath = tempPath;
+				var hlDir = '/hyperloop/';
+				if (fullPath.indexOf('.*') !== -1) {
+					fullPath = id.slice(0, id.length - 2);
+				}
+
+				var modLowerCase = fullPath.toLowerCase();
+				if (Module.exists(hlDir + fullPath)) {
+					fullPath = hlDir + fullPath;
+				} else if (Module.exists(hlDir + modLowerCase)) {
+					fullPath = hlDir + modLowerCase;
+				} else if (fullPath.indexOf('.') === -1 && Module.exists(hlDir + fullPath + '/' + fullPath)) {
+					fullPath = hlDir + fullPath + '/' + fullPath;
+				} else if (fullPath.indexOf('.') === -1 && Module.exists(hlDir + modLowerCase + '/' + modLowerCase)) {
+					fullPath = hlDir + modLowerCase + '/' + modLowerCase;
+				} else {
+					var lastIndex = fullPath.lastIndexOf('.');
+					var tempPath = hlDir + fullPath.slice(0, lastIndex) + '$' + fullPath.slice(lastIndex + 1);
+					if (Module.exists(fullPath)) {
+						fullPath = tempPath;
+					}
 				}
 			}
 		}
@@ -689,6 +729,7 @@
 			this.loaded = true;
 			return;
 		}
+		Module._compileList.push(this.id);
 		this.source = Module._wrap(src);
 		try {
 			var fn = new Function('exports, require, module, __filename, __dirname, lvGlobal', this.source); // eslint-disable-line no-new-func
@@ -697,6 +738,7 @@
 			process.emit('uncaughtException', { module: this.id, error: err, source: ('' + this.source).split('\n') });
 		}
 
+		Module._compileList.pop();
 		this.loaded = true;
 	};
 

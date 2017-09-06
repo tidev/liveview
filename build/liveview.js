@@ -551,17 +551,15 @@
 			fullPath = Module.toAbsolute(parent, fullPath);
 		}
 
-		var cached = Module.getCached(fullPath) || Module.getCached(fullPath + '/index');
+		var cached = Module.getCached(fullPath) || Module.getCached(fullPath.replace('/index', '')) || Module.getCached(fullPath + '/index');
 
 		if (cached) {
 			return cached.exports;
 		}
 
 		if (!Module.exists(fullPath)) {
-			if (fullPath.indexOf('/') === 0) {
-				if (Module.exists(fullPath + '/index')) {
-					fullPath += '/index';
-				}
+			if (fullPath.indexOf('/') === 0 && Module.exists(fullPath + '/index')) {
+				fullPath += '/index';
 			} else {
 				var hlDir = '/hyperloop/';
 				if (fullPath.indexOf('.*') !== -1) {

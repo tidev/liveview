@@ -54,7 +54,7 @@ module.exports = function (grunt) {
 		},
 		babel: {
 			options: {
-				presets: [ [ 'es2015', { modules: false } ] ]
+				presets: [[ 'es2015', { modules: false }]]
 			},
 			dist: {
 				files: {

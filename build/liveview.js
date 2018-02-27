@@ -418,15 +418,6 @@
 		}
 
 		globalCtx.localeStrings = Module.require('localeStrings');
-		/**
-   * [description]
-   * @param  {string} name   [description]
-   * @param  {string} filler [description]
-   * @return {string}        [description]
-   */
-		globalCtx.L = function (name, filler) {
-			return (globalCtx.localeStrings[Ti.Locale.currentLanguage] || {})[name] || filler || name;
-		};
 		Module.connectServer();
 	};
 
@@ -729,9 +720,12 @@
 		}
 		Module._compileList.push(this.id);
 		this.source = Module._wrap(src);
+		function L(name, filler) {
+			return (Module._globalCtx.localeStrings[Ti.Locale.currentLanguage] || {})[name] || filler || name;
+		}
 		try {
-			var fn = new Function('exports, require, module, __filename, __dirname, lvGlobal', this.source); // eslint-disable-line no-new-func
-			fn(this.exports, Module.require, this, this.filename, this.__dirname, global);
+			var fn = new Function('exports, require, module, __filename, __dirname, lvGlobal, L', this.source); // eslint-disable-line no-new-func
+			fn(this.exports, Module.require, this, this.filename, this.__dirname, global, L);
 		} catch (err) {
 			process.emit('uncaughtException', { module: this.id, error: err, source: ('' + this.source).split('\n') });
 		}

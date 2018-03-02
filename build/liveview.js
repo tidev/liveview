@@ -356,6 +356,10 @@
 		this.loaded = false;
 	}
 
+	function L(name, filler) {
+		return (Module._globalCtx.localeStrings[Ti.Locale.currentLanguage] || {})[name] || filler || name;
+	}
+
 	// global namespace
 	global = Module._global = Module.global = {};
 
@@ -720,9 +724,6 @@
 		}
 		Module._compileList.push(this.id);
 		this.source = Module._wrap(src);
-		function L(name, filler) {
-			return (Module._globalCtx.localeStrings[Ti.Locale.currentLanguage] || {})[name] || filler || name;
-		}
 		try {
 			var fn = new Function('exports, require, module, __filename, __dirname, lvGlobal, L', this.source); // eslint-disable-line no-new-func
 			fn(this.exports, Module.require, this, this.filename, this.__dirname, global, L);

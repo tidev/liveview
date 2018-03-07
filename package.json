@@ -3,16 +3,14 @@
   "version": "1.2.1",
   "description": "Titanium Live Realtime App Development",
   "main": "index.js",
-  "private": true,
   "directories": {
     "doc": "docs",
     "test": "test"
   },
+  "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "build": "grunt",
-    "test": "grunt test",
-    "postinstall": "node bin/liveview install clihook",
-    "postuninstall": "node bin/liveview rm clihook"
+    "test": "grunt test"
   },
   "repository": {
     "type": "git",

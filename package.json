@@ -54,10 +54,10 @@
     "jsparse-tools2": "~1.0.0"
   },
   "devDependencies": {
-    "babel-core": "^6.25.0",
+    "babel-core": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
-    "grunt": "^1.0.1",
-    "grunt-appc-js": "^2.0.1",
+    "grunt": "^1.0.2",
+    "grunt-appc-js": "^2.1.0",
     "grunt-babel": "^7.0.0",
     "grunt-bump": "^0.8.0",
     "grunt-contrib-clean": "^1.0.0",
@@ -65,7 +65,7 @@
     "grunt-mocha-istanbul": "^5.0.2",
     "istanbul": "^0.4.5",
     "mocha": "~1.17.1",
-    "mocha-jenkins-reporter": "^0.3.7",
+    "mocha-jenkins-reporter": "^0.3.12",
     "should": "~3.1.2",
     "supertest": "~0.8.0"
   },

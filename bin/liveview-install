@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 'use strict';
 const program = require('commander'),
-	colors = require('coloring'), // eslint-disable-line no-unused-vars
-	path = require('path');
+	chalk = require('chalk'),
+	path = require('path'),
+	{ green, red, white, yellow } = chalk;
 // inject shelljs to the global scope
 /* globals exec */
 require('shelljs/global');
@@ -42,12 +43,12 @@ function installHook() {
 		ticonf = JSON.parse(exec('titanium config -o json', { silent: true }).output);
 
 	if (~ticonf['paths.hooks'].indexOf(hook)) {
-		return console.log(' Titanium CLI Hook'.white, 'already installed\n'.yellow);
+		return console.log(`${white(' Titanium CLI Hook')} ${yellow('already installed\n')}`);
 	}
 
 	exec('liveview server stop --no-banner');
 	exec('titanium -q config paths.hooks -a ' + hook, function (res) {
-		const outcome = (res.code) ? 'not installed'.red : 'installed'.green;
-		console.log(' Titanium CLI Hook ' + outcome + '\n');
+		const outcome = (res.code) ? red('not installed') : green('installed');
+		console.log(` Titanium CLI Hook ${outcome} \n`);
 	});
 }

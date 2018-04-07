@@ -44,14 +44,14 @@
     "liveview-rm": "bin/liveview-rm"
   },
   "dependencies": {
-    "win-fork": "~1.1.1",
-    "coloring": "~0.1.0",
-    "commander": "~2.0.0",
-    "hypar": "~0.1.0",
-    "debug": "~0.7.2",
+    "chalk": "^2.3.2",
     "chokidar": "~0.6.3",
+    "commander": "~2.0.0",
+    "debug": "~0.7.2",
+    "hypar": "~0.1.0",
+    "jsparse-tools2": "~1.0.0",
     "shelljs": "~0.2.6",
-    "jsparse-tools2": "~1.0.0"
+    "win-fork": "~1.1.1"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

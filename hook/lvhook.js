@@ -213,7 +213,8 @@ exports.init = function (logger, config, cli) {
 
 			debug('Spawning detached process with command:', cmdOpts);
 			const child = spawn(process.execPath, cmdOpts, {
-				detached: true
+				detached: true,
+				env: Object.assign({ FORCE_COLOR: 1 }, process.env) // Force colors from chalk in subprocess
 			});
 
 			child.on('error', function (err) {

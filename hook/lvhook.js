@@ -221,6 +221,8 @@ exports.init = function (logger, config, cli) {
 				console.error('\n %s\n', err);
 			});
 
+			child.stderr.pipe(process.stderr);
+
 			child.stdout.pipe(process.stdout);
 		}
 		finished();

@@ -4,84 +4,14 @@
  *   Appcelerator Titanium Live Reload Development Tool
  */
 const program = require('commander'),
-	chalk = require('chalk'),
-	spawn = require('win-fork'),
-	path = require('path'),
-	fs = require('fs'),
-	join = path.join,
-	exists = fs.existsSync,
-	pkgConf = require('../package'),
-	{ blue, grey, red } = chalk;
+	pkgConf = require('../package.json');
 
-require('shelljs/global');
-
-// usage
 program
 	.version(pkgConf.version)
-	.usage('<command> [options]')
+	.usage('cmd [options]')
+	.command('install <name>', 'install hook')
+	.command('rm <name>', 'rm related things').alias('remove')
+	.command('server [options]', 'Server related things')
 	.option('--no-banner', 'disable program banner output')
-	.option('--no-colors', 'disable program cli color output');
-
-// sub-command help
-program.on('--help', function () {
-	console.log('  Commands:');
-	console.log();
-	console.log('    run [flags...]      build project with live updates');
-	console.log('    install <name>      install components');
-	console.log('    rm <name>           remove components');
-	console.log('    server [options]    file/event server');
-	console.log();
-	process.exit();
-});
-
-// parse argv
-program.parse(process.argv);
-
-if (program.banner) {
-	console.log(' ');
-	console.log(' LiveView, Realtime App Development, version ' + pkgConf.version);
-	console.log(grey(' Copyright (c) 2013, Appcelerator, Inc.  All Rights Reserved.'));
-	console.log(`${grey(' Please report bugs to')}, ${blue('http://jira.appcelerator.org/\n')}`);
-}
-
-// args void of cmd
-const args = process.argv.slice(3);
-
-// command
-let cmd = (program.args[0] || '').toLowerCase();
-
-// alias "build" as "run"
-if (cmd === 'build') {
-	cmd = 'run';
-}
-
-// alias "rm" as "remove"
-if (cmd === 'remove') {
-	cmd = 'rm';
-}
-
-// display help
-if (!cmd) {
-	process.stdout.write(program.helpInformation());
-	program.emit('--help');
-	process.exit();
-}
-
-// executable
-let bin = 'liveview-' + cmd;
-
-// local
-const local = join(__dirname, bin);
-if (exists(local)) {
-	bin = local;
-}
-
-// spawn
-const proc = spawn(bin, args, { stdio: 'inherit' });
-// catch invalid commands
-proc.on('error', function () {
-	console.log(`${red('ERROR')} invalid command: ${red(cmd)}`);
-	process.stdout.write(program.helpInformation());
-	program.emit('--help');
-	process.exit();
-});
+	.option('--no-colors', 'disable program cli color output', true)
+	.parse(process.argv);

@@ -9,6 +9,7 @@ require('shelljs/global');
 program.usage('<command> [options]');
 
 program
+	.description('LiveView server related functionality, such as start, stop, restart.')
 	.option('--liveview-ip [host]', 'server IP address')
 	.option('--liveview-fport [fport]', 'file server port')
 	.option('--liveview-eport [eport]', 'event server port')
@@ -19,7 +20,7 @@ program
 
 // sub-command help
 program.on('--help', function () {
-	console.log('  Commands:');
+	console.log('\n  Commands:');
 	console.log();
 	console.log('    start [options]     start file/event server');
 	console.log('    stop [options]      stop file/event server');

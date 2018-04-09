@@ -2,7 +2,8 @@ var Fserver = require('../lib/fserver'),
 	path = require('path'),
 	join = path.join,
 	should = require('should'), // eslint-disable-line no-unused-vars
-	FixtureApp = join(__dirname, 'platform');
+	FixtureApp = join(__dirname, 'platform'),
+	request = require('request');
 
 describe('FServer', function () {
 
@@ -46,6 +47,21 @@ describe('FServer', function () {
 				projectDir: FixtureApp,
 				fport: 9033,
 				eport: 9034
+			});
+		});
+
+		after(function (done) {
+			const opts = {
+				url: 'http://localhost:8324/kill',
+				headers: {
+					'x-platform': 'foo'
+				}
+			};
+			request(opts, function () {
+				opts.url = 'http://localhost:9033/kill';
+				request(opts, function () {
+					done();
+				});
 			});
 		});
 

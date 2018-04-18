@@ -10,7 +10,7 @@ program
 	.version(pkgConf.version)
 	.usage('cmd [options]')
 	.command('install <name>', 'install hook')
-	.command('rm <name>', 'rm related things').alias('remove')
+	.command('uninstall <name>', 'uninstall hook').alias('rm')
 	.command('server [options]', 'Server related things')
 	.option('--no-banner', 'disable program banner output')
 	.option('--no-colors', 'disable program cli color output', true)

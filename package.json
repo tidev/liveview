@@ -48,9 +48,9 @@
     "chokidar": "~0.6.3",
     "commander": "^2.15.1",
     "debug": "^3.1.0",
+    "fs-extra": "^5.0.0",
     "hypar": "~0.1.0",
-    "jsparse-tools2": "~1.0.0",
-    "shelljs": "~0.2.6"
+    "jsparse-tools2": "~1.0.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

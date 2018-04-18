@@ -2,10 +2,28 @@
 'use strict';
 const program = require('commander'),
 	server = require('../lib/fserver'),
-	debug = require('debug')('liveview:cli');
+	debug = require('debug')('liveview:cli'),
+	chalk = require('chalk');
 
-require('shelljs/global');
+const {
+	green,
+	grey,
+	red
+} = chalk;
 
+function log(message) {
+	if (process.env.SILENT) {
+		return;
+	}
+	console.log(green('[LiveView]'), message);
+}
+
+function logError(message) {
+	if (process.env.SILENT) {
+		return;
+	}
+	console.error(red('[LiveView]'), message);
+}
 program.usage('<command> [options]');
 
 program
@@ -42,9 +60,40 @@ if (!cmd) {
 	process.exit();
 }
 
-try {
-	server[program.args[0]](program);
-} catch (e) {
-	debug(e);
-	program.help();
+switch (cmd) {
+	case 'pids':
+		try {
+			const pids = server.pids();
+			log(`Current running servers pid files:\n${pids.join('\n').trim() || grey('No Active Servers')}`);
+		} catch (e) {
+			logError(`Unable to get pids ${e}`);
+		}
+		break;
+	case 'restart':
+		server.restart();
+		break;
+	case 'start':
+		try {
+			server.start(program);
+		} catch (e) {
+			logError(`Unable to start server ${e}`);
+		}
+		break;
+	case 'stop':
+		server.stop(true);
+		break;
+	case 'status':
+		try {
+			const status = server.status();
+			log(`Current running servers:${status || grey('\nNo Active Servers')}`);
+		} catch (e) {
+			logError(`Unable to get server status ${e}`);
+		}
+		break;
+	default:
+		logError(`Unknown command ${red(cmd)}`);
+		process.stdout.write(program.helpInformation());
+		program.emit('--help');
+		break;
+
 }

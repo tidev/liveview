@@ -4,8 +4,8 @@ const debug = require('debug')('liveview:clihook'),
 	http = require('http'),
 	join = path.join,
 	fs = require('fs-extra'),
-	spawn = require('child_process').spawn,
-	os = require('os');
+	os = require('os'),
+	server = require('../lib/fserver');
 
 // export min cli version
 exports.cliVersion = '>=3.0.25';
@@ -176,7 +176,7 @@ exports.init = function (logger, config, cli) {
 				.on('error', function () {})
 				.on('data', function () {})
 				.on('close', function () {
-					startServer(finished);
+					startServer(build, finished);
 				});
 		});
 	});
@@ -185,42 +185,37 @@ exports.init = function (logger, config, cli) {
 	 * [startServer description]
 	 * @param  {Function} finished [description]
 	 */
-	function startServer(finished) {
+	function startServer(build, finished) {
 		if (cli.argv.liveview) {
 			const ipAddr = cli.argv['liveview-ip'];
 			const fileServerPort = cli.argv['liveview-fport'];
 			const eventServerPort = cli.argv['liveview-eport'];
+			const platform = cli.argv.platform;
+			const transpileTarget = {};
 
-			debug('Running post:build.post.compile hook');
-			const binDIR = join(__dirname, '../bin/liveview-server');
-			const cmdOpts = [
-				binDIR,
-				'start',
-				'--project-dir', cli.argv['project-dir'],
-				'--platform', cli.argv.platform
-			];
-
-			if (!cli.argv.colors) {
-				cmdOpts.push('--no-colors');
+			if (platform === 'ios') {
+				if (build.useJSCore) {
+					transpileTarget.ios = build.minSupportedIosSdk;
+				}
+			} else if (platform === 'android') {
+				transpileTarget.chrome = build.chromeVersion;
+			} else if (platform === 'windows') {
+				transpileTarget.safari = '10';
 			}
 
-			ipAddr && cmdOpts.push('--liveview-ip', ipAddr);
-			fileServerPort && cmdOpts.push('--liveview-fport', fileServerPort);
-			eventServerPort && cmdOpts.push('--liveview-eport', eventServerPort);
+			const opts = {
+				host: ipAddr,
+				fport: fileServerPort,
+				eport: eventServerPort,
+				platform,
+				projectDir: cli.argv['project-dir'],
+				transpile: cli.tiapp.transpile,
+				transpileTarget
+			};
 
-			debug('Spawning detached process with command:', cmdOpts);
-			const child = spawn(process.execPath, cmdOpts, {
-				detached: true,
-				env: Object.assign({ FORCE_COLOR: 1 }, process.env) // Force colors from chalk in subprocess
-			});
-
-			child.on('error', function (err) {
-				console.error('\n %s\n', err);
-			});
-
-			child.stderr.pipe(process.stderr);
-
-			child.stdout.pipe(process.stdout);
+			debug('opts are %o', opts);
+			debug('Running post:build.post.compile hook');
+			server.start(opts);
 		}
 		finished();
 	}

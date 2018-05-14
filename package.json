@@ -37,11 +37,7 @@
     }
   ],
   "bin": {
-    "liveview": "bin/liveview",
-    "liveview-run": "bin/liveview-run",
-    "liveview-server": "bin/liveview-server",
-    "liveview-install": "bin/liveview-install",
-    "liveview-rm": "bin/liveview-rm"
+    "liveview": "bin/liveview"
   },
   "dependencies": {
     "chalk": "^2.4.0",
@@ -49,7 +45,7 @@
     "commander": "^2.15.1",
     "debug": "^3.1.0",
     "fs-extra": "^5.0.0",
-    "jsparse-tools2": "~1.0.0",
+    "node-titanium-sdk": "^0.4.10",
     "xmldom": "^0.1.27"
   },
   "devDependencies": {

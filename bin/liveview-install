@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 'use strict';
 const program = require('commander'),
-	colors = require('coloring'), // eslint-disable-line no-unused-vars
-	path = require('path');
-// inject shelljs to the global scope
-/* globals exec */
-require('shelljs/global');
+	chalk = require('chalk'),
+	path = require('path'),
+	execSync = require('child_process').execSync,
+	{ green, red, white, yellow } = chalk;
 
 /**
  * no-op on unknown options handling
@@ -13,41 +12,40 @@ require('shelljs/global');
 program.Command.prototype.unknownOption = function () {};
 
 // usage
-program.usage('install <name> [options]');
+program.usage('install');
 
 // examples
 program.on('--help', function () {
 	console.log('  Examples:');
 	console.log();
 	console.log('    # install cli hook');
-	console.log('    $ liveview install clihook');
+	console.log('    $ liveview install');
 	console.log();
 });
 
 // parse argv
 program.parse(process.argv);
 
-// package
-const pkg = program.args.shift();
-if ((pkg || '').toLowerCase() === 'clihook') {
-	installHook();
-}
-
-/**
- * Installs the Titanium CLI hook for Liveview (if not already installed)
- * @returns {undefined}
- */
-function installHook() {
-	const hook = path.join(__dirname, '../hook').replace(/\s/g, '\\ '),
-		ticonf = JSON.parse(exec('titanium config -o json', { silent:true }).output);
-
-	if (~ticonf['paths.hooks'].indexOf(hook)) {
-		return console.log(' Titanium CLI Hook'.white, 'already installed\n'.yellow);
+if (!process.env.APPC_NPM_VERSION) {
+	const hook = path.join(__dirname, '../hook').replace(/\s/g, '\\ ');
+	try {
+		const ticonf = JSON.parse(execSync('titanium config -o json').toString());
+		if (ticonf['paths.hooks'].includes(hook)) {
+			console.log(`${white('Titanium CLI Hook')} ${yellow('already installed')}`);
+			process.exit(1);
+		}
+	} catch (e) {
+		console.log(e);
+		process.exit(1);
 	}
 
-	exec('liveview server stop --no-banner');
-	exec('titanium -q config paths.hooks -a ' + hook, function (res) {
-		const outcome = (res.code) ? 'not installed'.red : 'installed'.green;
-		console.log(' Titanium CLI Hook ' + outcome + '\n');
-	});
+	try {
+		execSync('liveview server stop --no-banner',  { stdio: 'ignore' });
+		execSync('titanium -q config paths.hooks -a ' + hook, { shell: true });
+		console.log(` Titanium CLI Hook ${green('installed')}`);
+	} catch (e) {
+		console.log(e);
+		console.log(` Titanium CLI Hook ${red('not installed')}`);
+	}
+
 }

@@ -3,12 +3,9 @@ const debug = require('debug')('liveview:clihook'),
 	path = require('path'),
 	http = require('http'),
 	join = path.join,
-	fs = require('fs'),
-	spawn = require('child_process').spawn;
-
-// inject shelljs to the global scope
-/* globals cp, tempdir */
-require('shelljs/global');
+	fs = require('fs-extra'),
+	os = require('os'),
+	server = require('../lib/fserver');
 
 // export min cli version
 exports.cliVersion = '>=3.0.25';
@@ -75,7 +72,7 @@ exports.init = function (logger, config, cli) {
 			const srcFile = data.args[0];
 			if (join(RESOURCES_DIR, 'app.js') === srcFile
 				|| (new RegExp('^' + RESOURCES_DIR.replace(/\\/g, '/') + '(/(android|ipad|ios|iphone|windows|blackberry|tizen))?/app.js$').test(srcFile.replace(/\\/g, '/')))) {
-				data.args[0] = join(tempdir(), 'liveview.js');
+				data.args[0] = join(os.tmpdir(), 'liveview.js');
 			}
 		}
 
@@ -134,9 +131,9 @@ exports.init = function (logger, config, cli) {
 			if (cli.argv.liveview) {
 				debug('Running post:build.pre.compile hook');
 				const resourceDir = path.resolve(cli.argv['project-dir'], 'Resources');
-				const liveviewJS = join(tempdir(), 'liveview.js');
-				cp('-f', join(__dirname, '../build/liveview.js'), liveviewJS);
-				cp('-f', join(resourceDir, 'app.js'), join(resourceDir, '.liveviewapp.js'));
+				const liveviewJS = join(os.tmpdir(), 'liveview.js');
+				fs.copySync(join(__dirname, '../build/liveview.js'), liveviewJS, { clobber: true });
+				fs.copySync(join(resourceDir, 'app.js'), join(resourceDir, '.liveviewapp.js'), { clobber: true });
 
 				const ipAddr = cli.argv['liveview-ip'] || getNetworkIp();
 				const fileServerPort = cli.argv['liveview-fport'] || 8324;
@@ -179,7 +176,7 @@ exports.init = function (logger, config, cli) {
 				.on('error', function () {})
 				.on('data', function () {})
 				.on('close', function () {
-					startServer(finished);
+					startServer(build, finished);
 				});
 		});
 	});
@@ -188,39 +185,37 @@ exports.init = function (logger, config, cli) {
 	 * [startServer description]
 	 * @param  {Function} finished [description]
 	 */
-	function startServer(finished) {
+	function startServer(build, finished) {
 		if (cli.argv.liveview) {
 			const ipAddr = cli.argv['liveview-ip'];
 			const fileServerPort = cli.argv['liveview-fport'];
 			const eventServerPort = cli.argv['liveview-eport'];
+			const platform = cli.argv.platform;
+			const transpileTarget = {};
 
-			debug('Running post:build.post.compile hook');
-			const binDIR = join(__dirname, '../bin/liveview-server');
-			const cmdOpts = [
-				binDIR,
-				'start',
-				'--project-dir', cli.argv['project-dir'],
-				'--platform', cli.argv.platform
-			];
-
-			if (!cli.argv.colors) {
-				cmdOpts.push('--no-colors');
+			if (platform === 'ios') {
+				if (build.useJSCore) {
+					transpileTarget.ios = build.minSupportedIosSdk;
+				}
+			} else if (platform === 'android') {
+				transpileTarget.chrome = build.chromeVersion;
+			} else if (platform === 'windows') {
+				transpileTarget.safari = '10';
 			}
 
-			ipAddr && cmdOpts.push('--liveview-ip', ipAddr);
-			fileServerPort && cmdOpts.push('--liveview-fport', fileServerPort);
-			eventServerPort && cmdOpts.push('--liveview-eport', eventServerPort);
+			const opts = {
+				host: ipAddr,
+				fport: fileServerPort,
+				eport: eventServerPort,
+				platform,
+				projectDir: cli.argv['project-dir'],
+				transpile: cli.tiapp.transpile,
+				transpileTarget
+			};
 
-			debug('Spawning detached process with command:', cmdOpts);
-			const child = spawn(process.execPath, cmdOpts, {
-				detached: true
-			});
-
-			child.on('error', function (err) {
-				console.error('\n %s\n', err);
-			});
-
-			child.stdout.pipe(process.stdout);
+			debug('opts are %o', opts);
+			debug('Running post:build.post.compile hook');
+			server.start(opts);
 		}
 		finished();
 	}

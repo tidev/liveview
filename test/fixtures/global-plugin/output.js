@@ -12,7 +12,7 @@ try {
 } catch (e) {}
 
 global.foo = foo;
-const win = Ti.UI.createWindow({
+let win = Ti.UI.createWindow({
 	backgroundColor: 'white'
 });
 
@@ -21,7 +21,7 @@ try {
 } catch (e) {}
 
 global.win = win;
-const textField = Ti.UI.createTextField({
+var textField = Ti.UI.createTextField({
 	borderStyle: Ti.UI.INPUT_BORDERSTYLE_BEZEL,
 	color: '#336699',
 	top: 10, left: 10,

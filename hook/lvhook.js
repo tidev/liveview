@@ -14,6 +14,21 @@ require('shelljs/global');
 exports.cliVersion = '>=3.0.25';
 
 /**
+ * Check if the SDK is 8 or above, to allow us to make functions a 
+ * no-op. We have to do this in every hook call because the sdk
+ * version
+ * @param {Object} cli - cli object from the init hook
+ * @returns {Boolean} true if sdk is 8 or above, false if not
+ */
+function checkSDKVersion8OrAbove(cli) {
+	const sdkVersion = (cli.sdk && cli.sdk.name) || (cli.manifest && cli.manifest.version);
+	if (simpVer(sdkVersion) >= 800) {
+		return true;
+	}
+	return false;
+}
+
+/**
  * initialize cli hook
  * @param  {Object} logger The Titanium CLI logger
  * @param  {Object} config Titanium CLI build config
@@ -21,13 +36,16 @@ exports.cliVersion = '>=3.0.25';
  * @return {undefined}        [description]
  */
 exports.init = function (logger, config, cli) {
-
 	/**
 	 * [doConfig description]
 	 * @param  {Object} data     [description]
 	 * @param  {Function} finished [description]
 	 */
 	function doConfig(data, finished) {
+		if (checkSDKVersion8OrAbove(cli)) {
+			return finished(null);
+		}
+
 		debug('Running build.[PLATFORM].config hook');
 		const sdkVersion = (cli.sdk && cli.sdk.name) || (cli.manifest && cli.manifest.version);
 		const r = ((simpVer(cli.version) < 321) ? data.result : (sdkVersion && simpVer(sdkVersion) < 321) ? data.result[0] : data.result[1]) || {};
@@ -67,8 +85,11 @@ exports.init = function (logger, config, cli) {
 	 * @returns {undefined}
 	 */
 	function copyResource(data, finished) {
-		debug('Running pre:build.' + cli.argv.platform + '.copyResource hook');
+		if (checkSDKVersion8OrAbove(cli)) {
+			return finished(null);
+		}
 
+		debug('Running pre:build.' + cli.argv.platform + '.copyResource hook');
 		if (cli.argv.liveview) {
 			const RESOURCES_DIR = join(this.projectDir, 'Resources');
 
@@ -94,6 +115,10 @@ exports.init = function (logger, config, cli) {
 	 * @returns {undefined}
 	 */
 	function writeBuildManifest(data, finished) {
+		if (checkSDKVersion8OrAbove(cli)) {
+			return finished(null);
+		}
+
 		debug('Running pre:build.' + cli.argv.platform + '.writeBuildManifest hook');
 
 		if (cli.argv.liveview) {
@@ -131,6 +156,10 @@ exports.init = function (logger, config, cli) {
 		 * @param  {Function} finished [description]
 		 */
 		post: function (build, finished) {
+			if (checkSDKVersion8OrAbove(cli)) {
+				return finished(null);
+			}
+
 			if (cli.argv.liveview) {
 				debug('Running post:build.pre.compile hook');
 				const resourceDir = path.resolve(cli.argv['project-dir'], 'Resources');
@@ -165,6 +194,10 @@ exports.init = function (logger, config, cli) {
 	 * Start event/file server
 	 */
 	cli.addHook('build.post.compile', function (build, finished) {
+		if (checkSDKVersion8OrAbove(cli)) {
+			return finished(null);
+		}
+
 		// kill running server via fserver http api
 		debug('invoke kill');
 
@@ -189,6 +222,10 @@ exports.init = function (logger, config, cli) {
 	 * @param  {Function} finished [description]
 	 */
 	function startServer(finished) {
+		if (checkSDKVersion8OrAbove(cli)) {
+			return finished(null);
+		}
+
 		if (cli.argv.liveview) {
 			const ipAddr = cli.argv['liveview-ip'];
 			const fileServerPort = cli.argv['liveview-fport'];

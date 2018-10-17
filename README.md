@@ -1,6 +1,6 @@
 # LiveView
 
-[![Build Status](https://travis-ci.com/appcelerator/liveview.svg?token=ph6xdReX6PW2XENunBEH&branch=master)](https://travis-ci.com/appcelerator/liveview)
+[![Build Status](https://travis-ci.com/appcelerator/liveview.svg?token=ph6xdReX6PW2XENunBEH&branch=master)](https://travis-ci.com/appcelerator/liveview) [![Greenkeeper badge](https://badges.greenkeeper.io/appcelerator/liveview.svg?token=a4158989980182cc11ba9561daa7996bb5788c24106a6936194e71cc7ad22115&ts=1539797586155)](https://greenkeeper.io/)
 
 Titanium Live App Reloading for simulator and device.
 

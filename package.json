@@ -46,11 +46,11 @@
   "dependencies": {
     "win-fork": "~1.1.1",
     "coloring": "~0.1.0",
-    "commander": "~2.0.0",
+    "commander": "~2.19.0",
     "hypar": "~0.1.0",
-    "debug": "~0.7.2",
-    "chokidar": "~0.6.3",
-    "shelljs": "~0.2.6",
+    "debug": "~4.1.0",
+    "chokidar": "~2.0.4",
+    "shelljs": "~0.8.2",
     "jsparse-tools2": "~1.0.0"
   },
   "devDependencies": {
@@ -58,16 +58,16 @@
     "babel-preset-es2015": "^6.24.1",
     "grunt": "^1.0.1",
     "grunt-appc-js": "^2.0.1",
-    "grunt-babel": "^7.0.0",
+    "grunt-babel": "^8.0.0",
     "grunt-bump": "^0.8.0",
-    "grunt-contrib-clean": "^1.0.0",
+    "grunt-contrib-clean": "^2.0.0",
     "grunt-contrib-concat": "^1.0.1",
     "grunt-mocha-istanbul": "^5.0.2",
     "istanbul": "^0.4.5",
-    "mocha": "~1.17.1",
-    "mocha-jenkins-reporter": "^0.3.7",
-    "should": "~3.1.2",
-    "supertest": "~0.8.0"
+    "mocha": "~5.2.0",
+    "mocha-jenkins-reporter": "^0.4.1",
+    "should": "~13.2.3",
+    "supertest": "~3.3.0"
   },
   "engines": {
     "node": ">=4.0"

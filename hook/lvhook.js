@@ -4,7 +4,7 @@ const debug = require('debug')('liveview:clihook'),
 	http = require('http'),
 	join = path.join,
 	fs = require('fs'),
-	spawn = require('child_process').spawn;
+	server = require('../lib/fserver');
 
 // inject shelljs to the global scope
 /* globals cp, tempdir */
@@ -164,7 +164,7 @@ exports.init = function (logger, config, cli) {
 	/**
 	 * Start event/file server
 	 */
-	cli.addHook('build.post.compile', function (build, finished) {
+	cli.addHook('build.post.compile', function (builder, finished) {
 		// kill running server via fserver http api
 		debug('invoke kill');
 
@@ -179,48 +179,49 @@ exports.init = function (logger, config, cli) {
 				.on('error', function () {})
 				.on('data', function () {})
 				.on('close', function () {
-					startServer(finished);
+					startServer(builder, finished);
 				});
 		});
 	});
 
 	/**
 	 * [startServer description]
+	 * @param  {Object}   builder - Builder object from Titanium CLI
 	 * @param  {Function} finished [description]
 	 */
-	function startServer(finished) {
+	function startServer(builder, finished) {
 		if (cli.argv.liveview) {
 			const ipAddr = cli.argv['liveview-ip'];
 			const fileServerPort = cli.argv['liveview-fport'];
 			const eventServerPort = cli.argv['liveview-eport'];
+			const platform = cli.argv.platform;
+			const transpileTarget = {};
 
-			debug('Running post:build.post.compile hook');
-			const binDIR = join(__dirname, '../bin/liveview-server');
-			const cmdOpts = [
-				binDIR,
-				'start',
-				'--project-dir', cli.argv['project-dir'],
-				'--platform', cli.argv.platform
-			];
-
-			if (!cli.argv.colors) {
-				cmdOpts.push('--no-colors');
+			if (platform === 'ios') {
+				if (builder.useJSCore) {
+					transpileTarget.ios = builder.minSupportedIosSdk;
+				}
+			} else if (platform === 'android') {
+				transpileTarget.chrome = builder.chromeVersion;
+			} else if (platform === 'windows') {
+				// builder.safariVersion is not available in all SDK version, so default to the
+				// version from when transpilation was introduced
+				transpileTarget.safari = builder.safariVersion || '10';
 			}
 
-			ipAddr && cmdOpts.push('--liveview-ip', ipAddr);
-			fileServerPort && cmdOpts.push('--liveview-fport', fileServerPort);
-			eventServerPort && cmdOpts.push('--liveview-eport', eventServerPort);
+			const opts = {
+				host: ipAddr,
+				fport: fileServerPort,
+				eport: eventServerPort,
+				platform,
+				projectDir: cli.argv['project-dir'],
+				transpile: cli.tiapp.transpile,
+				transpileTarget
+			};
 
-			debug('Spawning detached process with command:', cmdOpts);
-			const child = spawn(process.execPath, cmdOpts, {
-				detached: true
-			});
-
-			child.on('error', function (err) {
-				console.error('\n %s\n', err);
-			});
-
-			child.stdout.pipe(process.stdout);
+			debug('opts are %o', opts);
+			debug('Running post:build.post.compile hook');
+			server.start(opts);
 		}
 		finished();
 	}

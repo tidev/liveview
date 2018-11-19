@@ -14,7 +14,8 @@ module.exports = function (grunt) {
 						'requestSSLInitializing',
 						'requestSSLInsideHook',
 						'requestSSLInitialized'
-					]
+					],
+					mochaOptions: [ '--exit' ]
 				}
 			}
 		},

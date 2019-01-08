@@ -204,6 +204,7 @@ exports.init = function (logger, config, cli) {
 			} else if (platform === 'android') {
 				transpileTarget.chrome = builder.chromeVersion;
 			} else if (platform === 'windows') {
+				// TODO: I never implemented this, and it's now available in the package.json of windows, needs updating to use that - Ewan H (01/08/2019)
 				// builder.safariVersion is not available in all SDK version, so default to the
 				// version from when transpilation was introduced
 				transpileTarget.safari = builder.safariVersion || '10';
@@ -215,7 +216,7 @@ exports.init = function (logger, config, cli) {
 				eport: eventServerPort,
 				platform,
 				projectDir: cli.argv['project-dir'],
-				transpile: cli.tiapp.transpile,
+				transpile: builder.transpile,
 				transpileTarget
 			};
 

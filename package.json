@@ -1,6 +1,6 @@
 {
   "name": "liveview",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Titanium Live Realtime App Development",
   "main": "index.js",
   "directories": {

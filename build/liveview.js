@@ -700,10 +700,10 @@
 		source = source.replace(/T[i||itanium]+.include\(['|"]([^"'\r\n$]*)['|"]\)/g, function (exp, val) {
 			var file = ('' + val).replace('.js', '');
 			var _src = Module.prototype._getRemoteSource(file, 10000);
-			var evalSrc = '' + 'try{ ' + _src.replace(/\/\/(.*)$/gm, '').replace(/\n/g, '') + '}catch(err){ ' + 'lvGlobal.process.emit("uncaughtException", {module: "' + val + '", error: err})' + '}';
+			var evalSrc = 'try{ ' + _src + '}catch(err){ ' + 'lvGlobal.process.emit("uncaughtException", {module: "' + val + '", error: err})' + '}';
 
 			return evalSrc;
-		});
+		}).replace(/\/\/(.*)$/gm, '').replace(/\n/g, '');
 		return global.CATCH_ERRORS ? Module._errWrapper[0] + source + Module._errWrapper[1] : source;
 	};
 

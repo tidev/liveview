@@ -700,15 +700,14 @@
 		source = source.replace(/T[i||itanium]+.include\(['|"]([^"'\r\n$]*)['|"]\)/g, function (exp, val) {
 			var file = ('' + val).replace('.js', '');
 			var _src = Module.prototype._getRemoteSource(file, 10000);
-			var evalSrc = 'try{ ' + _src + '}catch(err){ ' + 'lvGlobal.process.emit("uncaughtException", {module: "' + val + '", error: err})' + '}';
-
+			var evalSrc = 'try {\n' + _src + '\n} catch (err) {\n' + 'lvGlobal.process.emit("uncaughtException", {module: "' + val + '", error: err});' + '\n}';
 			return evalSrc;
-		}).replace(/\/\/(.*)$/gm, '').replace(/\n/g, '');
+		});
 		return global.CATCH_ERRORS ? Module._errWrapper[0] + source + Module._errWrapper[1] : source;
 	};
 
 	// uncaught exception handler wrapper
-	Module._errWrapper = ['try {', '} catch (err) { lvGlobal.process.emit("uncaughtException", {module: __filename, error: err, source: module.source})}'];
+	Module._errWrapper = ['try {\n', '\n} catch (err) {\nlvGlobal.process.emit("uncaughtException", {module: __filename, error: err, source: module.source});\n}'];
 
 	/**
   * compile commonjs module and string to js

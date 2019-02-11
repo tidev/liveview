@@ -1,6 +1,7 @@
 library 'pipeline-library'
 
 buildNPMPackage {
+  projectKey = 'TIMOB'
   // nodeVersion = '6.9.5'
   // tags, publishes, updates JIRA only for master branch builds
   // records unit test and code coverage results

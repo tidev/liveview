@@ -337,13 +337,14 @@
 	/* globals Process, Socket */
 	var global, process;
 
+	var path = require('path');
+
 	/**
   * Initialize a new `Module`.
   * @param {string} id The module identifier
   * @public
   */
 	function Module(id) {
-		this.filename = id + '.js';
 		this.id = id;
 		if (process.platform === 'ipad') {
 			this.platform = 'iphone';
@@ -552,29 +553,62 @@
 			return cached.exports;
 		}
 
-		if (!Module.exists(fullPath)) {
-			if (fullPath.indexOf('/') === 0 && Module.exists(fullPath + '/index')) {
+		var filename = void 0;
+
+		if (!(filename = Module.exists(fullPath))) {
+			// if (fullPath.indexOf('/') === 0 && !(filename = Module.exists(fullPath + '/index'))) {
+			if (filename = Module.exists(fullPath + '/index')) {
 				fullPath += '/index';
+			} else if (filename = Module.exists('node_modules/' + fullPath)) {
+				fullPath = '/node_modules/' + fullPath;
+			} else if (filename = Module.exists('node_modules/' + fullPath + '/index')) {
+				fullPath = '/node_modules/' + fullPath + '/index';
 			} else {
-				var hlDir = '/hyperloop/';
-				if (fullPath.indexOf('.*') !== -1) {
-					fullPath = id.slice(0, id.length - 2);
+				var mainFileExists = false;
+				var pkgPath = '/node_modules/' + fullPath + '/package.json';
+
+				var pkgFile = this.platform ? Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory + '/' + this.platform + pkgPath) : Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory + pkgPath);
+				if (pkgFile.exists()) {
+					var pkgText = (pkgFile.read() || {}).text || '{}';
+					var pkg = void 0;
+					try {
+						pkg = JSON.parse(pkgText);
+						if (pkg.main) {
+							var mainPath = path.join('node_modules', fullPath, pkg.main);
+
+							filename = Module.exists(mainPath);
+							if (filename) {
+								fullPath = mainPath;
+								mainFileExists = true;
+							}
+						}
+					} catch (ex) {
+						console.warn(ex);
+					}
 				}
 
-				var modLowerCase = fullPath.toLowerCase();
-				if (Module.exists(hlDir + fullPath)) {
-					fullPath = hlDir + fullPath;
-				} else if (Module.exists(hlDir + modLowerCase)) {
-					fullPath = hlDir + modLowerCase;
-				} else if (fullPath.indexOf('.') === -1 && Module.exists(hlDir + fullPath + '/' + fullPath)) {
-					fullPath = hlDir + fullPath + '/' + fullPath;
-				} else if (fullPath.indexOf('.') === -1 && Module.exists(hlDir + modLowerCase + '/' + modLowerCase)) {
-					fullPath = hlDir + modLowerCase + '/' + modLowerCase;
-				} else {
-					var lastIndex = fullPath.lastIndexOf('.');
-					var tempPath = hlDir + fullPath.slice(0, lastIndex) + '$' + fullPath.slice(lastIndex + 1);
-					if (Module.exists(fullPath)) {
-						fullPath = tempPath;
+				if (!filename) {
+
+					var hlDir = '/hyperloop/';
+					if (fullPath.indexOf('.*') !== -1) {
+						fullPath = id.slice(0, id.length - 2);
+					}
+
+					var modLowerCase = fullPath.toLowerCase();
+					if (Module.exists(hlDir + fullPath)) {
+						fullPath = hlDir + fullPath;
+					} else if (Module.exists(hlDir + modLowerCase)) {
+						fullPath = hlDir + modLowerCase;
+					} else if (fullPath.indexOf('.') === -1 && Module.exists(hlDir + fullPath + '/' + fullPath)) {
+						fullPath = hlDir + fullPath + '/' + fullPath;
+					} else if (fullPath.indexOf('.') === -1 && Module.exists(hlDir + modLowerCase + '/' + modLowerCase)) {
+						fullPath = hlDir + modLowerCase + '/' + modLowerCase;
+					} else {
+						var lastIndex = fullPath.lastIndexOf('.');
+						var tempPath = hlDir + fullPath.slice(0, lastIndex) + '$' + fullPath.slice(lastIndex + 1);
+						if (Module.exists(fullPath)) {
+							fullPath = tempPath;
+						}
 					}
 				}
 			}
@@ -582,6 +616,7 @@
 
 		var freshModule = new Module(fullPath);
 
+		freshModule.filename = filename || fullPath;
 		freshModule.cache();
 		freshModule._compile();
 
@@ -592,7 +627,7 @@
 
 	/**
   * [getCached description]
-  * @param  {string} id moduel identifier
+  * @param  {string} id module identifier
   * @return {Module} cached module
   *
   * @public
@@ -609,19 +644,74 @@
   * @public
   */
 	Module.exists = function (id) {
-		var path = Ti.Filesystem.resourcesDirectory + id + '.js',
-		    file = Ti.Filesystem.getFile(path);
 
-		if (file.exists()) {
-			return true;
+		var idPath = path.parse(id);
+
+		// TIBUG: Fix for path.parse bug
+		if (!id.includes('/')) {
+			idPath.dir = '';
 		}
+
+		// Don't want this when formatting new paths.
+		idPath.base = '';
+
+		var isJs = idPath.ext === '.js';
+		var isJson = idPath.ext === '.json';
+		var isBlank = idPath.ext === '';
+
+		if (!(isJs || isJson || isBlank)) {
+			return false;
+			// TODO: Check to see if this exists in cached list of native modules
+		}
+
+		var file = void 0;
+		var formattedPath = void 0;
+		var baseFilePath = Ti.Filesystem.resourcesDirectory;
+
+		if (!isJson) {
+			idPath.ext = '.js';
+			formattedPath = path.format(idPath);
+
+			file = Ti.Filesystem.getFile(baseFilePath, formattedPath);
+			if (file.exists()) {
+				return formattedPath;
+			}
+		}
+
+		if (!isJs) {
+			idPath.ext = '.json';
+			formattedPath = path.format(idPath);
+
+			file = Ti.Filesystem.getFile(baseFilePath, formattedPath);
+			if (file.exists()) {
+				return formattedPath;
+			}
+		}
+
 		if (!this.platform) {
 			return false;
 		}
 
-		var pFolderPath = Ti.Filesystem.resourcesDirectory + '/' + this.platform + '/' + id + '.js';
-		var pFile = Ti.Filesystem.getFile(pFolderPath);
-		return pFile.exists();
+		baseFilePath = path.join(Ti.Filesystem.resourcesDirectory, this.platform);
+
+		if (!isJson) {
+			idPath.ext = '.js';
+			formattedPath = path.format(idPath);
+
+			file = Ti.Filesystem.getFile(baseFilePath, formattedPath);
+			if (file.exists()) {
+				return formattedPath;
+			}
+		}
+		if (!isJs) {
+			idPath.ext = '.json';
+			formattedPath = path.format(idPath);
+
+			file = Ti.Filesystem.getFile(baseFilePath, formattedPath);
+			if (file.exists()) {
+				return formattedPath;
+			}
+		}
 	};
 
 	/**
@@ -637,7 +727,9 @@
 		var request = Ti.Network.createHTTPClient();
 		var rsp = null;
 		var done = false;
-		var url = 'http://' + Module._url + ':' + Module._port + '/' + (file || this.id) + '.js';
+
+		var url = 'http://' + Module._url + ':' + Module._port + '/' + (file || this.id);
+
 		request.cache = false;
 		request.open('GET', url);
 		request.setRequestHeader('x-platform', this.platform);
@@ -679,7 +771,7 @@
 		var id = this.id;
 		var isRemote = /^(http|https)$/.test(id) || global.ENV === 'liveview';
 		if (isRemote) {
-			return this._getRemoteSource(null, 10000);
+			return this._getRemoteSource(this.filename, 10000);
 		} else {
 			if (id === 'app') {
 				id = '_app';
@@ -714,7 +806,7 @@
   *
   * @private
   */
-	Module.prototype._compile = function () {
+	Module.prototype._compile = function (filePath) {
 		var src = this._getSource();
 		if (!src) {
 			this.exports = Module._requireNative(this.id);

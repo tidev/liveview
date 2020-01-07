@@ -564,7 +564,6 @@
 			} else if (filename = Module.exists('node_modules/' + fullPath + '/index')) {
 				fullPath = '/node_modules/' + fullPath + '/index';
 			} else {
-				var mainFileExists = false;
 				var pkgPath = '/node_modules/' + fullPath + '/package.json';
 
 				var pkgFile = this.platform ? Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory + '/' + this.platform + pkgPath) : Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory + pkgPath);
@@ -577,10 +576,7 @@
 							var mainPath = path.join('node_modules', fullPath, pkg.main);
 
 							filename = Module.exists(mainPath);
-							if (filename) {
-								fullPath = mainPath;
-								mainFileExists = true;
-							}
+							fullPath = filename ? mainPath : fullPath;
 						}
 					} catch (ex) {
 						console.warn(ex);
@@ -644,7 +640,6 @@
   * @public
   */
 	Module.exists = function (id) {
-
 		var idPath = path.parse(id);
 
 		// TIBUG: Fix for path.parse bug
@@ -792,7 +787,7 @@
 		source = source.replace(/T[i||itanium]+.include\(['|"]([^"'\r\n$]*)['|"]\)/g, function (exp, val) {
 			var file = ('' + val).replace('.js', '');
 			var _src = Module.prototype._getRemoteSource(file, 10000);
-			var evalSrc = 'try {\n' + _src + '\n} catch (err) {\n' + 'lvGlobal.process.emit("uncaughtException", {module: "' + val + '", error: err});' + '\n}';
+			var evalSrc = 'try {\n    ' + _src + '\n    } catch (err) {\n        lvGlobal.process.emit("uncaughtException", {module: "' + val + '", error: err});\'\n    };';
 			return evalSrc;
 		});
 		return global.CATCH_ERRORS ? Module._errWrapper[0] + source + Module._errWrapper[1] : source;
@@ -806,7 +801,7 @@
   *
   * @private
   */
-	Module.prototype._compile = function (filePath) {
+	Module.prototype._compile = function () {
 		var src = this._getSource();
 		if (!src) {
 			this.exports = Module._requireNative(this.id);
@@ -814,6 +809,7 @@
 			return;
 		}
 		Module._compileList.push(this.id);
+
 		this.source = Module._wrap(src);
 		try {
 			var fn = new Function('exports, require, module, __filename, __dirname, lvGlobal, L', this.source); // eslint-disable-line no-new-func
@@ -823,6 +819,7 @@
 		}
 
 		Module._compileList.pop();
+
 		this.loaded = true;
 	};
 

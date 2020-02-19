@@ -94,7 +94,7 @@ As LiveView is now distributed in the SDK, the best way to work on it is to link
 1. Install the dependencies `npm install`
 2. Run `npm link`, this allows you to symlink the module into your SDK easily
 3. `cd` to the SDK directory used by your app. So if your app is using `8.3.1.GA` use:
-   * Mac - `cd ~/Library/Application\ Support/Titanium/mobilesdk/osx/8.3.1.`
+   * Mac - `cd ~/Library/Application\ Support/Titanium/mobilesdk/osx/8.3.1.GA`
    * Windows - `cd %PROGRAMDATA%\Titanium/mobilesdk/win32/8.3.1.GA`
 4. Run `npm link liveview` and you're good to go! When you make changes in your local git repository they will be reflected straight away into the SDK
 

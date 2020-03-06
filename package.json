@@ -48,6 +48,7 @@
     "coloring": "~0.1.0",
     "commander": "~2.0.0",
     "debug": "~0.7.2",
+    "fs-extra": "^8.1.0",
     "hypar": "~0.1.0",
     "node-titanium-sdk": "^3.0.1",
     "shelljs": "~0.2.6",

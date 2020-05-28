@@ -453,7 +453,7 @@
 		});
 
 		client.on('connect', function () {
-			if (retryInterval) {
+			if (retryInterval !== null) {
 				clearInterval(retryInterval);
 				console.log('[LiveView]', 'Reconnected to Event Server');
 			}
@@ -482,6 +482,10 @@
 
 		client.on('error', function (e) {
 			var err = e.error;
+			if (retryInterval !== null && err.includes('Connection refused')) {
+				return;
+			}
+
 			var code = ~~e.code;
 			if (code === 61) {
 				err = 'Event Server unavailable. Connection Refused @ ' + Module._url + ':' + Module._port + '\n[LiveView] Please ensure your device and computer are on the same network and the port is not blocked.';
@@ -697,6 +701,12 @@
   * @private
   */
 	Module._wrap = function (source) {
+		source = source.replace(/T[i||itanium]+.include\(['|"]([^"'\r\n$]*)['|"]\)/g, function (exp, val) {
+			var file = ('' + val).replace('.js', '');
+			var _src = Module.prototype._getRemoteSource(file, 10000);
+			var evalSrc = 'try {\n' + _src + '\n} catch (err) {\n' + 'lvGlobal.process.emit("uncaughtException", {module: "' + val + '", error: err});' + '\n}';
+			return evalSrc;
+		});
 		return global.CATCH_ERRORS ? Module._errWrapper[0] + source + Module._errWrapper[1] : source;
 	};
 

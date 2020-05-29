@@ -513,7 +513,10 @@
   * @return {string} absolute path of the required file
   * @public
   */
-	Module.toAbsolute = function (parent, relative) {
+	Module.toAbsolute = function () {
+		var parent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+		var relative = arguments[1];
+
 		var newPath = parent.split('/'),
 		    parts = relative.split('/');
 

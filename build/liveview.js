@@ -254,11 +254,10 @@
     * @returns {undefined}
     */
 			error: function error(e) {
-				var err = { code: e.errorCode, error: e.error };
-				if (!~self.ignore.indexOf(err.code)) {
-					return self.emit('error', err);
+				if (!~self.ignore.indexOf(e.code)) {
+					return self.emit('error', e);
 				}
-				self.emit('error ignored', err);
+				self.emit('error ignored', e);
 			}
 		});
 
@@ -482,11 +481,11 @@
 
 		client.on('error', function (e) {
 			var err = e.error;
-			if (retryInterval !== null && err.includes('Connection refused')) {
+			var code = ~~e.code;
+			if (retryInterval !== null && code === 61) {
 				return;
 			}
 
-			var code = ~~e.code;
 			if (code === 61) {
 				err = 'Event Server unavailable. Connection Refused @ ' + Module._url + ':' + Module._port + '\n[LiveView] Please ensure your device and computer are on the same network and the port is not blocked.';
 			}

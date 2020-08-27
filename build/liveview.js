@@ -637,7 +637,9 @@
   */
 	Module.prototype._getRemoteSource = function (file, timeout) {
 		var expireTime = new Date().getTime() + timeout;
-		var request = Ti.Network.createHTTPClient();
+		var request = Ti.Network.createHTTPClient({
+			waitsForConnectivity: true
+		});
 		var rsp = null;
 		var done = false;
 		var url = 'http://' + Module._url + ':' + Module._port + '/' + (file || this.id) + '.js';

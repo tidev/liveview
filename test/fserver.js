@@ -11,8 +11,8 @@ describe('FServer', function () {
 		it('should start TCP and HTTP server', function () {
 			Fserver.start({
 				projectDir: FixtureApp,
-				fport:9011,
-				eport:9012
+				fport: 9011,
+				eport: 9012
 			});
 		});
 
@@ -20,14 +20,14 @@ describe('FServer', function () {
 
 			Fserver.start({
 				projectDir: FixtureApp,
-				fport:9021,
-				eport:9022
+				fport: 9021,
+				eport: 9022
 			});
 
 			Fserver.start({
 				projectDir: FixtureApp,
-				fport:9023,
-				eport:9024
+				fport: 9023,
+				eport: 9024
 			});
 		});
 	});
@@ -44,8 +44,8 @@ describe('FServer', function () {
 
 			Fserver.start({
 				projectDir: FixtureApp,
-				fport:9033,
-				eport:9034
+				fport: 9033,
+				eport: 9034
 			});
 		});
 

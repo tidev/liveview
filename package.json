@@ -57,7 +57,6 @@
     "win-fork": "~1.1.1"
   },
   "devDependencies": {
-    "babel-core": "^6.25.0",
     "eslint": "^7.11.0",
     "eslint-config-axway": "^5.0.0",
     "eslint-plugin-mocha": "^8.0.0",

@@ -5,3 +5,4 @@ coverage/
 retirejs.output.json
 build/liveview.es6.js
 .nyc_output/
+build/

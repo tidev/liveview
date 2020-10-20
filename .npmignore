@@ -1,0 +1,9 @@
+test/
+coverage/
+.nyc_output/
+dangerfile.js
+Jenkinsfile
+.eslintignore
+.eslintrc
+junit_report.xml
+lib/platform/

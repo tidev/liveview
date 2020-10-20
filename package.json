@@ -10,7 +10,7 @@
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "build": "rollup lib/platform/main.js --file build/liveview.js --format iife",
-    "lint": "eslint .",
+    "lint": "eslint bin/* .",
     "test": "npm run lint && npm run unit-test",
     "unit-test": "JUNIT_REPORT_PATH=junit_report.xml nyc mocha test/*.js --reporter=mocha-jenkins-reporter --exit"
   },
@@ -94,7 +94,12 @@
   },
   "husky": {
     "hooks": {
+      "pre-commit": "lint-staged",
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
+  },
+  "lint-staged": {
+    "*.js": "eslint",
+    "bin/*": "eslint"
   }
 }

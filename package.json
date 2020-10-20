@@ -68,7 +68,6 @@
     "grunt-babel": "^7.0.0",
     "grunt-bump": "^0.8.0",
     "grunt-contrib-clean": "^2.0.0",
-    "grunt-contrib-concat": "^1.0.1",
     "istanbul": "^0.4.5",
     "mocha": "^8.2.0",
     "mocha-jenkins-reporter": "^0.4.2",

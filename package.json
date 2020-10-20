@@ -63,7 +63,6 @@
     "eslint": "^7.11.0",
     "eslint-config-axway": "^5.0.0",
     "eslint-plugin-mocha": "^8.0.0",
-    "grunt": "^1.0.1",
     "istanbul": "^0.4.5",
     "mocha": "^8.2.0",
     "mocha-jenkins-reporter": "^0.4.2",

@@ -73,6 +73,7 @@
     "istanbul": "^0.4.5",
     "mocha": "^8.2.0",
     "mocha-jenkins-reporter": "^0.4.2",
+    "nyc": "^15.1.0",
     "should": "~3.1.2",
     "supertest": "~4.0.2"
   },

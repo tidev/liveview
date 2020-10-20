@@ -9,7 +9,7 @@
   },
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
-    "build": "grunt",
+    "build": "rollup lib/platform/main.mjs --file build/liveview.js --format iife",
     "lint": "eslint .",
     "test": "npm run lint && npm run unit-test",
     "unit-test": "JUNIT_REPORT_PATH=junit_report.xml nyc mocha test/*.js --reporter=mocha-jenkins-reporter --exit"
@@ -79,7 +79,7 @@
     "supertest": "~4.0.2"
   },
   "engines": {
-    "node": ">=4.0"
+    "node": ">=10.0.0"
   },
   "mocha": {
     "timeout": 3500,

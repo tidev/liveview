@@ -61,6 +61,7 @@
     "babel-plugin-tester": "^10.0.0",
     "babel-preset-es2015": "^6.24.1",
     "eslint": "^7.11.0",
+    "eslint-config-axway": "^5.0.0",
     "grunt": "^1.0.1",
     "grunt-appc-js": "^2.0.1",
     "grunt-babel": "^7.0.0",

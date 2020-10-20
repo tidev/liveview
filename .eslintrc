@@ -1,10 +1,17 @@
 {
   "extends": [ "axway/env-node" ],
-  "globals": {
-    "Ti": false
-  },
   "rules": {
     "security/detect-child-process": 0,
     "security/detect-non-literal-regexp": 0
-  }
+  },
+  "overrides": [
+    {
+      "files": ["lib/platform/*.js"],
+      "extends": [ "axway/env-titanium" ],
+      "parserOptions": {
+        "sourceType": "module",
+        "ecmaVersion": 2020
+      }
+    }
+  ]
 }

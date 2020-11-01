@@ -2,18 +2,13 @@
   "name": "liveview",
   "version": "1.5.4",
   "description": "Titanium Live Realtime App Development",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs",
-    "test": "test"
-  },
-  "license": "SEE LICENSE IN LICENSE.md",
+  "private": true,
+  "license": "Apache-2.0",
   "scripts": {
-    "build": "rollup lib/platform/main.js --file build/liveview.js --format iife",
-    "prepare": "npm run build",
-    "lint": "eslint bin/* .",
-    "test": "npm run lint && npm run unit-test",
-    "unit-test": "JUNIT_REPORT_PATH=junit_report.xml nyc mocha test/*.js --reporter=mocha-jenkins-reporter --exit"
+    "build": "lerna run build",
+    "lint": "eslint packages",
+    "test": "npm run lint && npm run test:unit",
+    "test:unit": "jest test"
   },
   "repository": {
     "type": "git",
@@ -37,60 +32,40 @@
     {
       "name": "Chris Barber",
       "email": "cbarber@appcelerator.com"
+    },
+    {
+      "name": "Jan Vennemann",
+      "email": "jvennemann@axway.com"
     }
   ],
-  "bin": {
-    "liveview": "bin/liveview",
-    "liveview-run": "bin/liveview-run",
-    "liveview-server": "bin/liveview-server",
-    "liveview-install": "bin/liveview-install",
-    "liveview-rm": "bin/liveview-rm"
-  },
-  "dependencies": {
-    "chokidar": "^3.4.2",
-    "coloring": "~0.1.0",
-    "commander": "~2.0.0",
-    "debug": "~4.2.0",
-    "fs-extra": "^8.1.0",
-    "hypar": "~0.1.0",
-    "node-titanium-sdk": "^3.0.1",
-    "shelljs": "~0.2.6",
-    "win-fork": "~1.1.1"
-  },
   "devDependencies": {
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
     "@seadub/danger-plugin-dependencies": "^1.0.0",
     "@seadub/danger-plugin-eslint": "^2.0.0",
     "@seadub/danger-plugin-junit": "^0.2.0",
+    "@tsconfig/node12": "^1.0.7",
+    "@types/jest": "^26.0.15",
+    "@types/socket.io": "^2.1.11",
+    "@types/socket.io-client": "^1.4.34",
+    "@typescript-eslint/eslint-plugin": "^4.5.0",
+    "@typescript-eslint/parser": "^4.5.0",
     "danger": "^10.5.0",
-    "eslint": "^7.11.0",
+    "eslint": "^7.12.0",
     "eslint-config-axway": "^5.0.0",
-    "eslint-plugin-mocha": "^8.0.0",
     "husky": "^4.3.0",
+    "jest": "^26.6.1",
+    "lerna": "^3.22.1",
     "lint-staged": "^10.4.2",
-    "mocha": "^8.2.0",
-    "mocha-jenkins-reporter": "^0.4.2",
-    "nyc": "^15.1.0",
     "rollup": "^2.32.0",
-    "should": "~13.2.3"
+    "rollup-plugin-node-externals": "^2.2.0",
+    "should": "~13.2.3",
+    "socket.io-client": "^2.3.1",
+    "ts-jest": "^26.4.2",
+    "typescript": "^4.0.3"
   },
   "engines": {
     "node": ">=10.0.0"
-  },
-  "mocha": {
-    "timeout": 3500,
-    "check-leaks": true
-  },
-  "nyc": {
-    "exclude": [
-      "test/**/*.js",
-      "build/**/*.js"
-    ],
-    "reporter": [
-      "cobertura",
-      "text"
-    ]
   },
   "commitlint": {
     "extends": [
@@ -104,7 +79,6 @@
     }
   },
   "lint-staged": {
-    "*.js": "eslint",
-    "bin/*": "eslint"
+    "*.test": "eslint"
   }
 }

@@ -1,0 +1,10 @@
+{
+  "extends": "@tsconfig/node12/tsconfig.json",
+
+  "compilerOptions": {
+    "outDir": "./dist",
+    "preserveConstEnums": true
+  },
+
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": ".",
+    "paths": {
+      "@liveview/server": ["src"],
+      "@liveview/server/*": ["src/*"]
+    }
+  },
+  "include": ["src", "test"]
+}

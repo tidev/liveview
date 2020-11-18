@@ -1,0 +1,17 @@
+{
+  "name": "@liveview/client",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "dev": "tsc -b tsconfig.build.json --watch"
+  },
+  "author": "Axway Appcelerator",
+  "maintainers": [
+    "Jan Vennemann <jvennemann@axway.com>"
+  ],
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/titanium": "^9.2.1"
+  }
+}

@@ -1,14 +1,18 @@
 {
   "name": "liveview",
-  "version": "1.5.4",
+  "version": "2.0.0",
   "description": "Titanium Live Realtime App Development",
   "private": true,
+  "workspaces": [
+     "packages/*"
+  ] ,
   "license": "Apache-2.0",
   "scripts": {
     "build": "lerna run build",
+    "dev": "lerna run dev --parallel",
     "lint": "eslint packages",
-    "test": "npm run lint && npm run test:unit",
-    "test:unit": "jest test"
+    "test": "yarn run lint && yarn run test:unit",
+    "test:unit": "jest test/unit --detectOpenHandles"
   },
   "repository": {
     "type": "git",
@@ -16,23 +20,15 @@
   },
   "keywords": [
     "titanium",
-    "appcelerator",
+    "axway",
     "liveview",
     "reload"
   ],
   "author": {
-    "name": "Appcelerator, Inc.",
+    "name": "Axway, Inc.",
     "email": "info@appcelerator.com"
   },
   "maintainers": [
-    {
-      "name": "Christian Sullivan",
-      "email": "csullivan@appcelerator.com"
-    },
-    {
-      "name": "Chris Barber",
-      "email": "cbarber@appcelerator.com"
-    },
     {
       "name": "Jan Vennemann",
       "email": "jvennemann@axway.com"

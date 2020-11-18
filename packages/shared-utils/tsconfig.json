@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "paths": {
+      "@liveview/shared-utils": ["src"]
+    }
+  },
+  "include": ["src", "test"]
+}

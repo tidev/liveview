@@ -5,5 +5,7 @@ module.exports = {
   rootDir: './',
   collectCoverage: true,
   coverageDirectory: 'coverage',
-  verbose: false
+  verbose: false,
+  silent: false,
+  useStderr: true
 };

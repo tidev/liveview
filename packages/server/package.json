@@ -1,0 +1,27 @@
+{
+  "name": "@liveview/server",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "dev": "tsc -b tsconfig.build.json --watch"
+  },
+  "author": "Axway Appcelerator",
+  "maintainers": [
+    "Jan Vennemann <jvennemann@axway.com>"
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "chokidar": "^3.4.3",
+    "fs-extra": "^9.0.1",
+    "glob-to-regexp": "^0.4.1",
+    "lodash.isequal": "^4.5.0",
+    "node-titanium-sdk": "^5.1.1",
+    "socket.io": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.2",
+    "@types/glob-to-regexp": "^0.4.0",
+    "@types/lodash.isequal": "^4.5.5"
+  }
+}

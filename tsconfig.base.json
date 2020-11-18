@@ -2,8 +2,9 @@
   "extends": "@tsconfig/node12/tsconfig.json",
 
   "compilerOptions": {
-    "outDir": "./dist",
-    "preserveConstEnums": true
+    "preserveConstEnums": true,
+    "declaration": true,
+    "preserveWatchOutput": true
   },
 
   "exclude": ["node_modules", "dist"]

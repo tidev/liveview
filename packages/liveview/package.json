@@ -1,0 +1,31 @@
+{
+  "name": "liveview",
+  "version": "1.0.0",
+  "main": "dist/hook.js",
+  "scripts": {
+    "build": "yarn build:hook && yarn build:bootstrap",
+    "build:hook": "tsc -b tsconfig.build.json",
+    "build:bootstrap": "rollup -c",
+    "dev": "concurrently -n bootstrap,hook \"yarn build:bootstrap -w\" \"yarn build:hook --watch\""
+  },
+  "author": "Axway Appcelerator",
+  "maintainers": [
+    "Jan Vennemann <jvennemann@axway.com>"
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@liveview/shared-utils": "^1.0.0",
+    "fs-extra": "^9.0.1"
+  },
+  "devDependencies": {
+    "@liveview/client": "^1.0.0",
+    "@rollup/plugin-commonjs": "^16.0.0",
+    "@rollup/plugin-node-resolve": "^10.0.0",
+    "@rollup/plugin-typescript": "^6.1.0",
+    "concurrently": "^5.3.0",
+    "rollup": "^2.33.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@liveview/shared-utils",
+  "version": "1.0.0",
+  "description": "Titanium LiveView plugin for Appc Daemon",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json"
+  },
+  "author": "Axway Appcelerator",
+  "maintainers": [
+    "Jan Vennemann <jvennemann@axway.com>"
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "appcd-client": "^3.0.0",
+    "socket.io": "^2.3.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

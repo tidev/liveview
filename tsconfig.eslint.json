@@ -1,9 +1,6 @@
 {
   "extends": "./tsconfig.base.json",
   "include": [
-    "test/**/*.ts",
-    ".eslintrc.js",
-    "jest.config.js",
-    "dangerfile.js"
+    "test/**/*.ts"
   ]
 }

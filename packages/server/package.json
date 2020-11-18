@@ -14,9 +14,8 @@
   "dependencies": {
     "chokidar": "^3.4.3",
     "fs-extra": "^9.0.1",
-    "glob-to-regexp": "^0.4.1",
     "lodash.isequal": "^4.5.0",
-    "node-titanium-sdk": "^5.1.1",
+    "node-titanium-sdk": "^5.1.2",
     "socket.io": "^2.3.0"
   },
   "devDependencies": {

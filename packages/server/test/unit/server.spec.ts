@@ -3,8 +3,14 @@ import io from 'socket.io-client';
 
 import { LiveViewServer } from '@liveview/server';
 
+let server: LiveViewServer;
+
+afterEach(async () => {
+	await server.stop();
+});
+
 test('allow connection to known workspaces', async (done) => {
-	const server = new LiveViewServer();
+	server = new LiveViewServer();
 	await server.start();
 	server.addWorkspace({
 		name: 'test',
@@ -17,18 +23,16 @@ test('allow connection to known workspaces', async (done) => {
 	const client = io('http://localhost:3000/workspace/test');
 	client.on('connect', async () => {
 		client.close();
-		await server.stop();
 		done();
 	});
 });
 
 test('block connection to unknown workspaces', async (done) => {
-	const server = new LiveViewServer();
+	server = new LiveViewServer();
 	await server.start();
 	const client = io('http://localhost:3000/workspace/foobar');
 	client.on('error', async () => {
 		client.close();
-		await server.stop();
 		done();
 	});
 });

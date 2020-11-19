@@ -1,8 +1,9 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  projects: [ '<rootDir>/packages/*' ],
+  projects: ['<rootDir>/packages/*'],
   rootDir: './',
+  reporters: ['default', 'jest-junit'],
   collectCoverage: true,
   coverageDirectory: 'coverage',
   verbose: false,

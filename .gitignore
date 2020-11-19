@@ -8,6 +8,9 @@ yarn-error.log*
 # Coverage directory used by tools like istanbul
 coverage
 
+# Jest reports
+junit.xml
+
 # Dependency directories
 node_modules/
 jspm_packages/

@@ -12,7 +12,7 @@
     "dev": "lerna run dev --parallel",
     "lint": "eslint .",
     "test": "yarn run lint && yarn run test:unit",
-    "test:unit": "jest test/unit --detectOpenHandles"
+    "test:unit": "jest test/unit"
   },
   "repository": {
     "type": "git",
@@ -76,6 +76,6 @@
     }
   },
   "lint-staged": {
-    "*.{js,ts}": "eslint ."
+    "*.{js,ts}": "eslint"
   }
 }

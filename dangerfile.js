@@ -9,7 +9,7 @@ async function main() {
   await Promise.all([
     eslint(),
     junit({ pathToReport: './junit.xml' }),
-    dependencies(),
+    dependencies({ type: 'yarn' }),
   ]);
 }
 

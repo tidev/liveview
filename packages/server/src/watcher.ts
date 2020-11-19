@@ -1,17 +1,32 @@
 import chokidar, { FSWatcher } from 'chokidar';
-import { EventEmitter } from 'events';
+import { TypedEmitter } from 'tiny-typed-emitter';
 
 const DEFAULT_IGNORES = [
   '**/.git',
   '.DS_Store'
 ];
 
-interface WatchOptions {
+export interface WatchOptions {
+  /**
+   * Array of file/path globs to ignore
+   */
   ignored: string[],
+  /**
+   * Timeout to fire the `aggregated` event when after a change no additional
+   * change occoured. Defaults to 100ms.
+   */
   aggregateTimeout: number
 }
 
-export class WorkspaceWatcher extends EventEmitter {
+interface WatcherEvents {
+  aggregated: (changes: Set<string>, removals: Set<string>) => void
+  ready: () => void
+}
+
+/**
+ * A workspace watcher based on chokidar that aggregates fs events.
+ */
+export class WorkspaceWatcher extends TypedEmitter<WatcherEvents> {
   private watcher: FSWatcher;
   private aggregateTimer?: number;
   private aggregatedRemovals: Set<string>
@@ -32,20 +47,23 @@ export class WorkspaceWatcher extends EventEmitter {
       ignoreInitial: true,
       ignored
     });
+    this.watcher.on('ready', () => this.emit('ready'));
     this.watcher.on('add', path => this.onChange(path));
     this.watcher.on('change', path => this.onChange(path));
     this.watcher.on('unlink', path => this.onRemove(path));
   }
 
+  /**
+   * Closes the internal chokidar watcher and removes all listeners.
+   */
   public close(): Promise<void> {
     if (this.aggregateTimer) {
       clearTimeout(this.aggregateTimer);
     }
+    this.aggregatedChanges.clear();
+    this.aggregatedRemovals.clear();
+    this.removeAllListeners();
     return this.watcher.close();
-  }
-
-  public on(event: 'aggregated', listener: (changes: Set<string>, removals: Set<string>) => void): this {
-    return super.on(event, listener);
   }
 
   private onChange(file: string) {

@@ -8,12 +8,16 @@ const tmpDir = path.join(os.tmpdir(), 'watcher.spec');
 
 let watcher: WorkspaceWatcher;
 
-afterEach(async () => {
-  await watcher.close();
+beforeAll(async () => {
+  await fs.emptyDir(tmpDir);
 });
 
-test('emit aggregated changes', async (done) => {
+afterEach(async () => {
+  await watcher.close();
   await fs.emptyDir(tmpDir);
+});
+
+test.only('emit aggregated changes', async (done) => {
   await fs.writeFile(path.join(tmpDir, 'c.txt'), 'c');
   watcher = new WorkspaceWatcher(tmpDir, { aggregateTimeout: 500 });
   watcher.on('aggregated', async (changes, removals) => {
@@ -21,7 +25,9 @@ test('emit aggregated changes', async (done) => {
     expect(removals.size).toBe(1);
     done();
   });
-  await fs.writeFile(path.join(tmpDir, 'a.txt'), 'a');
-  await fs.writeFile(path.join(tmpDir, 'b.txt'), 'b');
-  await fs.remove(path.join(tmpDir, 'c.txt'));
+  watcher.on('ready', () => {
+    fs.writeFile(path.join(tmpDir, 'a.txt'), 'a');
+    fs.writeFile(path.join(tmpDir, 'b.txt'), 'b');
+    fs.remove(path.join(tmpDir, 'c.txt'));
+  });
 });

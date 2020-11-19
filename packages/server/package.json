@@ -16,7 +16,8 @@
     "fs-extra": "^9.0.1",
     "lodash.isequal": "^4.5.0",
     "node-titanium-sdk": "^5.1.2",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.3.0",
+    "tiny-typed-emitter": "^2.0.3"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.2",

@@ -1,4 +1,6 @@
 declare module "appcd-client" {
+  import EventEmitter from 'events';
+
   export type RequestTypes = 'subscribe' | 'unsubscribe'
 
   export interface RequestOptions {
@@ -8,9 +10,21 @@ declare module "appcd-client" {
     sid?: string
   }
 
+  export interface ClientOptions {
+    host?: string
+    port?: string
+    userAgent?: string
+  }
+
+  export interface ConnectOptions {
+    startDaemon?: boolean
+  }
+
   class Client {
-    constructor()
-    request(options: RequestOptions): this
+    constructor(options: ClientOptions = {})
+    connect(options: ConnectOptions)
+    disconnect()
+    request(options: RequestOptions): EventEmitter
   }
 
   export default Client;

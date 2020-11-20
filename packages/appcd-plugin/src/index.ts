@@ -14,8 +14,7 @@ let server: LiveViewServer | null;
 
 export function activate(config: AppcdConfig): void {
   server = new LiveViewServer({
-    port: config.liveview.port,
-    daemonized: true
+    port: config.liveview.port
   });
   server.start();
 

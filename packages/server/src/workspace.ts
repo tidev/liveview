@@ -1,67 +1,82 @@
+import slugify from '@sindresorhus/slugify';
 import { EventEmitter} from 'events';
 import isEqual from 'lodash.isequal';
-import path from 'path';
+import { TransferInfo } from './index';
 
 import Client from './client';
-import { createTransformer, SourceTransformer } from './transformers';
-import { WorkspaceWatcher } from './watcher';
+import {
+	AlloyWatching,
+	DefaultWatching,
+	Watching,
+	WatchingOptions
+} from './watching';
 
 export type WorkspaceType = 'alloy' | 'classic' | 'webpack';
 
-const sourcePaths = {
-	alloy: 'app',
-	classic: 'Resources',
-	webpack: 'Resources'
-};
-
 export interface TranspileOptions {
-	enabled: boolean,
+	enabled: boolean
 	targets?: { [key: string]: string }
 }
 
 export interface WorkspaceOptions {
-	name: string,
-	path: string,
-	type: WorkspaceType,
+	name: string
+	path: string
+	type: WorkspaceType
 	transpile: TranspileOptions
+	hmr: boolean
 }
 
 export class Workspace extends EventEmitter {
+	/**
+	 * Worksapce name.
+	 */
 	public name: string
 
+	/**
+	 * Slugified workspace name.
+	 */
+	public slug: string
+
+	/**
+	 * Full path to this workspace.
+	 */
 	public path: string
 
-	public clients: Set<Client> = new Set();
+	/**
+	 * List of clients currently connected to this workspace.
+	 */
+	public clients: Set<Client> = new Set()
 
-	private options: WorkspaceOptions;
+	/**
+	 * The options used to create this workspace.
+	 */
+	private options: WorkspaceOptions
 
-	private sourceDir: string
-
-	private watcher: WorkspaceWatcher
-
-	private sourceTransformer: SourceTransformer
+	private watching: Watching
 
 	constructor(options: WorkspaceOptions) {
 		super();
 
 		this.name = options.name;
+		this.slug = slugify(this.name);
 		this.path = options.path;
 		this.options = options;
-		this.sourceDir = path.join(this.path, sourcePaths[options.type]);
-		this.sourceTransformer = createTransformer(options.type, {
-			workspacePath: this.path,
-			basePath: this.sourceDir,
-			transpile: options.transpile
-		});
-		this.watcher = new WorkspaceWatcher(this.sourceDir);
-		this.watcher.on(
-			'aggregated',
-			(changes, removals) => this.onSourceChanges(changes, removals)
+		const watchingOptions: WatchingOptions = {
+			path: this.path,
+			transpile: options.transpile,
+			hmr: options.hmr
+		};
+		this.watching = options.type === 'alloy'
+			? new AlloyWatching(watchingOptions)
+			: new DefaultWatching(watchingOptions);
+		this.watching.on(
+			'manifest',
+			(changes, removals) => this.handleUpdateManifest(changes, removals)
 		);
 	}
 
 	async close(): Promise<void> {
-		return this.watcher.close();
+		await this.watching.close();
 	}
 
 	public addClient(client: Client): void {
@@ -76,8 +91,12 @@ export class Workspace extends EventEmitter {
 		return !isEqual(this.options, options);
 	}
 
-	public onSourceChanges(changes: Set<string>, removals: Set<string>): void {
-		const transformedChanges = this.sourceTransformer.transform(Array.from(changes));
-		this.clients.forEach(client => client.sendManifest(transformedChanges, removals));
+	public handleUpdateManifest(changes: TransferInfo[], removals: string[]) {
+		if (this.options.hmr) {
+			// When HMR is enabled let the client decide if he can hot update firs
+			return;
+		}
+
+		this.clients.forEach(c => c.sendManifest(changes, removals));
 	}
 }

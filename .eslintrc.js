@@ -20,6 +20,14 @@ module.exports = {
       ]
     },
     {
+      files: ['*.spec.ts'],
+      rules: {
+        '@typescript-eslint/ban-ts-comment': ['error', {
+          'ts-ignore': 'allow-with-description'
+        }]
+      }
+    },
+    {
       files: ['*.js'],
       extends: 'axway/env-node',
       rules: {

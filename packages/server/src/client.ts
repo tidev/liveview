@@ -6,10 +6,10 @@ export default class Client {
 
 	}
 
-	sendManifest(changes: TransferInfo[], removals: Set<string>): void {
+	sendManifest(changes: TransferInfo[], removals: string[]): void {
 		this.socket.emit('manifest', {
 			changes,
-			removals: Array.from(removals)
+			removals
 		});
 	}
 }

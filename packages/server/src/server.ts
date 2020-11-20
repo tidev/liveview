@@ -1,7 +1,11 @@
+import slugify from '@sindresorhus/slugify';
 import http from 'http';
+import Koa from 'koa';
+import bodyParser from 'koa-bodyparser';
+import route from 'koa-route';
+import send from 'koa-send';
 import { Socket } from 'net';
 import io from 'socket.io';
-import { URL } from 'url';
 
 import Client from './client';
 import { DeviceInfo } from './index';
@@ -11,15 +15,13 @@ import { getWorkspaceName, workspacePattern } from './utils';
 export interface LiveViewOptions {
 	host?: string
 	port?: number
-	daemonized?: boolean
 }
 
 export class LiveViewServer {
-	public workspaces: Map<string, Workspace>;
-
-	private server!: http.Server;
-	private socketServer!: io.Server;
-	private connections = new Set<Socket>();
+	public workspaces: Map<string, Workspace>
+	private server!: http.Server
+	private socketServer!: io.Server
+	private connections = new Set<Socket>()
 
 	constructor(private options: LiveViewOptions = {}) {
 		this.workspaces = new Map();
@@ -31,14 +33,23 @@ export class LiveViewServer {
 	}
 
 	private async createHttpServer(): Promise<http.Server> {
-		const { host = '0.0.0.0', port = 3000 } = this.options;
-		const server = this.server = http.createServer((req, res) => {
-			if (this.options.daemonized) {
-				return;
-			}
+		const { host = '0.0.0.0', port = 8323 } = this.options;
 
-			const url = new URL(req.url!);
-		});
+		const app = new Koa();
+		app.use(bodyParser());
+		app.use(route.post('/workspace/:name/serve', async (ctx, name) => {
+			const workspace = this.workspaces.get(name);
+			if (!workspace) {
+				return ctx.throw(404, 'Worksapce not found');
+			}
+			const data = ctx.request.body;
+			if (!data.file) {
+				return ctx.throw(400);
+			}
+			await send(ctx, data.file, { root: workspace.path });
+		}));
+
+		const server = this.server = http.createServer(app.callback());
 		server.on('connection', socket => {
 			this.connections.add(socket);
 			socket.once('close', () => {
@@ -112,12 +123,14 @@ export class LiveViewServer {
 		this.workspaces.clear();
 	}
 
-	async addWorkspace(options: WorkspaceOptions): Promise<void> {
-		const existingWorkspace = this.workspaces.get(options.name);
+	async addWorkspace(options: WorkspaceOptions): Promise<Workspace> {
+		const slug = slugify(options.name);
+		const existingWorkspace = this.workspaces.get(slug);
 		if (existingWorkspace) {
 			await existingWorkspace.close();
 		}
 		const workspace = new Workspace(options);
-		this.workspaces.set(workspace.name, workspace);
+		this.workspaces.set(workspace.slug, workspace);
+		return workspace;
 	}
 }

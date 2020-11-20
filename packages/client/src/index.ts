@@ -6,8 +6,7 @@ interface ServerAddress {
 }
 
 interface ClientOptions extends ServerAddress {
-  workspace: string,
-  daemon?: ServerAddress
+  workspace: string
 }
 
 interface TransferInfo {
@@ -34,12 +33,7 @@ export default class Client {
     this.baseDir = Ti.Platform.osname === 'android'
       ? Ti.Filesystem.applicationDataDirectory
       : Ti.Filesystem.applicationSupportDirectory;
-    if (options.daemon) {
-      const { host: daemonHost, port: daemonPort } = options.daemon;
-      this.assetServeEndpoint = `http://${daemonHost}:${daemonPort}/liveview/latest/workspace/${workspace}/serve`;
-    } else {
-      this.assetServeEndpoint = `http://${host}:${port}/workspace/${workspace}/serve`;
-    }
+    this.assetServeEndpoint = `http://${host}:${port}/workspace/${workspace}/serve`;
 
     this.socket = io(`http://${host}:${port}/workspace/${workspace}`);
 
@@ -116,14 +110,11 @@ export default class Client {
         reject(e);
       };
       client.onload = () => {
-        const content = Ti.Utils.base64decode(client.responseData);
-        targetFile.write(content);
+        targetFile.write(client.responseData);
         resolve();
       };
       client.send(JSON.stringify({
-        data: {
-          file: from
-        }
+        file: from
       }));
     });
   }

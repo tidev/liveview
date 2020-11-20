@@ -2,14 +2,18 @@ import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
 
-import { WorkspaceWatcher } from '@liveview/server/watcher';
+import { Watcher } from '@liveview/server/watcher';
 
 const tmpDir = path.join(os.tmpdir(), 'watcher.spec');
 
-let watcher: WorkspaceWatcher;
+let watcher: Watcher;
 
 beforeAll(async () => {
   await fs.emptyDir(tmpDir);
+});
+
+afterAll(async () => {
+  await fs.remove(tmpDir);
 });
 
 afterEach(async () => {
@@ -17,17 +21,17 @@ afterEach(async () => {
   await fs.emptyDir(tmpDir);
 });
 
-test.only('emit aggregated changes', async (done) => {
+test('emit aggregated changes', async (done) => {
   await fs.writeFile(path.join(tmpDir, 'c.txt'), 'c');
-  watcher = new WorkspaceWatcher(tmpDir, { aggregateTimeout: 500 });
+  watcher = new Watcher(tmpDir, { aggregateTimeout: 500 });
   watcher.on('aggregated', async (changes, removals) => {
     expect(changes.size).toBe(2);
     expect(removals.size).toBe(1);
     done();
   });
   watcher.on('ready', () => {
-    fs.writeFile(path.join(tmpDir, 'a.txt'), 'a');
-    fs.writeFile(path.join(tmpDir, 'b.txt'), 'b');
-    fs.remove(path.join(tmpDir, 'c.txt'));
+    fs.writeFileSync(path.join(tmpDir, 'a.txt'), 'a');
+    fs.writeFileSync(path.join(tmpDir, 'b.txt'), 'b');
+    fs.removeSync(path.join(tmpDir, 'c.txt'));
   });
 });

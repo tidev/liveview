@@ -1,4 +1,9 @@
-import { LiveViewServer, WorkspaceOptions, WorkspaceType } from '@liveview/server';
+import {
+  LiveViewServer,
+  Workspace,
+  WorkspaceOptions,
+  WorkspaceType
+} from '@liveview/server';
 import { appcd } from '@liveview/shared-utils';
 import fs from 'fs-extra';
 import os from 'os';
@@ -47,7 +52,7 @@ export function init(logger: any, config: any, cli: any): void {
     };
     await fs.ensureDir(builder.liveView.assetsPath);
 
-    // write liveview.bootstrap.js
+    // resolve host and port
     let host;
     let port;
     if (useDaemon) {
@@ -58,23 +63,9 @@ export function init(logger: any, config: any, cli: any): void {
       host = cli.argv['liveview-ip'] || resolveHost();
       port = cli.argv['liveview-port'] || 8323;
     }
-    const templateFile = path.resolve(__dirname, 'liveview.bootstrap.js');
-    let bootstrapContent = await fs.readFile(templateFile, 'utf-8');
-    bootstrapContent = bootstrapContent
-      .replace('__HOST__', host)
-      .replace('__PORT__', port)
-      .replace('__WORKSPACE__', builder.tiapp.name);
-    const bootstrapPath = path.join(builder.liveView.assetsPath, 'liveview.bootstrap.js');
-    await fs.writeFile(
-      bootstrapPath,
-      bootstrapContent
-    );
-    builder.liveView.files.push({
-      src: bootstrapPath,
-      relativePath: 'liveview.bootstrap.js'
-    });
 
-    const workspace: WorkspaceOptions = {
+    // start liveview server
+    const options: WorkspaceOptions = {
       name: builder.tiapp.name,
       path: builder.projectDir,
       type: determineProjectType(builder),
@@ -84,18 +75,37 @@ export function init(logger: any, config: any, cli: any): void {
           // @todo: determine per platform
           ios: builder.minIosVersion
         }
-      }
+      },
+      hmr: false
     };
+    let workspace: Workspace;
     if (useDaemon) {
-      await appcd.post('/liveview/latest/workspace', workspace);
+      workspace = await appcd.post('/liveview/latest/workspace', options);
     } else {
       const server = new LiveViewServer({
         host,
         port
       });
-      server.addWorkspace(workspace);
+      workspace = await server.addWorkspace(options);
       await server.start();
     }
+
+    // write liveview.bootstrap.js
+    const templateFile = path.resolve(__dirname, 'liveview.bootstrap.js');
+    let bootstrapContent = await fs.readFile(templateFile, 'utf-8');
+    bootstrapContent = bootstrapContent
+      .replace('__HOST__', host)
+      .replace('__PORT__', port)
+      .replace('__WORKSPACE__', workspace.slug);
+    const bootstrapPath = path.join(builder.liveView.assetsPath, 'liveview.bootstrap.js');
+    await fs.writeFile(
+      bootstrapPath,
+      bootstrapContent
+    );
+    builder.liveView.files.push({
+      src: bootstrapPath,
+      relativePath: 'liveview.bootstrap.js'
+    });
 
     done();
   });

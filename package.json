@@ -50,7 +50,7 @@
     "chokidar": "^3.4.2",
     "coloring": "~0.1.0",
     "commander": "~2.0.0",
-    "debug": "~4.2.0",
+    "debug": "~4.3.1",
     "fs-extra": "^8.1.0",
     "hypar": "~0.1.0",
     "node-titanium-sdk": "^3.0.1",

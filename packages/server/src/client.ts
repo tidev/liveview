@@ -1,15 +1,20 @@
 import io from 'socket.io';
-import { DeviceInfo, TransferInfo } from './index';
+import { DeviceInfo } from './index';
+import { UpdateManifest } from './workspace';
 
 export default class Client {
 	constructor(private socket: io.Socket, public device: DeviceInfo) {
 
 	}
 
-	sendManifest(changes: TransferInfo[], removals: string[]): void {
+	sendUpdateManifest(manifest: UpdateManifest): void {
+		if (manifest.platform !== this.device.platform) {
+			return;
+		}
+
 		this.socket.emit('manifest', {
-			changes,
-			removals
+			changes: manifest.changes,
+			removals: manifest.removals
 		});
 	}
 }

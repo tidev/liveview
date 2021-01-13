@@ -13,6 +13,9 @@ module.exports = {
       },
       plugins: [
         '@typescript-eslint',
+        'jest',
+        'import',
+        'eslint-comments'
       ],
       extends: [
         'eslint:recommended',
@@ -20,12 +23,14 @@ module.exports = {
       ]
     },
     {
-      files: ['*.spec.ts'],
+      files: ['*.spec.ts', '__mocks__/*.ts'],
+      extends: ['plugin:jest/recommended'],
       rules: {
         '@typescript-eslint/ban-ts-comment': ['error', {
           'ts-ignore': 'allow-with-description'
-        }]
-      }
+        }],
+        'jest/no-done-callback': 'off'
+      },
     },
     {
       files: ['*.js'],

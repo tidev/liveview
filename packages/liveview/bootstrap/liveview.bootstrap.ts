@@ -1,14 +1,16 @@
 import Client from '@liveview/client';
 
 declare const __PORT__: number;
+declare const __HMR__: boolean;
 
 const host = '__HOST__';
 const port = __PORT__;
 
-const client = new Client({
+(global as any).__liveView = new Client({
   host,
   port,
-  workspace: '__WORKSPACE__'
+  workspace: '__WORKSPACE__',
+  hmr: __HMR__
 });
 
 try {

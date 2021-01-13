@@ -2,9 +2,8 @@ import {
   LiveViewServer,
   Workspace,
   WorkspaceOptions,
-  WorkspaceType
 } from '@liveview/server';
-import { appcd } from '@liveview/shared-utils';
+import { appcd, Platform, ProjectType, TranspileTargets } from '@liveview/shared-utils';
 import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
@@ -13,10 +12,12 @@ interface DoneCallback {
   (error?: Error | null, ...args: unknown[]): void
 }
 
-export const cliVersion = '>=3.0.25';
+export const cliVersion = '>=5.0.0';
 
 export function init(logger: any, config: any, cli: any): void {
   const useDaemon = config.liveview && config.liveview.daemon;
+
+  let workspace: Workspace;
 
   cli.on('build.config', (data: any, done: DoneCallback) => {
     const config = data.result[1];
@@ -47,8 +48,8 @@ export function init(logger: any, config: any, cli: any): void {
 
     builder.liveView = {
       enabled: true,
-      assetsPath: path.join(builder.projectDir, 'build', 'liveview'),
-      files: []
+      assetsPath: path.join(builder.buildDir, 'liveview', 'assets'),
+      files: {}
     };
     await fs.ensureDir(builder.liveView.assetsPath);
 
@@ -65,20 +66,13 @@ export function init(logger: any, config: any, cli: any): void {
     }
 
     // start liveview server
+    const hmr = false;
     const options: WorkspaceOptions = {
       name: builder.tiapp.name,
       path: builder.projectDir,
       type: determineProjectType(builder),
-      transpile: {
-        enabled: builder.transpile,
-        targets: {
-          // @todo: determine per platform
-          ios: builder.minIosVersion
-        }
-      },
-      hmr: false
+      transpile: builder.transpile
     };
-    let workspace: Workspace;
     if (useDaemon) {
       workspace = await appcd.post('/liveview/latest/workspace', options);
     } else {
@@ -96,17 +90,31 @@ export function init(logger: any, config: any, cli: any): void {
     bootstrapContent = bootstrapContent
       .replace('__HOST__', host)
       .replace('__PORT__', port)
-      .replace('__WORKSPACE__', workspace.slug);
+      .replace('__WORKSPACE__', workspace.slug)
+      .replace('__HMR__', Boolean(hmr).toString());
     const bootstrapPath = path.join(builder.liveView.assetsPath, 'liveview.bootstrap.js');
     await fs.writeFile(
       bootstrapPath,
       bootstrapContent
     );
-    builder.liveView.files.push({
-      src: bootstrapPath,
-      relativePath: 'liveview.bootstrap.js'
-    });
+    builder.liveView.files['liveview.bootstrap.js'] = bootstrapPath;
 
+    done();
+  });
+
+  cli.on('build.post.compile', async (builder: any, done: DoneCallback) => {
+    const platform: Platform = cli.argv.platform;
+    let targets: TranspileTargets | undefined;
+    if (platform === 'ios') {
+      targets = { ios: builder.minIosVersion };
+    } else if (platform === 'android') {
+      targets = { chrome: builder.chromeVersion };
+    }
+    workspace.startLiveView({
+      platform,
+      transpileTargets: targets,
+      outputPath: path.join(builder.buildDir, 'liveview', 'assets')
+    });
     done();
   });
 
@@ -136,6 +144,12 @@ function resolveHost() {
 	}
 }
 
-function determineProjectType(builder: any): WorkspaceType {
-  return 'classic';
+function determineProjectType(builder: any): ProjectType {
+  if (builder.useWebpack) {
+    return 'webpack';
+  } else if (fs.existsSync(path.join(builder.projectDir, 'app'))) {
+    return 'alloy';
+  } else {
+    return 'classic';
+  }
 }

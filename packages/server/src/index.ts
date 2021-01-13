@@ -1,15 +1,7 @@
+import { Platform } from '@liveview/shared-utils';
+
 export * from './server';
 export * from './workspace';
-
-export interface TransferInfo {
-  from: string
-  to: string
-}
-
-export enum Platform {
-  Android = 'android',
-  Ios = 'ios'
-}
 
 export enum DeviceType {
   Device,

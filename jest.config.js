@@ -1,11 +1,8 @@
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
   projects: ['<rootDir>/packages/*'],
-  rootDir: './',
   reporters: ['default', 'jest-junit'],
+  testPathIgnorePatterns: ['/node_modules/', '/test-utils/fixtures/'],
   collectCoverage: true,
-  coverageDirectory: 'coverage',
   verbose: false,
   silent: false,
   useStderr: true

@@ -1,47 +1,84 @@
-import fs from 'fs-extra';
+import { Platform } from "@liveview/shared-utils";
 import path from 'path';
 
-import { TransferInfo, Workspace, WorkspaceOptions } from '@liveview/server';
-import Client from '@liveview/server/client';
+import { Workspace, WorkspaceOptions } from '@liveview/server';
+import Client from '../../src/client';
 
-jest.mock('@liveview/server/client');
-const MockClient = <jest.Mock<Client>>Client;
+jest.mock('../../src/client');
+const ClientMock = Client as jest.MockedClass<typeof Client>;
+const platform: Platform = 'ios';
+const socket: any = {};
+const device: any = {
+  platform
+};
 
-describe('classic project', () => {
-  const projectPath = path.resolve(__dirname, '..', 'fixtures', 'classic');
+const projectPath = path.resolve(__dirname, '..', 'fixtures', 'classic');
+const options: WorkspaceOptions = {
+  name: 'test',
+  path: projectPath,
+  type: 'classic',
+  transpile: false
+};
+let workspace: Workspace;
 
-  afterAll(async () => {
-    await fs.remove(path.join(projectPath, 'Resources', 'a.js'));
+describe('Workspace', () => {
+  beforeEach(() => {
+    workspace = new Workspace(options);
+    ClientMock.mockClear();
   });
 
-  test('emit manifest for asset changes', async (done) => {
-    const options: WorkspaceOptions = {
-      name: 'test',
-      path: projectPath,
-      type: 'classic',
-      transpile: {
-        enabled: false
-      },
-      hmr: false
-    };
-    const workspace = new Workspace(options);
-    const sendManifest = jest.fn((changes: TransferInfo[], removals: Set<string>) => {
-      expect(changes).toHaveLength(1);
-      expect(removals).toHaveLength(0);
-      workspace.close();
-      done();
+  afterEach(async (done) => {
+    await workspace.close();
+    (workspace as any) = null;
+    done();
+  });
+
+  describe('addClient', () => {
+    it('should add client to list', () => {
+      const client = new ClientMock(socket, device);
+      expect(workspace.clients.has(client)).toBe(false);
+      workspace.addClient(client);
+      expect(workspace.clients.has(client)).toBe(true);
     });
-    // @ts-ignore: Required to mock client implementation
-    MockClient.mockImplementation(() => {
-      return {
-        sendManifest
+  });
+
+  describe('removeClient', () => {
+    it('should remove client from list', () => {
+      const client = new ClientMock(socket, device);
+      workspace.addClient(client);
+      expect(workspace.clients.has(client)).toBe(true);
+      workspace.removeClient(client);
+      expect(workspace.clients.has(client)).toBe(false);
+    });
+  });
+
+  describe('didOptionsChange', () => {
+    it('should deep compare options', () => {
+      expect(workspace.didOptionsChange(options)).toBe(false);
+      const result = workspace.didOptionsChange({
+        name: 'test',
+        path: projectPath,
+        type: 'classic',
+        transpile: true
+      });
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('sendUpdateManifest', () => {
+    it('should record build result and notify clients', () => {
+      const client = new ClientMock(socket, device);
+      workspace.addClient(client);
+      const changes = ['app.js'];
+      const removals: string[] = [];
+      const manifest = {
+        platform,
+        changes,
+        removals
       };
+      workspace.sendUpdateManifest(manifest);
+      expect(ClientMock.prototype.sendUpdateManifest).toHaveBeenCalledWith(manifest);
+      ClientMock.prototype.sendUpdateManifest.mockClear();
     });
-    const client = new MockClient();
-    workspace.addClient(client);
-    // give the workspace watching a moment to intiialize
-    setTimeout(() => {
-      fs.writeFileSync(path.join(projectPath, 'Resources', 'a.js'), 'const a = 1;');
-    }, 50);
   });
 });

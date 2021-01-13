@@ -2,3 +2,10 @@ node_modules
 dist
 coverage
 build
+
+# Temporarily ignore old files
+bin/
+hook/
+lib/
+
+fixtures/

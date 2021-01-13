@@ -3,14 +3,11 @@
   "compilerOptions": {
     "composite": true,
     "rootDir": "./src",
-    "outDir": "./dist",
-    "typeRoots": [
-      "../../node_modules/@types",
-      "types"
-    ]
+    "outDir": "./dist"
   },
   "include": ["src"],
   "references": [
     { "path": "../shared-utils/tsconfig.build.json" },
+    { "path": "../compiler/tsconfig.build.json" }
   ]
 }

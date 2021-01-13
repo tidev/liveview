@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`turn xml files into json 1`] = `"{\\"greeting\\":\\"Howdy\\"}"`;

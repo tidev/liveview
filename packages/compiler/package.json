@@ -1,0 +1,21 @@
+{
+  "name": "@liveview/compiler",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "dev": "tsc -b tsconfig.build.json --watch"
+  },
+  "author": "Axway Appcelerator",
+  "maintainers": [
+    "Jan Vennemann <jvennemann@axway.com>"
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@liveview/shared-utils": "^1.0.0",
+    "node-titanium-sdk": "5.1.2"
+  },
+  "devDependencies": {
+    "@liveview/test-utils": "^1.0.0"
+  }
+}

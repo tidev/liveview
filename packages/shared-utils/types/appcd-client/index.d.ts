@@ -22,8 +22,8 @@ declare module "appcd-client" {
 
   class Client {
     constructor(options: ClientOptions = {})
-    connect(options: ConnectOptions)
-    disconnect()
+    connect(options: ConnectOptions): EventEmitter
+    disconnect(): void
     request(options: RequestOptions): EventEmitter
   }
 

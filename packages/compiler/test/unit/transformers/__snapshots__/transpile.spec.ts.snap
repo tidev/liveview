@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`transpile javascript code 1`] = `"\\"use strict\\";Object.defineProperty(exports, \\"__esModule\\", { value: true });exports.foo = void 0;var foo = 'bar';exports.foo = foo;"`;

@@ -4,6 +4,7 @@
     "baseUrl": ".",
     "rootDir": ".",
     "paths": {
+      "@liveview/client": ["../client/src"],
       "@liveview/shared-utils": ["../shared-utils/src"],
       "@liveview/server": ["../server/src"]
     }

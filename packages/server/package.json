@@ -12,28 +12,31 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
+    "@koa/router": "^10.0.0",
     "@sindresorhus/slugify": "^1.1.0",
+    "@liveview/compiler": "^1.0.0",
     "@types/koa": "^2.11.6",
+    "@types/koa__router": "^8.0.3",
     "chokidar": "^3.4.3",
     "fast-xml-parser": "^3.17.4",
     "fs-extra": "^9.0.1",
+    "hash-sum": "^2.0.0",
     "koa": "^2.13.0",
-    "koa-bodyparser": "^4.3.0",
-    "koa-route": "^3.2.0",
     "koa-send": "^5.0.1",
     "lodash.isequal": "^4.5.0",
-    "node-titanium-sdk": "^5.1.2",
     "socket.io": "^2.3.0",
     "tiny-typed-emitter": "^2.0.3"
   },
   "devDependencies": {
+    "@liveview/test-utils": "^1.0.0",
     "@types/fs-extra": "^9.0.2",
     "@types/glob-to-regexp": "^0.4.0",
+    "@types/hash-sum": "^1.0.0",
     "@types/koa": "^2.11.6",
-    "@types/koa-bodyparser": "^4.3.0",
-    "@types/koa-route": "^3.2.4",
     "@types/koa-send": "^4.1.2",
     "@types/lodash.isequal": "^4.5.5",
-    "axios": "^0.21.0"
+    "axios": "^0.21.0",
+    "tempy": "^1.0.0",
+    "watchpack": "^2.0.1"
   }
 }

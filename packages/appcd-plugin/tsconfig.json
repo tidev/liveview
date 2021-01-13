@@ -1,13 +1,7 @@
 {
   "extends": "./tsconfig.build.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "rootDir": ".",
-    "paths": {
-      "@liveview/appcd-plugin/*": ["src/*"],
-      "@liveview/server": ["../server/src"],
-      "@liveview/shared-utils": ["../shared-utils/src"]
-    }
+    "rootDir": "."
   },
-  "include": ["src", "test"]
+  "include": ["src", "test", "types"]
 }

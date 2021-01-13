@@ -1,43 +1,55 @@
 import io, { Socket } from 'titanium-socket.io';
 
+import http from './http';
+
 interface ServerAddress {
-  host: string,
+  host: string
   port: number
 }
 
 interface ClientOptions extends ServerAddress {
   workspace: string
-}
-
-interface TransferInfo {
-  from: string
-  to: string
+  hmr: boolean
 }
 
 interface UpdateManifest {
-  changes: TransferInfo[],
+  platform: 'ios' | 'android'
+  changes: string[]
   removals: string[]
 }
 
+const log = (...args: any) => console.debug('[LiveView]', ...args);
+
 export default class Client {
-  private baseDir: string;
+  private baseDir: string
 
-  private socket: typeof Socket;
+  private socket: typeof Socket
 
-  private isReconnecting = false;
+  private isReconnecting = false
 
-  private assetServeEndpoint: string;
+  private workspaceBaseUrl: string
+
+  private platformBaseUrl: string
+
+  private hmr: boolean
+
+  private currentManifest?: UpdateManifest;
 
   constructor(options: ClientOptions) {
-    const { host, port, workspace } = options;
-    this.baseDir = Ti.Platform.osname === 'android'
+    const { host, port, workspace, hmr } = options;
+    this.hmr = hmr;
+    const platform = Ti.Platform.name.toLowerCase();
+    this.baseDir = platform === 'android'
       ? Ti.Filesystem.applicationDataDirectory
       : Ti.Filesystem.applicationSupportDirectory;
-    this.assetServeEndpoint = `http://${host}:${port}/workspace/${workspace}/serve`;
+    this.baseDir = `${this.baseDir}/liveview`;
 
-    this.socket = io(`http://${host}:${port}/workspace/${workspace}`);
+    this.workspaceBaseUrl = `http://${host}:${port}/workspace/${workspace}`;
+    this.platformBaseUrl = `${this.workspaceBaseUrl}/${platform}`;
 
-    // Connection lifecycle
+    this.socket = io(this.workspaceBaseUrl);
+
+    // Socket connection lifecycle
     this.socket.on('connect', () => this.sendIdent());
     this.socket.on('error', (e: Error) => console.log(`LiveView client error: ${e.stack}`));
     this.socket.on('reconnecting', () => this.isReconnecting = true);
@@ -47,22 +59,17 @@ export default class Client {
         return;
       }
 
-      console.log('LiveView failed to connect.');
+      log('Failed to connect.');
     });
 
-    // Update manifest
-    this.socket.on(
-      'manifest',
-      async (data: UpdateManifest) => {
-        try {
-          this.processUpdateManifest(data);
-        } catch (e) {
-          console.log(`LiveView update failed: ${e}`);
-          console.log('');
-          console.log('Try again or re-build the app to see all changes.');
-        }
+    this.socket.on('manifest', (manifest: UpdateManifest) => {
+      this.currentManifest = manifest;
+
+      if (!this.hmr) {
+        // only try immediate app sync if hot module reloading is disabled
+        this.syncApp();
       }
-    );
+    });
   }
 
   public send(event: string, ...args: any[]): void {
@@ -70,52 +77,57 @@ export default class Client {
   }
 
   private sendIdent(): void {
-    console.log('LiveView client connected');
+    log('Client connected');
     this.send('ident', {
       identifier: Ti.Platform.id,
-      name: Ti.Platform.username
+      name: Ti.Platform.username,
+      platform: Ti.Platform.name.toLowerCase()
     });
   }
 
+  public async syncApp(): Promise<void> {
+    if (!this.currentManifest) {
+      // todo: download complete liveview.zip, extract and restart app
+      return;
+    }
+
+    try {
+      log(this.currentManifest);
+      await this.processUpdateManifest(this.currentManifest);
+      this.restartApp();
+    } catch (e) {
+      console.log(e);
+      log(`App sync failed:`, e.stack);
+      log('');
+      log('Try again or re-build the app to see all changes.');
+    }
+  }
+
   private async processUpdateManifest(manifest: UpdateManifest): Promise<void> {
-    console.log('LiveView received update manifest, loading updated files ...');
+    log('Updating app ...');
     const { changes, removals } = manifest;
 
-    for (const { from, to } of changes) {
+    for (const file of changes) {
       // @todo limit concurrent downloads
-      await this.downloadFile(from, to);
+      await this.updateFile(file);
     }
 
     for (const removal of removals) {
-      console.log(`Delete ${removal}`);
       const targetFile = Ti.Filesystem.getFile(this.baseDir, removal);
       if (targetFile.exists()) {
         targetFile.deleteFile();
       }
     }
-
-    this.socket.close();
-    (Ti.App as any)._restart();
   }
 
-  private async downloadFile(from: string, to: string): Promise<void> {
-    console.log(`Download ${from} => ${to}`);
+  private async updateFile(file: string): Promise<void> {
+    const targetFile = Ti.Filesystem.getFile(this.baseDir, file);
+    const response = await http.get(`${this.platformBaseUrl}/serve/${file}`, { responseType: 'blob' });
+    targetFile.write(response.data);
+  }
 
-    const targetFile = Ti.Filesystem.getFile(this.baseDir, 'liveview', to);
-    return new Promise((resolve, reject) => {
-      const client = Ti.Network.createHTTPClient();
-      client.open('POST', this.assetServeEndpoint);
-      client.setRequestHeader('Content-Type', 'application/json');
-      client.onerror = (e: any) => {
-        reject(e);
-      };
-      client.onload = () => {
-        targetFile.write(client.responseData);
-        resolve();
-      };
-      client.send(JSON.stringify({
-        file: from
-      }));
-    });
+  private restartApp() {
+    this.socket.close();
+    (Ti.App as any)._restart();
   }
 }

@@ -1,14 +1,12 @@
 # LiveView
 
-[![Build Status](https://travis-ci.com/appcelerator/liveview.svg?token=ph6xdReX6PW2XENunBEH&branch=master)](https://travis-ci.com/appcelerator/liveview)
-
 Titanium Live App Reloading for simulator and device.
 
 __Install__
 
 Bleeding edge version
 
-```
+``` sh
 $ npm install -g git+https://github.com/appcelerator/liveview.git
 ```
 
@@ -17,7 +15,7 @@ $ npm install -g git+https://github.com/appcelerator/liveview.git
 
 Outputs usage. Optional command for its usage.
 
-```
+``` sh
 $ liveview <command> --help
 ```
 
@@ -26,7 +24,7 @@ $ liveview <command> --help
 Manually Install the Titanium CLI hook:
 _Note: Cli hook is automatically installed with LiveView_
 
-```
+``` sh
 $ liveview install clihook
 ```
 
@@ -44,13 +42,13 @@ $ liveview rm clihook
 Run liveview with the requested Titanium CLI Build Flags.
 ( _prompts for build flags if none provided_ )
 
-```
+``` sh
 $ liveview run [Titanium-CLI-Build-Flags]
 ```
 
 Run liveview via the [Titanium CLI Tools](https://github.com/appcelerator/titanium)
 
-```
+``` sh
 $ ti build --liveview [options]
 ```
 
@@ -59,7 +57,7 @@ $ ti build --liveview [options]
 
 Outputs Server Active Server(s) Paths(s).
 
-```
+``` sh
 $ liveview server status
 ```
 
@@ -67,7 +65,7 @@ $ liveview server status
 
 Outputs Server Active Server(s) pid Paths(s).
 
-```
+``` sh
 $ liveview server status
 ```
 
@@ -75,7 +73,7 @@ $ liveview server status
 
 Stop liveview file/event servers
 
-```
+``` sh
 $ liveview server stop
 ```
 
@@ -83,7 +81,7 @@ $ liveview server stop
 
 Start a liveview file/event server for given directory
 
-```
+``` sh
 $ liveview server start [-p --project-dir] <project-dir-path> [-d --daemonize]
 ```
 
@@ -102,4 +100,4 @@ As LiveView is now distributed in the SDK, the best way to work on it is to link
 
 See LICENSE file for information on license.
 
-#### (C) Copyright 2013, [Appcelerator](http://www.appcelerator.com/) Inc. All Rights Reserved.
+#### (C) Copyright 20132021, [Appcelerator](http://www.appcelerator.com/) Inc. All Rights Reserved.

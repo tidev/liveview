@@ -7,3 +7,4 @@ Jenkinsfile
 .eslintrc
 junit_report.xml
 lib/platform/
+.github/

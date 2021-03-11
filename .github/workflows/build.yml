@@ -30,10 +30,10 @@ jobs:
 
       - run: npm pack
         name: Package
-        if: env.node == '12'
+        if: matrix.node == '12'
 
       - uses: actions/upload-artifact@v2
-        if: env.node == '12'
+        if: matrix.node == '12'
         with:
           name: liveview
           path: liveview-*.tgz

@@ -1,103 +1,78 @@
 # LiveView
 
-Titanium Live App Reloading for simulator and device.
+Titanium Live App Reloading for simulator and device powered by [Vite](https://vitejs.dev/).
 
-__Install__
+## Install
 
-Bleeding edge version
-
-``` sh
-$ npm install -g git+https://github.com/appcelerator/liveview.git
-```
-
-
-## liveview#help
-
-Outputs usage. Optional command for its usage.
+This version of LiveView is still experimental and only works with Titanium SDK 10+. To install, use the `next` tag from NPM:
 
 ``` sh
-$ liveview <command> --help
+$ npm install -g liveview@next
 ```
 
-## liveview#install
+This will install a preview release of LiveView alongside the bundled one from the SDK. If you build with SDK 10+ and enable LiveView, this new version will be used. All versions below SDK 10 will keep using the default LiveView shipped with the SDK.
 
-Manually Install the Titanium CLI hook:
-_Note: Cli hook is automatically installed with LiveView_
+## Usage
 
-``` sh
-$ liveview install clihook
+The prefered way to use LiveView is with the new `serve` command that is added to the `ti` CLI. Alternatively, you can also use the `--liveview` flag of the `build` command.
+
+### Serve Command
+
+```sh
+ti serve <android|ios>
 ```
 
-## liveview#rm
+The `serve` command will only build your app once and then serve your app's JavaScript through the Vite dev server. This makes it extremely fast on consecutive builds as it only needs to start the dev server and launch your app.
 
-Manually Remove the Titanium CLI hook:
-_Note: Cli hook is automatically removed with LiveView_
+To prevent unnecessary re-builds of your app, the `serve` command will perform a few checks on the passed build options and your `tiapp.xml`. Your app will only be build again if:
 
-```
-$ liveview rm clihook
-```
+- Anything in `tiapp.xml` was changed.
+- The `--target` option changed.
+- The `--force` flag is set.
+- No metadata from the previous build is available.
 
-## liveview#run
+Internally the `serve` command wraps the `build` command, so all options from the build command are supported.
 
-Run liveview with the requested Titanium CLI Build Flags.
-( _prompts for build flags if none provided_ )
+> ⚠️ **NOTE:** The `serve` command currently cannot detect when you change any assets in your app, like images or fonts. To bring your LiveView enabled app up-to-date, simply use the `--force` flag to run a full build.
+>
+> If you are in an early stage of your app development and frequently change assets, see the `--liveview` build command flag below, which always goes through a normal build.
 
-``` sh
-$ liveview run [Titanium-CLI-Build-Flags]
-```
+### Build Command Flag
 
-Run liveview via the [Titanium CLI Tools](https://github.com/appcelerator/titanium)
-
-``` sh
-$ ti build --liveview [options]
+```sh
+ti build -p <android|ios> --liveview
 ```
 
+Using the `--liveview` flag goes through the normal Titanium build process, which makes sure all your app's assets and native dependencies are always up-to-date.
 
-## server#status
+### Disable the Preview Release
 
-Outputs Server Active Server(s) Paths(s).
+This package contains a `postinstall` script which will automatically configure the `ti` CLI so it knows where to find the new LiveView. On builds with SDK 10+, this Preview Release will be used instead of the default LiveView that comes shipped with the SDK. You can disable this by removing the lookup paths from the `ti config` settings.
 
-``` sh
-$ liveview server status
+First run `ti config` to get a list of paths that the CLI will scan for additional hooks and commands:
+
+```sh
+ti config
 ```
 
-## server#pids
+Look for the `paths.commands` and `paths.hooks` options. After you have identified the paths that point to folders inside LiveView you can remove them by running the following commands:
 
-Outputs Server Active Server(s) pid Paths(s).
-
-``` sh
-$ liveview server status
+```sh
+ti config -r paths.commands /path/to/liveview/node/commands
+ti config -r paths.hooks /path/to/liveview/node/hooks
 ```
 
-## server#stop
+To re-enable the preview release of LiveView, simply add the paths again:
 
-Stop liveview file/event servers
-
-``` sh
-$ liveview server stop
+```sh
+ti config -a paths.commands /path/to/liveview/node/commands
+ti config -a paths.hooks /path/to/liveview/node/hooks
 ```
 
-## server#start
-
-Start a liveview file/event server for given directory
-
-``` sh
-$ liveview server start [-p --project-dir] <project-dir-path> [-d --daemonize]
-```
+If you feel lazy (or forgot the paths) you can also just install LiveView again to re-run the `postinstall` script which will practically do the same.
 
 ## Development
 
-As LiveView is now distributed in the SDK, the best way to work on it is to link your local git repository into the SDK version used by the app you're using to test.
+If you already have installed LiveView globally make sure to [disable the preview release](#disable-the-preview-release) first.
 
-1. Install the dependencies `npm install`
-2. Run `npm link`, this allows you to symlink the module into your SDK easily
-3. `cd` to the SDK directory used by your app. So if your app is using `8.3.1.GA` use:
-   * Mac - `cd ~/Library/Application\ Support/Titanium/mobilesdk/osx/8.3.1.GA`
-   * Windows - `cd %PROGRAMDATA%\Titanium/mobilesdk/win32/8.3.1.GA`
-4. Run `npm link liveview` and you're good to go! When you make changes in your local git repository they will be reflected straight away into the SDK
-
-## License
-
-See LICENSE file for information on license.
-
-#### (C) Copyright 20132021, [Appcelerator](http://www.appcelerator.com/) Inc. All Rights Reserved.
+Now, run `yarn` and then `yarn dev` to start watching all files for changes.

@@ -1,19 +1,20 @@
 {
   "name": "liveview",
-  "version": "1.5.5",
+  "version": "2.0.0-alpha.1",
   "description": "Titanium Live Realtime App Development",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs",
-    "test": "test"
-  },
-  "license": "SEE LICENSE IN LICENSE.md",
+  "main": "dist/node/index.js",
+  "license": "Apache-2.0",
   "scripts": {
-    "build": "rollup lib/platform/main.js --file build/liveview.js --format iife",
-    "prepare": "npm run build",
-    "lint": "eslint bin/* .",
-    "test": "npm run lint && npm run unit-test",
-    "unit-test": "JUNIT_REPORT_PATH=junit_report.xml nyc mocha test/*.js --reporter=mocha-jenkins-reporter --exit"
+    "build": "npm-run-all clean lint -p build:*",
+    "build:bundle": "rollup -c",
+    "build:tsc": "tsc -p tsconfig.build.json",
+    "clean": "rimraf dist",
+    "dev": "npm-run-all clean -p dev:*",
+    "dev:tsc": "tsc -p tsconfig.build.json -w --preserveWatchOutput",
+    "dev:rollup": "rollup -c -w --no-watch.clearScreen",
+    "lint": "eslint --ext .js,.ts src/**",
+    "postinstall": "node scripts/install",
+    "prepare": "yarn build"
   },
   "repository": {
     "type": "git",
@@ -31,66 +32,68 @@
   },
   "maintainers": [
     {
-      "name": "Christian Sullivan",
-      "email": "csullivan@appcelerator.com"
-    },
-    {
-      "name": "Chris Barber",
-      "email": "cbarber@appcelerator.com"
+      "name": "Jan Vennemann",
+      "email": "jvennemann@axway.com"
     }
   ],
-  "bin": {
-    "liveview": "bin/liveview",
-    "liveview-run": "bin/liveview-run",
-    "liveview-server": "bin/liveview-server",
-    "liveview-install": "bin/liveview-install",
-    "liveview-rm": "bin/liveview-rm"
-  },
   "dependencies": {
-    "chokidar": "^3.4.2",
-    "coloring": "~0.1.0",
-    "commander": "~2.0.0",
-    "debug": "~4.2.0",
-    "fs-extra": "^8.1.0",
-    "hypar": "~0.1.0",
-    "node-titanium-sdk": "^3.0.1",
-    "shelljs": "~0.2.6",
-    "win-fork": "~1.1.1"
+    "@rollup/plugin-node-resolve": "^13.0.0",
+    "acorn": "^8.2.4",
+    "alloy-compiler": "0.2.6",
+    "alloy-utils": "^0.2.5",
+    "chalk": "^4.1.1",
+    "debug": "^4.3.1",
+    "esbuild": "^0.11.12",
+    "estree-walker": "^2.0.2",
+    "fast-glob": "^3.2.5",
+    "fs-extra": "^10.0.0",
+    "global-paths": "^1.0.0",
+    "globby": "^11.0.3",
+    "hash-sum": "^2.0.0",
+    "lodash.get": "^4.4.2",
+    "lodash.merge": "^4.6.2",
+    "lodash.set": "^4.3.2",
+    "magic-string": "^0.25.7",
+    "node-titanium-sdk": "^5.1.2",
+    "resolve": "^1.20.0",
+    "vite": "~2.3.3"
   },
   "devDependencies": {
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
+    "@rollup/plugin-commonjs": "^18.0.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-typescript": "^8.2.1",
     "@seadub/danger-plugin-dependencies": "^1.0.0",
     "@seadub/danger-plugin-eslint": "^2.0.0",
     "@seadub/danger-plugin-junit": "^0.2.0",
+    "@tsconfig/node12": "^1.0.7",
+    "@types/debug": "^4.1.5",
+    "@types/estree": "^0.0.47",
+    "@types/fs-extra": "^9.0.11",
+    "@types/global-paths": "^1.0.0",
+    "@types/hash-sum": "^1.0.0",
+    "@types/lodash.get": "^4.4.6",
+    "@types/lodash.merge": "^4.6.6",
+    "@types/lodash.set": "^4.3.6",
+    "@types/titanium": "^9.2.1",
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
+    "@typescript-eslint/parser": "^4.22.0",
     "danger": "^10.5.0",
     "eslint": "^7.11.0",
-    "eslint-config-axway": "^5.0.0",
-    "eslint-plugin-mocha": "^8.0.0",
+    "eslint-config-axway": "^6.0.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-jsdoc": "^33.3.0",
     "husky": "^4.3.0",
     "lint-staged": "^10.4.2",
-    "mocha": "^8.2.0",
-    "mocha-jenkins-reporter": "^0.4.2",
-    "nyc": "^15.1.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.3.0",
     "rollup": "^2.32.0",
-    "should": "~13.2.3"
+    "tiws": "^1.0.0",
+    "typescript": "^4.2.4"
   },
   "engines": {
-    "node": ">=10.0.0"
-  },
-  "mocha": {
-    "timeout": 3500,
-    "check-leaks": true
-  },
-  "nyc": {
-    "exclude": [
-      "test/**/*.js",
-      "build/**/*.js"
-    ],
-    "reporter": [
-      "cobertura",
-      "text"
-    ]
+    "node": ">=12.0.0"
   },
   "commitlint": {
     "extends": [
@@ -104,7 +107,19 @@
     }
   },
   "lint-staged": {
-    "*.js": "eslint",
-    "bin/*": "eslint"
+    "*.js": [
+      "prettier --write"
+    ],
+    "*.ts": [
+      "eslint",
+      "prettier --parser=typescript --write"
+    ]
+  },
+  "files": [
+    "dist",
+    "scripts"
+  ],
+  "publishConfig": {
+    "tag": "next"
   }
 }

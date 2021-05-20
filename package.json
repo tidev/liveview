@@ -14,7 +14,8 @@
     "dev:rollup": "rollup -c -w --no-watch.clearScreen",
     "lint": "eslint --ext .js,.ts src/**",
     "postinstall": "node scripts/install",
-    "prepare": "yarn build"
+    "prepare": "yarn build",
+    "test": "echo \"No tests yet\""
   },
   "repository": {
     "type": "git",

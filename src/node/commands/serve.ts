@@ -13,6 +13,7 @@ import { promisify } from 'util';
 
 import { startServer } from '../server';
 import { resolveHost } from '../utils';
+import { ProjectType } from '../types';
 
 interface LiveViewMetadata {
 	hash: string;
@@ -145,7 +146,7 @@ export const run = async (
 		const server = await startServer({
 			project: {
 				dir: projectDir,
-				type: 'alloy',
+				type: determineProjectType(projectDir),
 				platform,
 				tiapp: cli.tiapp
 			},
@@ -206,11 +207,30 @@ export const run = async (
 			await runHook('build.post.compile');
 		}
 	} catch (e) {
+		console.error(e);
 		return finished(e);
 	}
 
 	finished();
 };
+
+function determineProjectType(projectDir: string): ProjectType {
+	const pkgPath = path.join(projectDir, 'package.json');
+	if (fs.existsSync(pkgPath)) {
+		const pkg = fs.readJsonSync(pkgPath);
+		const hasWebpackPlugin = Object.keys(pkg.dependencies || {})
+			.concat(Object.keys(pkg.devDependencies || {}))
+			.some((dep: string) => dep.startsWith('@titanium-sdk/webpack-plugin'));
+		if (hasWebpackPlugin) {
+			return 'webpack';
+		}
+	}
+	if (fs.existsSync(path.join(projectDir, 'app'))) {
+		return 'alloy';
+	} else {
+		return 'classic';
+	}
+}
 
 /**
  * Utility function to get an initialized builder instance.

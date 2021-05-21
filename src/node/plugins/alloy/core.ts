@@ -3,6 +3,8 @@ import { Plugin } from 'vite';
 
 import { AlloyContext } from './context';
 
+const DEFAULT_BACKBONE_VERSION = '0.9.2';
+
 export function corePlugin(ctx: AlloyContext): Plugin {
 	const { root: alloyRoot } = ctx;
 	const ALLOY_MAIN = path.join(alloyRoot, 'template/lib/alloy.js');
@@ -16,7 +18,7 @@ export function corePlugin(ctx: AlloyContext): Plugin {
 			const compileConfig = compiler.config;
 			const backboneVersion = compileConfig.backbone
 				? compileConfig.backbone
-				: '0.9.2';
+				: DEFAULT_BACKBONE_VERSION;
 			if (!config.resolve) {
 				config.resolve = {};
 			}
@@ -85,6 +87,14 @@ export function corePlugin(ctx: AlloyContext): Plugin {
 				'controllers/**/*.@(j|t)s',
 				'lib/**/*.@(j|t)s'
 			];
+		},
+
+		resolveId(id, importer) {
+			if (id === 'jquery' && importer?.endsWith('backbone.js')) {
+				// backbone includes an unused require to `jquery` that needs to be
+				// marked as external
+				return { id, external: true };
+			}
 		},
 
 		transform(code, id) {

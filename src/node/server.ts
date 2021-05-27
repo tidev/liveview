@@ -37,7 +37,7 @@ export async function startServer({
 	const viteSever = await createServer({
 		clearScreen: false,
 		root,
-		plugins: resolvePlugins({
+		plugins: await resolvePlugins({
 			projectDir,
 			type: projectType,
 			platform,

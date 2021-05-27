@@ -8,6 +8,7 @@ import { externalsPlugin } from './externals';
 import { hyperloopPlugin } from './hyperloop';
 import { nodeBuiltinsPlugin } from './nodeBuiltins';
 import { requireAnalysisPlugin } from './requireAnalysis';
+import { resolvePlugin } from './resolve';
 
 interface ResolveOptions {
 	projectDir: string;
@@ -31,7 +32,11 @@ export async function resolvePlugins({
 		normalPlugins.push(await hyperloopPlugin(projectDir, platform));
 	}
 
-	const postPlugins = [requireAnalysisPlugin(), esbuildPlugin()];
+	const postPlugins = [
+		resolvePlugin(type, platform),
+		requireAnalysisPlugin(),
+		esbuildPlugin()
+	];
 	const projectPlugins =
 		type === 'alloy' ? resolveAlloyPlugins(projectDir, platform) : [];
 	return [...normalPlugins, ...projectPlugins, ...postPlugins];

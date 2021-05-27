@@ -34,6 +34,10 @@ export async function startServer({
 	const nativeModules = [
 		...new Set<string>(tiapp.modules.map((m: any) => m.id))
 	];
+	const define: Record<string, string> = {
+		OS_ANDROID: JSON.stringify(platform === 'android'),
+		OS_IOS: JSON.stringify(platform === 'ios')
+	};
 	const viteSever = await createServer({
 		clearScreen: false,
 		root,
@@ -43,10 +47,14 @@ export async function startServer({
 			platform,
 			nativeModules
 		}),
+		define,
 		cacheDir: path.join(projectDir, 'build/.vite'),
 		optimizeDeps: {
 			entries: [appEntry],
-			exclude: [...nativeModules]
+			exclude: [...nativeModules],
+			esbuildOptions: {
+				define
+			}
 		},
 		server: {
 			...server,

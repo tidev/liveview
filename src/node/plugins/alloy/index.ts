@@ -22,7 +22,7 @@ export function resolveAlloyPlugins(
 	const context = new AlloyContext(projectDir, platform);
 	return [
 		initContextPlugin(context),
-		corePlugin(context),
+		corePlugin(context, platform),
 		configPlugin(context),
 		entryPlugin(appDir),
 		globImportsPlugin(projectDir),

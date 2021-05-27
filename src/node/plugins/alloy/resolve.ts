@@ -1,8 +1,6 @@
 import path from 'path';
 import { Plugin } from 'vite';
 
-import { bareImportRE } from '../../constants';
-
 /**
  * Provides special resolve rules for Alloy.
  *
@@ -14,39 +12,46 @@ export function resolvePlugin(appDir: string): Plugin {
 	return {
 		name: 'titanium:alloy:resolve',
 		async resolveId(id, importer) {
+			if (id.startsWith('.')) {
+				return;
+			}
+
 			if (id.startsWith('/')) {
 				// check WPATH generated url `/<widget>/<id>`
 				const secondSlashIndex = id.indexOf('/', 1);
 				if (secondSlashIndex === -1) {
-					return undefined;
+					const widgetId = id.slice(1, secondSlashIndex);
+					const relativeId = id.slice(secondSlashIndex + 1);
+					const result = await this.resolve(
+						path.join(appDir, 'widgets', widgetId, 'lib', relativeId),
+						importer,
+						{
+							skipSelf: true,
+							custom: {
+								titanium: {
+									resolveBase: path.join(appDir, 'widgets', widgetId, 'lib')
+								}
+							}
+						}
+					);
+					if (result) {
+						return result.id;
+					}
 				}
-				const widgetId = id.slice(1, secondSlashIndex);
-				const relativeId = id.slice(secondSlashIndex + 1);
-				const result = await this.resolve(
-					path.join(appDir, 'widgets', widgetId, 'lib', relativeId),
-					importer,
-					{ skipSelf: true }
-				);
-				return result?.id;
 			}
 
-			if (bareImportRE.test(id)) {
-				// check `app/lib` folder
-				let result = await this.resolve(
-					path.resolve(appDir, 'lib', id.replace(/^\//, '')),
-					importer,
-					{ skipSelf: true }
-				);
-				if (result) {
-					return result.id;
-				}
-
-				// check `app/assets` folder
-				result = await this.resolve(
-					path.resolve(appDir, 'assets', id.replace(/^\//, '')),
-					importer,
-					{ skipSelf: true }
-				);
+			// check `app/lib` and `app/assets`
+			id = id.replace(/^\//, '');
+			const dirs = [path.join(appDir, 'lib'), path.join(appDir, 'assets')];
+			for (const base of dirs) {
+				const result = await this.resolve(path.resolve(base, id), importer, {
+					skipSelf: true,
+					custom: {
+						titanium: {
+							resolveBase: base
+						}
+					}
+				});
 				if (result) {
 					return result.id;
 				}

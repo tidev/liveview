@@ -1,11 +1,13 @@
 import path from 'path';
 import { Plugin } from 'vite';
 
+import { Platform } from '../../types';
+import { otherPlatform } from '../../utils';
 import { AlloyContext } from './context';
 
 const DEFAULT_BACKBONE_VERSION = '0.9.2';
 
-export function corePlugin(ctx: AlloyContext): Plugin {
+export function corePlugin(ctx: AlloyContext, platform: Platform): Plugin {
 	const { root: alloyRoot } = ctx;
 	const ALLOY_MAIN = path.join(alloyRoot, 'template/lib/alloy.js');
 	const ALLOY_WIDGET = path.join(alloyRoot, 'lib/alloy/widget.js');
@@ -84,8 +86,8 @@ export function corePlugin(ctx: AlloyContext): Plugin {
 
 			config.optimizeDeps!.entries = [
 				...(config.optimizeDeps!.entries as string[]),
-				'controllers/**/*.@(j|t)s',
-				'lib/**/*.@(j|t)s'
+				`controllers/!(${otherPlatform[platform]})/**/*.@(j|t)s`,
+				`lib/!(${otherPlatform[platform]})/**/*.@(j|t)s`
 			];
 		},
 

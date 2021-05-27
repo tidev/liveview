@@ -4,6 +4,11 @@ import path from 'path';
 
 import { ProjectType, Platform } from '../types';
 
+export const otherPlatform: Record<Platform, Platform> = {
+	android: 'ios',
+	ios: 'android'
+};
+
 export function determineProjectType(builder: any): ProjectType {
 	if (builder.useWebpack) {
 		return 'webpack';

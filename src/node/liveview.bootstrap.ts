@@ -114,7 +114,7 @@ function patchRequire() {
 			}
 		}
 
-		request = cleanUrl(request);
+		request = cleanUrl(request).replace('/@id/', '');
 		const loaded = originalRequire.call(this, request, context);
 		if (loaded) {
 			skipLoad.add(request);

@@ -6,6 +6,7 @@ import { esbuildPlugin } from './esbuild';
 import { Platform, ProjectType } from '../types';
 import { externalsPlugin } from './externals';
 import { hyperloopPlugin } from './hyperloop';
+import { i18nPlugin } from './i18n';
 import { nodeBuiltinsPlugin } from './nodeBuiltins';
 import { requireAnalysisPlugin } from './requireAnalysis';
 import { resolvePlugin } from './resolve';
@@ -26,7 +27,8 @@ export async function resolvePlugins({
 	const normalPlugins = [
 		clientInjectionsPlugin(),
 		externalsPlugin(nativeModules),
-		nodeBuiltinsPlugin()
+		nodeBuiltinsPlugin(),
+		i18nPlugin(projectDir, type)
 	];
 	if (nativeModules.includes('hyperloop')) {
 		normalPlugins.push(await hyperloopPlugin(projectDir, platform));

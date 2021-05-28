@@ -125,8 +125,26 @@ function patchRequire() {
 	Module.__liveview_installed__ = true;
 }
 
+function patchI18n() {
+	const i18nData: Record<string, Record<string, string>> = {};
+	global.L = (key: string, hint?: string) => {
+		const currentLocale = Ti.Locale.currentLanguage;
+		let messages = i18nData[currentLocale];
+		if (!messages) {
+			try {
+				messages = require(`/@liveview/i18n/${currentLocale}/strings.xml`);
+			} catch (e) {
+				messages = {};
+			}
+			i18nData[currentLocale] = messages;
+		}
+		return messages[key] || hint || key;
+	};
+}
+
 export async function execute(done: () => void): Promise<void> {
 	patchRequire();
+	patchI18n();
 	// eslint-disable-next-line @typescript-eslint/no-var-requires, security/detect-non-literal-require
 	const { connect, injectQuery } = require(CLIENT_PUBLIC_PATH);
 	__vite__injectQuery = injectQuery;

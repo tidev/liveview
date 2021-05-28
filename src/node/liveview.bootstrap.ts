@@ -71,7 +71,7 @@ function patchRequire() {
 		if (request.startsWith('/@native/')) {
 			// shortcut for native modules that vite already identified during the transform phase
 			const moduleId = cleanUrl(request.substr(9));
-			const loaded = this.loadCoreModule(moduleId);
+			const loaded = originalRequire.call(this, moduleId, context);
 			if (loaded) {
 				return loaded;
 			}

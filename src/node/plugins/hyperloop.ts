@@ -1,7 +1,7 @@
 import glob from 'fast-glob';
 import fs from 'fs-extra';
 import path from 'path';
-import { Plugin } from 'vite';
+import { normalizePath, Plugin } from 'vite';
 
 import { Platform } from '../types';
 
@@ -19,7 +19,7 @@ export async function hyperloopPlugin(
 	if (platform === 'android') {
 		const files = await glob('*.js', { cwd: hyperloopResourcesDir });
 		files.forEach((file) => {
-			const className = path.basename(file, '.js');
+			const className = path.basename(file, '.js').toLowerCase();
 			if (className.startsWith('hyperloop.bootstrap')) {
 				return;
 			}
@@ -32,42 +32,48 @@ export async function hyperloopPlugin(
 		);
 		const metadata = await fs.readJSON(metadataFile);
 		hyperloopModules = new Map(
-			Object.keys(metadata).map((name) => [name, name])
+			Object.keys(metadata).map((name) => [name.toLowerCase(), name])
 		);
 	}
-	hyperloopModules.set('Titanium', 'titanium');
+	hyperloopModules.set('titanium', 'Titanium');
 
 	return {
 		name: 'titanium:hyperloop',
 
 		async resolveId(id) {
+			id = normalizePath(id).replace(/^\/hyperloop\//, '');
+
 			if (id.startsWith('/') || id.startsWith('.')) {
 				return;
 			}
 
 			let [pkg, type] = id.split('/');
-			let resourcePath;
+			pkg = pkg.toLowerCase();
 			if (platform === 'android') {
 				if (pkg.endsWith('.*')) {
 					pkg = pkg.replace('.*', '');
 				}
 				if (hyperloopModules.has(pkg)) {
-					resourcePath = path.join(
+					const resourcePath = path.join(
 						hyperloopResourcesDir,
 						`${hyperloopModules.get(pkg)!}.js`
 					);
+					if (await fs.pathExists(resourcePath)) {
+						return resourcePath;
+					}
 				}
 			} else if (hyperloopModules.has(pkg)) {
-				pkg = pkg.toLowerCase();
 				type = type?.toLowerCase();
 				if (type === undefined) {
 					type = pkg;
 				}
-				resourcePath = path.join(hyperloopResourcesDir, `${pkg}/${type}.js`);
-			}
-
-			if (resourcePath && (await fs.pathExists(resourcePath))) {
-				return resourcePath;
+				const resourcePath = path.join(
+					hyperloopResourcesDir,
+					`${pkg}/${type}.js`
+				);
+				if (await fs.pathExists(resourcePath)) {
+					return resourcePath;
+				}
 			}
 		}
 	};

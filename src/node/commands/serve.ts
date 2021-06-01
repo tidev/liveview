@@ -142,27 +142,12 @@ export const run = async (
 	const dataPath = path.join(cacheDir, '_metadata.json');
 
 	try {
-		logger.info(`${chalk.green('[LiveView]')} Starting dev server ...`);
-		const server = await startServer({
-			project: {
-				dir: projectDir,
-				type: determineProjectType(projectDir),
-				platform,
-				tiapp: cli.tiapp
-			},
-			server: {
-				host,
-				port,
-				force
-			}
-		});
-
 		const buildHash = hash({
 			tiapp: cli.tiapp,
 			target: cli.argv.target,
 			server: {
 				host,
-				port: server.config.server.port
+				port
 			}
 		});
 		const data: LiveViewMetadata = {
@@ -186,6 +171,20 @@ export const run = async (
 			await runBuild(logger, config, cli);
 			await fs.outputJSON(dataPath, data);
 		} else {
+			logger.info(`${chalk.green('[LiveView]')} Starting dev server ...`);
+			await startServer({
+				project: {
+					dir: projectDir,
+					type: determineProjectType(projectDir),
+					platform,
+					tiapp: cli.tiapp
+				},
+				server: {
+					host,
+					port,
+					force
+				}
+			});
 			resetCliHooks(cli, legacyPlatformName);
 			const builder = await getBuilderInstance(logger, config, cli, runBuild);
 			const runHook = (name: string) => {

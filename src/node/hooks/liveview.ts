@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 import path from 'path';
 
 import { determineProjectType, resolveHost } from '../utils';
-import { startServer } from '../server';
+import { startServer, LiveViewOpions } from '../server';
 
 interface DoneCallback {
 	(error?: Error | null, ...args: unknown[]): void;
@@ -14,6 +14,8 @@ const BOOSTRAP_FILE = '_liveview.bootstrap.js';
 export const id = 'liveview-v2';
 
 export function init(logger: any, config: any, cli: any): void {
+	let serverOptions: LiveViewOpions;
+
 	cli.on('build.config', (data: any) => {
 		const config = data.result[1];
 		const flags = config.flags || (config.flags = {});
@@ -57,6 +59,19 @@ export function init(logger: any, config: any, cli: any): void {
 			const host = cli.argv['liveview-ip'] || resolveHost();
 			const port = cli.argv['liveview-port'] || 8323;
 			const force = cli.argv['force'];
+			serverOptions = {
+				project: {
+					dir: projectDir,
+					type: determineProjectType(builder),
+					platform: cli.argv.platform,
+					tiapp: cli.tiapp
+				},
+				server: {
+					host,
+					port,
+					force
+				}
+			};
 
 			const templateFile = path.resolve(__dirname, '../liveview.bootstrap.js');
 			let bootstrapContent = await fs.readFile(templateFile, 'utf-8');
@@ -65,23 +80,6 @@ export function init(logger: any, config: any, cli: any): void {
 				.replace('__SERVER_PORT__', JSON.stringify(port));
 			const bootstrapPath = path.join(liveviewDir, 'Resources', BOOSTRAP_FILE);
 			await fs.outputFile(bootstrapPath, bootstrapContent);
-
-			if (cli.command.name === 'build') {
-				logger.info(`${chalk.green('[LiveView]')} Starting dev server ...`);
-				await startServer({
-					project: {
-						dir: projectDir,
-						type: determineProjectType(builder),
-						platform: cli.argv.platform,
-						tiapp: cli.tiapp
-					},
-					server: {
-						host,
-						port,
-						force
-					}
-				});
-			}
 
 			// prevent deletion of LiveView cache folder under build/<platform>/.liveview
 			builder.unmarkBuildDirFiles(liveviewDir);
@@ -108,5 +106,11 @@ export function init(logger: any, config: any, cli: any): void {
 
 			done();
 		}
+	});
+
+	cli.on('build.pre.build', async (builder: any, done: DoneCallback) => {
+		logger.info(`${chalk.green('[LiveView]')} Starting dev server ...`);
+		await startServer(serverOptions);
+		done();
 	});
 }

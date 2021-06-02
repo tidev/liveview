@@ -8,7 +8,7 @@ import { cleanUrl } from '../utils';
 const clientDir = normalizePath(CLIENT_DIR);
 
 export function esbuildPlugin(): Plugin {
-	const filter = createFilter([/.(j|t)sx?/], 'node_modules/!(alloy)');
+	const filter = createFilter([/\.(j|t)sx?/], 'node_modules/!(alloy)');
 
 	return {
 		name: 'titanium:esbuild',
@@ -30,6 +30,7 @@ export function esbuildPlugin(): Plugin {
 		 * Transforms all code to CJS so Titanium can use it.
 		 */
 		async transform(code, id) {
+			id = id.replace('\0', '');
 			if (filter(cleanUrl(id))) {
 				const options: TransformOptions = {
 					target: 'node10',

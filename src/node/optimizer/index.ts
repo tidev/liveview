@@ -52,6 +52,7 @@ export async function runDynamicOptimize(
 	const qualifiedIds = Object.keys(deps);
 
 	if (!qualifiedIds.length) {
+		await fs.outputFile(dataPath, JSON.stringify(data, null, 2));
 		log('No dynamic dependencies to bundle. Skipping.\n\n\n');
 		return;
 	}

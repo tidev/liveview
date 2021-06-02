@@ -45,10 +45,6 @@ export const config = (logger: any, config: any, cli: any) => {
 
 			const mergedConfig = merge(buildConfig, {
 				options: {
-					'log-level': {
-						// Change log level to `info` to make the build less noisy by defaults
-						default: 'info'
-					},
 					'project-dir': {
 						/**
 						 * Override project dir callback to make sure this is an app project

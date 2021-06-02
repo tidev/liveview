@@ -1600,17 +1600,17 @@ ajv@^8.0.1:
     require-from-string "^2.0.2"
     uri-js "^4.2.2"
 
-alloy-compiler@0.2.6:
-  version "0.2.6"
-  resolved "https://registry.yarnpkg.com/alloy-compiler/-/alloy-compiler-0.2.6.tgz#cc4cf0876019b49b7dd52b6bc3aa086e51d0a93f"
-  integrity sha512-ndATERwM8Lo+xbTruAFXWTzNW9biS+agWvns7Ns5LgGoRPgmraEOBLeZu+msMzjPofRV+7BdRfIMuHK/tSpGRA==
+alloy-compiler@0.2.7:
+  version "0.2.7"
+  resolved "https://registry.yarnpkg.com/alloy-compiler/-/alloy-compiler-0.2.7.tgz#b7ff9fa093fced041fc34f2b344412fddd56bfd9"
+  integrity sha512-eyFRskpqJOo1gqqUqcURD3qHpBqRQeLCxVOmFGc5LQzJL3jQ9ySx0hBOOEm81wAeOpdG+vNqqqSnhicAkXI3+w==
   dependencies:
     "@babel/core" "^7.9.6"
     "@babel/generator" "^7.9.6"
     "@babel/parser" "^7.9.6"
     "@babel/traverse" "^7.9.6"
     "@babel/types" "^7.9.6"
-    alloy-utils "^0.2.5"
+    alloy-utils "^0.2.7"
     chmodr "^1.2.0"
     fs-extra "^9.0.0"
     jsonlint "^1.6.3"
@@ -1618,7 +1618,7 @@ alloy-compiler@0.2.6:
     node.extend "^2.0.2"
     source-map "^0.7.3"
     walk-sync "^2.0.2"
-    xmldom "^0.3.0"
+    xmldom "^0.6.0"
 
 alloy-utils@^0.2.5:
   version "0.2.5"
@@ -1635,6 +1635,22 @@ alloy-utils@^0.2.5:
     moment "^2.24.0"
     resolve "^1.12.0"
     xmldom "^0.3.0"
+
+alloy-utils@^0.2.7:
+  version "0.2.7"
+  resolved "https://registry.yarnpkg.com/alloy-utils/-/alloy-utils-0.2.7.tgz#f059d070ac44bb895fc1f08c01837ed18e801ee3"
+  integrity sha512-xGGIktMWG8Bqck900vvSNE3byp8J44PYk1q56fn6BP4HMxY0b4h/a79QcT3vyU/LtvYAItKEQUNrBRQr3xdZTQ==
+  dependencies:
+    "@babel/code-frame" "^7.8.3"
+    chmodr "^1.2.0"
+    colors "^1.4.0"
+    fs-extra "^9.0.0"
+    global-paths "^1.0.0"
+    jsonlint "^1.6.3"
+    lodash "^4.17.15"
+    moment "^2.24.0"
+    resolve "^1.12.0"
+    xmldom "^0.6.0"
 
 ansi-colors@^4.1.1:
   version "4.1.1"
@@ -6304,6 +6320,11 @@ xmldom@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/xmldom/-/xmldom-0.3.0.tgz#e625457f4300b5df9c2e1ecb776147ece47f3e5a"
   integrity sha512-z9s6k3wxE+aZHgXYxSTpGDo7BYOUfJsIRyoZiX6HTjwpwfS2wpQBQKa2fD+ShLyPkqDYo5ud7KitmLZ2Cd6r0g==
+
+xmldom@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/xmldom/-/xmldom-0.6.0.tgz#43a96ecb8beece991cef382c08397d82d4d0c46f"
+  integrity sha512-iAcin401y58LckRZ0TkI4k0VSM1Qg0KGSc3i8rU+xrxe19A/BN1zHyVSJY7uoutVlaTSzYyk/v5AmkewAP7jtg==
 
 xtend@~4.0.1:
   version "4.0.2"

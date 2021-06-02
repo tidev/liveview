@@ -1,9 +1,11 @@
 import glob from 'fast-glob';
 import fs from 'fs-extra';
 import path from 'path';
-import { normalizePath, Plugin } from 'vite';
+import { Plugin } from 'vite';
 
 import { Platform } from '../types';
+
+const PREFIX = '\0hyperloop:';
 
 export async function hyperloopPlugin(
 	projectDir: string,
@@ -19,7 +21,7 @@ export async function hyperloopPlugin(
 	if (platform === 'android') {
 		const files = await glob('*.js', { cwd: hyperloopResourcesDir });
 		files.forEach((file) => {
-			const className = path.basename(file, '.js').toLowerCase();
+			const className = path.basename(file, '.js');
 			if (className.startsWith('hyperloop.bootstrap')) {
 				return;
 			}
@@ -32,24 +34,43 @@ export async function hyperloopPlugin(
 		);
 		const metadata = await fs.readJSON(metadataFile);
 		hyperloopModules = new Map(
-			Object.keys(metadata).map((name) => [name.toLowerCase(), name])
+			Object.keys(metadata).map((name) => [name, name.toLowerCase()])
 		);
 	}
-	hyperloopModules.set('titanium', 'Titanium');
+	hyperloopModules.set('Titanium', 'titanium');
 
 	return {
 		name: 'titanium:hyperloop',
 
-		async resolveId(id) {
-			id = normalizePath(id).replace(/^\/hyperloop\//, '');
+		async resolveId(id, importer) {
+			if (id.startsWith('/hyperloop/')) {
+				return `${PREFIX}${id.slice(11)}.js`;
+			}
 
-			if (id.startsWith('/') || id.startsWith('.')) {
+			if (id.startsWith('/')) {
+				return;
+			}
+
+			if (id.startsWith('.')) {
+				if (importer?.startsWith(PREFIX)) {
+					const result = await this.resolve(
+						id,
+						path.join(hyperloopResourcesDir, importer.slice(PREFIX.length)),
+						{
+							skipSelf: true
+						}
+					);
+					if (result) {
+						return `${PREFIX}${result.id.slice(
+							hyperloopResourcesDir.length + 1
+						)}`;
+					}
+				}
 				return;
 			}
 
 			let [pkg, type] = id.split('/');
-			pkg = pkg.toLowerCase();
-			if (platform === 'android') {
+			if (platform === 'android' && !type) {
 				if (pkg.endsWith('.*')) {
 					pkg = pkg.replace('.*', '');
 				}
@@ -59,21 +80,30 @@ export async function hyperloopPlugin(
 						`${hyperloopModules.get(pkg)!}.js`
 					);
 					if (await fs.pathExists(resourcePath)) {
-						return resourcePath;
+						return `${PREFIX}${hyperloopModules.get(pkg)!}.js`;
 					}
 				}
 			} else if (hyperloopModules.has(pkg)) {
 				type = type?.toLowerCase();
 				if (type === undefined) {
-					type = pkg;
+					type = pkg.toLowerCase();
 				}
 				const resourcePath = path.join(
 					hyperloopResourcesDir,
 					`${pkg}/${type}.js`
 				);
-				if (await fs.pathExists(resourcePath)) {
-					return resourcePath;
+				if ((await fs.pathExists(resourcePath)) || pkg === 'Titanium') {
+					return `${PREFIX}${pkg}/${type}.js`;
 				}
+			}
+		},
+
+		async load(id) {
+			if (id.startsWith(PREFIX)) {
+				return await fs.readFile(
+					path.join(hyperloopResourcesDir, id.slice(PREFIX.length)),
+					'utf-8'
+				);
 			}
 		}
 	};

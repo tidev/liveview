@@ -1,10 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import path from 'path';
+import createDebugger from 'debug';
+import chalk from 'chalk';
 
 import { CLIENT_PUBLIC_PATH } from './constants';
 import { isBuiltinModule } from './utils/titanium';
 import { cleanUrl, isJSRequest, isImportRequest } from './utils/vite';
+
+const debug = createDebugger('liveview:client');
+debug.log = console.debug.bind(console);
+(debug as any).useColors = true;
 
 // injected by the hook when copied
 declare const __SERVER_HOSTNAME__: string;
@@ -22,6 +28,7 @@ const fetchRemote = (filename: string) => {
 
 	const url = `http://${__SERVER_HOSTNAME__}:${__SERVER_PORT__}${filename}`;
 	const request = Ti.Network.createHTTPClient();
+	debug('Fetch remote %s', chalk.cyan(filename));
 	request.cache = true;
 	request.open('GET', url, false);
 	request.send();
@@ -34,9 +41,7 @@ const fetchRemote = (filename: string) => {
 			if (request.readyState === 4 || request.status === 404) {
 				done = true;
 			} else if (expireTime - new Date().getTime() <= 0) {
-				console.debug(
-					`[LiveView] Failed to load "${filename}", request timeout`
-				);
+				debug(`Failed to load "${filename}", request timeout`);
 				return;
 			}
 		}
@@ -46,10 +51,12 @@ const fetchRemote = (filename: string) => {
 		if (request.status === 408) {
 			(Ti.App as any)._restart();
 		}
-		console.debug(
-			`[LiveView] Failed to load "${url}" with status code ${request.status}`
+		debug(
+			`Failed to load "${chalk.cyan(url)}" with status code ${chalk.yellow(
+				request.status
+			)}`
 		);
-		console.debug(request.responseText);
+		debug(request.responseText);
 		return;
 	}
 
@@ -61,8 +68,22 @@ function patchRequire() {
 	if (Module.__liveview_installed__ === true) {
 		return;
 	}
+
+	const HYPERLOOP_PREFIX = '/@id/__x00__hyperloop:';
 	const originalRequire = Module.prototype.require;
 	const skipLoad = new Set();
+	const exclude = (filename: string, request: string) => {
+		if (skipLoad.has(request)) {
+			return true;
+		}
+
+		if (request === 'hyperloop' || filename.startsWith('/hyperloop/')) {
+			return true;
+		}
+
+		return false;
+	};
+
 	Module.prototype.require = function liveViewRequire(
 		request: string,
 		context: any
@@ -75,7 +96,17 @@ function patchRequire() {
 			if (loaded) {
 				return loaded;
 			}
-		} else if (request.startsWith('./') || request.startsWith('..')) {
+		} else if (request.startsWith(HYPERLOOP_PREFIX)) {
+			// shortcut for hyperloop wrapper files
+			const loaded = originalRequire.call(
+				this,
+				`/hyperloop/${request.slice(HYPERLOOP_PREFIX.length)}`,
+				context
+			);
+			if (loaded) {
+				return loaded;
+			}
+		} else if (request.startsWith('.')) {
 			filename = path.normalize(this.path + '/' + request);
 		} else if (request.startsWith('/')) {
 			filename = request;
@@ -83,7 +114,9 @@ function patchRequire() {
 			filename = path.normalize(`/@id/${request}`);
 		}
 
-		if (filename && !skipLoad.has(cleanUrl(request))) {
+		request = cleanUrl(request).replace('/@id/', '');
+
+		if (filename && !exclude(filename, request)) {
 			// First check the cache if this was alrady loaded
 			if (Module.cache[filename]) {
 				return Module.cache[filename].exports;
@@ -112,9 +145,10 @@ function patchRequire() {
 
 				return module.exports;
 			}
+
+			debug('Fallback to orignal require %s', chalk.cyan(request));
 		}
 
-		request = cleanUrl(request).replace('/@id/', '');
 		const loaded = originalRequire.call(this, request, context);
 		if (loaded) {
 			skipLoad.add(request);

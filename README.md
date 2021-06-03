@@ -58,15 +58,15 @@ ti config
 Look for the `paths.commands` and `paths.hooks` options. After you have identified the paths that point to folders inside LiveView you can remove them by running the following commands:
 
 ```sh
-ti config -r paths.commands /path/to/liveview/node/commands
-ti config -r paths.hooks /path/to/liveview/node/hooks
+ti config paths.commands -r  /path/to/liveview/node/commands
+ti config paths.hooks -r /path/to/liveview/node/hooks
 ```
 
 To re-enable the preview release of LiveView, simply add the paths again:
 
 ```sh
-ti config -a paths.commands /path/to/liveview/node/commands
-ti config -a paths.hooks /path/to/liveview/node/hooks
+ti config paths.commands -a /path/to/liveview/node/commands
+ti config paths.hooks -a /path/to/liveview/node/hooks
 ```
 
 If you feel lazy (or forgot the paths) you can also just install LiveView again to re-run the `postinstall` script which will practically do the same.

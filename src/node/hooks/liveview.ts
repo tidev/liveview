@@ -15,6 +15,7 @@ export const id = 'liveview-v2';
 
 export function init(logger: any, config: any, cli: any): void {
 	let serverOptions: LiveViewOpions;
+	let usePreview = false;
 
 	cli.on('build.config', (data: any) => {
 		const config = data.result[1];
@@ -51,6 +52,7 @@ export function init(logger: any, config: any, cli: any): void {
 			}
 			// Delete liveview flag from argv to disable LiveView shipped with SDK
 			delete cli.argv.liveview;
+			usePreview = true;
 
 			const projectDir = cli.argv['project-dir'];
 			const liveviewDir = path.join(builder.buildDir, '.liveview');
@@ -109,8 +111,11 @@ export function init(logger: any, config: any, cli: any): void {
 	});
 
 	cli.on('build.pre.build', async (builder: any, done: DoneCallback) => {
-		logger.info(`${chalk.green('[LiveView]')} Starting dev server ...`);
-		await startServer(serverOptions);
+		if (usePreview) {
+			logger.info(`${chalk.green('[LiveView]')} Starting dev server ...`);
+			await startServer(serverOptions);
+		}
+
 		done();
 	});
 }

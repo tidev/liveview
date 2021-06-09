@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import fs from 'fs-extra';
 import path from 'path';
+import supportsColor from 'supports-color';
 
 import { determineProjectType, resolveHost } from '../utils';
 import { startServer, LiveViewOpions } from '../server';
@@ -53,6 +54,12 @@ export function init(logger: any, config: any, cli: any): void {
 			// Delete liveview flag from argv to disable LiveView shipped with SDK
 			delete cli.argv.liveview;
 			usePreview = true;
+
+			if (supportsColor.stdout) {
+				// Explicitly set `FORCE_COLOR` env to enable colored debug output using
+				// chalk inside the app.
+				process.env.FORCE_COLOR = supportsColor.stdout.level.toString();
+			}
 
 			const projectDir = cli.argv['project-dir'];
 			const liveviewDir = path.join(builder.buildDir, '.liveview');

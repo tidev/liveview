@@ -16,6 +16,7 @@ debug.log = console.debug.bind(console);
 declare const __SERVER_HOSTNAME__: string;
 declare const __SERVER_PORT__: string;
 
+// will be re-assigned after Vite client was loaded
 let __vite__injectQuery = (url: string, queryToInject: string) => url;
 
 const fetchRemote = (filename: string) => {
@@ -56,7 +57,9 @@ const fetchRemote = (filename: string) => {
 				request.status
 			)}`
 		);
-		debug(request.responseText);
+		if (request.getResponseHeader('Content-Length') !== '0') {
+			debug(request.responseText);
+		}
 		return;
 	}
 
@@ -65,7 +68,7 @@ const fetchRemote = (filename: string) => {
 
 function patchRequire() {
 	const Module = (global as any).Module;
-	if (Module.__liveview_installed__ === true) {
+	if (Module.__liveViewInstalled === true) {
 		return;
 	}
 
@@ -125,15 +128,20 @@ function patchRequire() {
 			// Fetch from remote dev server
 			const source = fetchRemote(filename);
 			if (source) {
+				const id = cleanUrl(filename);
 				const module = new Module(filename, this);
 				if (filename.slice(-4) === 'json') {
-					module.filename = filename;
-					module.path = path.dirname(filename);
-					Module.cache[filename] = module;
+					module.filename = id;
+					module.path = path.dirname(id);
+					Module.cache[id] = module;
 					module.exports = JSON.parse(source);
 					module.loaded = true;
 				} else {
-					module.load(filename, source);
+					let wrapped = source;
+					if (id === '/app' && OS_ANDROID) {
+						wrapped = `try {\n${source}\n} catch (e) { console.log(e); }`
+					}
+					module.load(id, wrapped);
 				}
 
 				if (request.includes('build/.vite')) {
@@ -146,7 +154,7 @@ function patchRequire() {
 				return module.exports;
 			}
 
-			debug('Fallback to orignal require %s', chalk.cyan(request));
+			debug('[fallthrough] %s', chalk.cyan(request));
 		}
 
 		const loaded = originalRequire.call(this, request, context);
@@ -156,7 +164,7 @@ function patchRequire() {
 		return loaded;
 	};
 
-	Module.__liveview_installed__ = true;
+	Module.__liveViewInstalled = true;
 }
 
 function patchI18n() {
@@ -179,10 +187,12 @@ function patchI18n() {
 export async function execute(done: () => void): Promise<void> {
 	patchRequire();
 	patchI18n();
+
 	// eslint-disable-next-line @typescript-eslint/no-var-requires, security/detect-non-literal-require
 	const { connect, injectQuery } = require(CLIENT_PUBLIC_PATH);
 	__vite__injectQuery = injectQuery;
 	await connect();
+
 	done();
 }
 

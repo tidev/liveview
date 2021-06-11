@@ -72,6 +72,7 @@ function patchRequire() {
 		return;
 	}
 
+	const NATIVE_MODULE_PREFIX = '/@id/__x00__titanium:';
 	const HYPERLOOP_PREFIX = '/@id/__x00__hyperloop:';
 	const originalRequire = Module.prototype.require;
 	const skipLoad = new Set();
@@ -92,9 +93,9 @@ function patchRequire() {
 		context: any
 	) {
 		let filename: string | undefined;
-		if (request.startsWith('/@native/')) {
+		if (request.startsWith(NATIVE_MODULE_PREFIX)) {
 			// shortcut for native modules that vite already identified during the transform phase
-			const moduleId = cleanUrl(request.substr(9));
+			const moduleId = cleanUrl(request.substr(NATIVE_MODULE_PREFIX.length));
 			const loaded = originalRequire.call(this, moduleId, context);
 			if (loaded) {
 				return loaded;
@@ -139,7 +140,7 @@ function patchRequire() {
 				} else {
 					let wrapped = source;
 					if (id === '/app' && OS_ANDROID) {
-						wrapped = `try {\n${source}\n} catch (e) { console.log(e); }`
+						wrapped = `try {\n${source}\n} catch (e) { console.log(e); }`;
 					}
 					module.load(id, wrapped);
 				}

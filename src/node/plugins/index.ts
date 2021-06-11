@@ -4,7 +4,7 @@ import { clientInjectionsPlugin } from './clientInjections';
 import { resolveAlloyPlugins } from './alloy';
 import { esbuildPlugin } from './esbuild';
 import { Platform, ProjectType } from '../types';
-import { externalsPlugin } from './externals';
+import { nativeModulesPlugin } from './nativeModules';
 import { hyperloopPlugin } from './hyperloop';
 import { i18nPlugin } from './i18n';
 import { nodeBuiltinsPlugin } from './nodeBuiltins';
@@ -26,19 +26,16 @@ export async function resolvePlugins({
 }: ResolveOptions): Promise<Plugin[]> {
 	const normalPlugins = [
 		clientInjectionsPlugin(),
-		externalsPlugin(nativeModules),
+		nativeModulesPlugin(nativeModules),
 		nodeBuiltinsPlugin(),
+		resolvePlugin(type, platform),
 		i18nPlugin(projectDir, type)
 	];
 	if (nativeModules.includes('hyperloop')) {
 		normalPlugins.push(await hyperloopPlugin(projectDir, platform));
 	}
 
-	const postPlugins = [
-		resolvePlugin(type, platform),
-		requireAnalysisPlugin(),
-		esbuildPlugin()
-	];
+	const postPlugins = [requireAnalysisPlugin(), esbuildPlugin()];
 	const projectPlugins =
 		type === 'alloy' ? resolveAlloyPlugins(projectDir, platform) : [];
 	return [...normalPlugins, ...projectPlugins, ...postPlugins];

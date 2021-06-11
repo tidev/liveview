@@ -144,6 +144,9 @@ export const run = async (
 			server: {
 				host,
 				port
+			},
+			env: {
+				DEBUG: process.env.DEBUG
 			}
 		});
 		const data: LiveViewMetadata = {

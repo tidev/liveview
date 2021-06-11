@@ -82,7 +82,8 @@ const bootstrapConfig = {
 	plugins: [
 		commonjs(),
 		nodeResolve({
-			preferBuiltins: true
+			preferBuiltins: true,
+			exportConditions: ['node']
 		}),
 		json(),
 		typescript({

@@ -1,3 +1,16 @@
+# [2.0.0-alpha.4](https://github.com/appcelerator/liveview/compare/2.0.0-alpha.3...2.0.0-alpha.4) (2021-06-11)
+
+
+### Bug Fixes
+
+* clean url before resolve ([5a209cf](https://github.com/appcelerator/liveview/commit/5a209cf3b6b2b88890788edb301d61aa414a46e8))
+* enable colored debug output using chalk ([bb326d9](https://github.com/appcelerator/liveview/commit/bb326d91335274781c35f2feb213d625ee4b51cf))
+* guard against empty error response text ([e6a2346](https://github.com/appcelerator/liveview/commit/e6a2346adb872d6ce9abd09012b81c7ec8927a9a))
+* include DEBUG env var in build hash ([21f3039](https://github.com/appcelerator/liveview/commit/21f3039811b5e8c564bdfc18083dc094b8720040))
+* prevent dev server start if not using titanium 10 ([3f714f1](https://github.com/appcelerator/liveview/commit/3f714f104232db89672bee6b86cb794f4bf8250a))
+* use valid prefix for native modules ([09d65bb](https://github.com/appcelerator/liveview/commit/09d65bb17220e711ae9263ae5ad37766351cf656))
+
+
 # [2.0.0-alpha.3](https://github.com/appcelerator/liveview/compare/2.0.0-alpha.2...2.0.0-alpha.3) (2021-06-03)
 
 

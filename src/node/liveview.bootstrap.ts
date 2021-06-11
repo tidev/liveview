@@ -72,7 +72,7 @@ function patchRequire() {
 		return;
 	}
 
-	const NATIVE_MODULE_PREFIX = '/@id/__x00__titanium:';
+	const NATIVE_MODULE_PREFIX = '/@titanium/';
 	const HYPERLOOP_PREFIX = '/@id/__x00__hyperloop:';
 	const originalRequire = Module.prototype.require;
 	const skipLoad = new Set();
@@ -121,15 +121,15 @@ function patchRequire() {
 		request = cleanUrl(request).replace('/@id/', '');
 
 		if (filename && !exclude(filename, request)) {
+			const id = cleanUrl(filename);
 			// First check the cache if this was alrady loaded
-			if (Module.cache[filename]) {
-				return Module.cache[filename].exports;
+			if (Module.cache[id]) {
+				return Module.cache[id].exports;
 			}
 
 			// Fetch from remote dev server
 			const source = fetchRemote(filename);
 			if (source) {
-				const id = cleanUrl(filename);
 				const module = new Module(filename, this);
 				if (filename.slice(-4) === 'json') {
 					module.filename = id;

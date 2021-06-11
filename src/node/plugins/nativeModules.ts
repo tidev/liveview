@@ -1,6 +1,8 @@
 import { Plugin } from 'vite';
 
-const PREFIX = '\0titanium:';
+// Null-byte based prefix triggers internal server error
+// const PREFIX = '\0titanium:';
+const PREFIX = '/@titanium/';
 
 export function nativeModulesPlugin(nativeModules: string[]): Plugin {
 	return {
@@ -8,7 +10,7 @@ export function nativeModulesPlugin(nativeModules: string[]): Plugin {
 
 		resolveId(id) {
 			if (nativeModules.includes(id)) {
-				return `${PREFIX}${id}`;
+				return { id: `${PREFIX}${id}`, external: true };
 			}
 		}
 	};

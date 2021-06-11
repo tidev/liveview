@@ -2,7 +2,7 @@ import path from 'path';
 import { Plugin } from 'vite';
 
 import { Platform, ProjectType } from '../types';
-import { otherPlatform } from '../utils';
+import { cleanUrl, otherPlatform } from '../utils';
 
 /**
  * Resolve plugin for Titanium specific resolve rules.
@@ -43,7 +43,7 @@ export function resolvePlugin(
 				}
 			};
 
-			id = id.replace(/^\//, '');
+			id = cleanUrl(id).replace(/^\//, '');
 			const dirs = [];
 			if (projectType === 'alloy') {
 				dirs.push(path.join(root, 'lib'), path.join(root, 'assets'));
@@ -56,24 +56,6 @@ export function resolvePlugin(
 					return result;
 				}
 			}
-
-			/*
-			if (id.startsWith(root)) {
-				const relPath = path.relative(root, id);
-				if (projectType === 'alloy') {
-					const pathParts = relPath.split('/');
-					const subDir = pathParts.shift() || '';
-					return await platformResolve(
-						pathParts.join('/'),
-						path.join(root, subDir)
-					);
-				} else {
-					return await platformResolve(relPath, root);
-				}
-			} else if (!id.startsWith(`${platform}/`)) {
-				return await platformResolve(path.join(platform, id));
-			}
-			*/
 		}
 	};
 }

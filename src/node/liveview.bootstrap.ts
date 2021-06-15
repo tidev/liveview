@@ -185,16 +185,13 @@ function patchI18n() {
 	};
 }
 
-export async function execute(done: () => void): Promise<void> {
+export function execute(): void {
 	patchRequire();
 	patchI18n();
 
 	// eslint-disable-next-line @typescript-eslint/no-var-requires, security/detect-non-literal-require
-	const { connect, injectQuery } = require(CLIENT_PUBLIC_PATH);
+	const { injectQuery } = require(CLIENT_PUBLIC_PATH);
 	__vite__injectQuery = injectQuery;
-	await connect();
-
-	done();
 }
 
 const esModuleInterop = (module: any) => {

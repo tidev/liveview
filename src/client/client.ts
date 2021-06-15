@@ -30,31 +30,11 @@ socket.on('message', ({ data }) => {
 	handleMessage(JSON.parse(data));
 });
 
-let connected = false;
-export const connect = async () => {
-	if (connected === true) {
-		return;
-	}
-
-	return new Promise<void>((resolve) => {
-		const handler = ({ data }: { data: any }) => {
-			const payload = JSON.parse(data);
-			if (payload.type === 'connected') {
-				connected = true;
-				socket.off('message', handler);
-				resolve();
-			}
-		};
-		socket.on('message', handler);
-	});
-};
-
 let isRestarting = false;
 
 async function handleMessage(payload: HMRPayload) {
 	switch (payload.type) {
 		case 'connected':
-			connected = true;
 			console.log('[vite] connected.');
 			// proxy(nginx, docker) hmr ws maybe caused timeout,
 			// so send ping package let ws keep alive.

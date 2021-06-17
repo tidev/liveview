@@ -1,3 +1,12 @@
+# [2.0.0-alpha.5](https://github.com/appcelerator/liveview/compare/2.0.0-alpha.4...2.0.0-alpha.5) (2021-06-17)
+
+
+### Bug Fixes
+
+* do not block UI while connecting ([2b69e21](https://github.com/appcelerator/liveview/commit/2b69e21c4df8aee1e5b9e2c964a0278fbf0e9dd0))
+
+
+
 # [2.0.0-alpha.4](https://github.com/appcelerator/liveview/compare/2.0.0-alpha.3...2.0.0-alpha.4) (2021-06-11)
 
 

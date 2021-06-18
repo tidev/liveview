@@ -1,3 +1,12 @@
+# [2.0.0-alpha.6](https://github.com/appcelerator/liveview/compare/2.0.0-alpha.5...2.0.0-alpha.6) (2021-06-18)
+
+
+### Bug Fixes
+
+* add missing done callback to bootstrap execute ([fb2838b](https://github.com/appcelerator/liveview/commit/fb2838bb6447267f78d5b87d094db4a0166a87a6))
+
+
+
 # [2.0.0-alpha.5](https://github.com/appcelerator/liveview/compare/2.0.0-alpha.4...2.0.0-alpha.5) (2021-06-17)
 
 

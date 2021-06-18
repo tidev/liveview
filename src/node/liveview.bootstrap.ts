@@ -19,6 +19,17 @@ declare const __SERVER_PORT__: string;
 // will be re-assigned after Vite client was loaded
 let __vite__injectQuery = (url: string, queryToInject: string) => url;
 
+export function execute(done: () => void): void {
+	patchRequire();
+	patchI18n();
+
+	// eslint-disable-next-line @typescript-eslint/no-var-requires, security/detect-non-literal-require
+	const { injectQuery } = require(CLIENT_PUBLIC_PATH);
+	__vite__injectQuery = injectQuery;
+
+	done();
+}
+
 const fetchRemote = (filename: string) => {
 	if (!isJSRequest(filename) && !isImportRequest(filename)) {
 		// Usually this already would have been done by Vite on the server, but
@@ -183,15 +194,6 @@ function patchI18n() {
 		}
 		return messages[key] || hint || key;
 	};
-}
-
-export function execute(): void {
-	patchRequire();
-	patchI18n();
-
-	// eslint-disable-next-line @typescript-eslint/no-var-requires, security/detect-non-literal-require
-	const { injectQuery } = require(CLIENT_PUBLIC_PATH);
-	__vite__injectQuery = injectQuery;
 }
 
 const esModuleInterop = (module: any) => {

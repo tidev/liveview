@@ -119,7 +119,7 @@ export const run = async (
 	logger: any,
 	config: any,
 	cli: any,
-	finished: (e?: Error) => void
+	finished: (e?: unknown) => void
 ) => {
 	const projectDir = cli.argv['project-dir'];
 	const host = cli.argv['liveview-ip'] || resolveHost();

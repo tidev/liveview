@@ -6,10 +6,13 @@
  * @see https://github.com/vitejs/vite/blob/61ea32056048e902ca69d88e1b0a2d21660dae2a/packages/vite/src/node/utils.ts
  */
 
+import { promises as dns } from 'dns';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { pathToFileURL, URL } from 'url';
+import { ViteDevServer } from 'vite';
+import { wildcardHosts } from '../constants.js';
 
 export function slash(p: string): string {
 	return p.replace(/\\/g, '/');
@@ -19,6 +22,10 @@ const isWindows = os.platform() === 'win32';
 
 export function normalizePath(id: string): string {
 	return path.posix.normalize(isWindows ? slash(id) : id);
+}
+
+export function isObject(value: unknown): value is Record<string, any> {
+	return Object.prototype.toString.call(value) === '[object Object]';
 }
 
 const queryRE = /\?.*$/;
@@ -167,4 +174,81 @@ export function generateCodeFrame(
 		}
 	}
 	return res.join('\n');
+}
+
+/**
+ * Returns resolved localhost address when `dns.lookup` result differs from DNS
+ *
+ * `dns.lookup` result is same when defaultResultOrder is `verbatim`.
+ * Even if defaultResultOrder is `ipv4first`, `dns.lookup` result maybe same.
+ * For example, when IPv6 is not supported on that machine/network.
+ */
+export async function getLocalhostAddressIfDiffersFromDNS(): Promise<
+  string | undefined
+> {
+  const [nodeResult, dnsResult] = await Promise.all([
+    dns.lookup('localhost'),
+    dns.lookup('localhost', { verbatim: true }),
+  ])
+  const isSame =
+    nodeResult.family === dnsResult.family &&
+    nodeResult.address === dnsResult.address
+  return isSame ? undefined : nodeResult.address
+}
+
+export function diffDnsOrderChange(
+  oldUrls: ViteDevServer['resolvedUrls'],
+  newUrls: ViteDevServer['resolvedUrls'],
+): boolean {
+  return !(
+    oldUrls === newUrls ||
+    (oldUrls &&
+      newUrls &&
+      arrayEqual(oldUrls.local, newUrls.local) &&
+      arrayEqual(oldUrls.network, newUrls.network))
+  )
+}
+
+export interface Hostname {
+  /** undefined sets the default behaviour of server.listen */
+  host: string | undefined
+  /** resolve to localhost when possible */
+  name: string
+}
+
+export async function resolveHostname(
+  optionsHost: string | boolean | undefined,
+): Promise<Hostname> {
+  let host: string | undefined
+  if (optionsHost === undefined || optionsHost === false) {
+    // Use a secure default
+    host = 'localhost'
+  } else if (optionsHost === true) {
+    // If passed --host in the CLI without arguments
+    host = undefined // undefined typically means 0.0.0.0 or :: (listen on all IPs)
+  } else {
+    host = optionsHost
+  }
+
+  // Set host name to localhost when possible
+  let name = host === undefined || wildcardHosts.has(host) ? 'localhost' : host
+
+  if (host === 'localhost') {
+    // See #8647 for more details.
+    const localhostAddr = await getLocalhostAddressIfDiffersFromDNS()
+    if (localhostAddr) {
+      name = localhostAddr
+    }
+  }
+
+  return { host, name }
+}
+
+export function arrayEqual(a: any[], b: any[]): boolean {
+	if (a === b) return true;
+	if (a.length !== b.length) return false;
+	for (let i = 0; i < a.length; i++) {
+		if (a[i] !== b[i]) return false;
+	}
+	return true;
 }

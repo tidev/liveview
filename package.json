@@ -1,129 +1,132 @@
 {
-  "name": "liveview",
-  "version": "2.0.0-alpha.6",
-  "description": "Titanium Live Realtime App Development",
-  "main": "dist/node/index.js",
-  "license": "Apache-2.0",
-  "scripts": {
-    "build": "npm-run-all clean lint -p build:*",
-    "build:bundle": "rollup -c",
-    "build:tsc": "tsc -p tsconfig.build.json",
-    "clean": "rimraf dist",
-    "dev": "npm-run-all clean -p dev:*",
-    "dev:tsc": "tsc -p tsconfig.build.json -w --preserveWatchOutput",
-    "dev:rollup": "rollup -c -w --no-watch.clearScreen",
-    "lint": "eslint --ext .js,.ts src/**",
-    "postinstall": "node scripts/install",
-    "prepare": "yarn build",
-    "test": "echo \"No tests yet\""
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/appcelerator/liveview.git"
-  },
-  "keywords": [
-    "titanium",
-    "appcelerator",
-    "liveview",
-    "reload"
-  ],
-  "author": {
-    "name": "Appcelerator, Inc.",
-    "email": "info@appcelerator.com"
-  },
-  "maintainers": [
-    {
-      "name": "Jan Vennemann",
-      "email": "jvennemann@axway.com"
-    }
-  ],
-  "dependencies": {
-    "@rollup/plugin-node-resolve": "^13.0.0",
-    "acorn": "^8.2.4",
-    "alloy-compiler": "0.2.7",
-    "alloy-utils": "^0.2.5",
-    "chalk": "^4.1.1",
-    "debug": "^4.3.1",
-    "esbuild": "^0.11.12",
-    "estree-walker": "^2.0.2",
-    "fast-glob": "^3.2.5",
-    "fast-xml-parser": "^3.19.0",
-    "fs-extra": "^10.0.0",
-    "global-paths": "^1.0.0",
-    "globby": "^11.0.3",
-    "hash-sum": "^2.0.0",
-    "lodash.get": "^4.4.2",
-    "lodash.merge": "^4.6.2",
-    "lodash.set": "^4.3.2",
-    "magic-string": "^0.25.7",
-    "node-titanium-sdk": "^5.1.2",
-    "resolve": "^1.20.0",
-    "supports-color": "^8.1.1",
-    "vite": "~2.3.3"
-  },
-  "devDependencies": {
-    "@commitlint/cli": "^11.0.0",
-    "@commitlint/config-conventional": "^11.0.0",
-    "@rollup/plugin-commonjs": "^19.0.0",
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-typescript": "^8.2.1",
-    "@seadub/danger-plugin-dependencies": "^1.0.0",
-    "@seadub/danger-plugin-eslint": "^2.0.0",
-    "@seadub/danger-plugin-junit": "^0.2.0",
-    "@tsconfig/node12": "^1.0.7",
-    "@types/debug": "^4.1.5",
-    "@types/estree": "^0.0.47",
-    "@types/fs-extra": "^9.0.11",
-    "@types/global-paths": "^1.0.0",
-    "@types/hash-sum": "^1.0.0",
-    "@types/lodash.get": "^4.4.6",
-    "@types/lodash.merge": "^4.6.6",
-    "@types/lodash.set": "^4.3.6",
-    "@types/supports-color": "^8.1.0",
-    "@types/titanium": "^9.2.1",
-    "@typescript-eslint/eslint-plugin": "^4.22.0",
-    "@typescript-eslint/parser": "^4.22.0",
-    "danger": "^10.5.0",
-    "eslint": "^7.11.0",
-    "eslint-config-axway": "^6.0.1",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-jsdoc": "^33.3.0",
-    "husky": "^4.3.0",
-    "lint-staged": "^10.4.2",
-    "npm-run-all": "^4.1.5",
-    "prettier": "^2.3.0",
-    "rollup": "^2.32.0",
-    "tiws": "^1.0.0",
-    "typescript": "^4.2.4"
-  },
-  "engines": {
-    "node": ">=12.0.0"
-  },
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
-  },
-  "lint-staged": {
-    "*.js": [
-      "prettier --write"
-    ],
-    "*.ts": [
-      "eslint",
-      "prettier --parser=typescript --write"
-    ]
-  },
-  "files": [
-    "dist",
-    "scripts"
-  ],
-  "publishConfig": {
-    "tag": "next"
-  }
+	"name": "liveview",
+	"version": "2.0.0-alpha.6",
+	"description": "Titanium Live Realtime App Development",
+	"main": "./dist/node/index.js",
+	"types": "./dist/node/index.d.ts",
+	"license": "Apache-2.0",
+	"scripts": {
+		"build": "npm-run-all clean -p build:*",
+		"build:bundle": "rollup -c rollup.config.ts --configPlugin typescript",
+		"build:tsc": "tsc -p tsconfig.build.json",
+		"clean": "rimraf dist",
+		"dev": "npm-run-all clean -p dev:*",
+		"dev:tsc": "tsc -p tsconfig.build.json -w --preserveWatchOutput",
+		"dev:rollup": "rollup -c rollup.config.ts --configPlugin typescript -w --no-watch.clearScreen",
+		"lint": "eslint --ext .js,.ts src/**",
+		"postinstall": "node scripts/install",
+		"prepare": "yarn build",
+		"test": "echo \"No tests yet\""
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/appcelerator/liveview.git"
+	},
+	"keywords": [
+		"titanium",
+		"appcelerator",
+		"liveview",
+		"reload"
+	],
+	"author": {
+		"name": "Appcelerator, Inc.",
+		"email": "info@appcelerator.com"
+	},
+	"maintainers": [
+		{
+			"name": "Jan Vennemann",
+			"email": "jvennemann@axway.com"
+		}
+	],
+	"dependencies": {
+		"@rollup/plugin-node-resolve": "^15.0.1",
+		"acorn": "^8.2.4",
+		"alloy-compiler": "0.2.7",
+		"alloy-utils": "^0.2.5",
+		"chalk": "^4.1.2",
+		"debug": "^4.3.1",
+		"esbuild": "^0.11.12",
+		"estree-walker": "^2.0.2",
+		"fast-glob": "^3.2.5",
+		"fast-xml-parser": "^3.19.0",
+		"fs-extra": "^10.0.0",
+		"global-paths": "^1.0.0",
+		"globby": "^11.0.3",
+		"hash-sum": "^2.0.0",
+		"lodash.get": "^4.4.2",
+		"lodash.merge": "^4.6.2",
+		"lodash.set": "^4.3.2",
+		"magic-string": "^0.25.7",
+		"node-titanium-sdk": "^5.1.2",
+		"resolve": "^1.20.0",
+		"supports-color": "^8.1.1",
+		"vite": "^4.2.0"
+	},
+	"devDependencies": {
+		"@commitlint/cli": "^11.0.0",
+		"@commitlint/config-conventional": "^11.0.0",
+		"@rollup/plugin-commonjs": "24.1.0-0",
+		"@rollup/plugin-json": "^6.0.0",
+		"@rollup/plugin-typescript": "^11.0.0",
+		"@seadub/danger-plugin-dependencies": "^1.0.0",
+		"@seadub/danger-plugin-eslint": "^2.0.0",
+		"@seadub/danger-plugin-junit": "^0.2.0",
+		"@tsconfig/node16": "^1.0.3",
+		"@types/debug": "^4.1.5",
+		"@types/estree": "^0.0.47",
+		"@types/fs-extra": "^9.0.11",
+		"@types/global-paths": "^1.0.0",
+		"@types/hash-sum": "^1.0.0",
+		"@types/lodash.get": "^4.4.6",
+		"@types/lodash.merge": "^4.6.6",
+		"@types/lodash.set": "^4.3.6",
+		"@types/node": "^18.15.3",
+		"@types/supports-color": "^8.1.0",
+		"@types/titanium": "^9.2.2",
+		"@typescript-eslint/eslint-plugin": "^5.55.0",
+		"@typescript-eslint/parser": "^5.55.0",
+		"danger": "^10.5.0",
+		"eslint": "^8.36.0",
+		"eslint-config-prettier": "^8.7.0",
+		"eslint-define-config": "^1.16.0",
+		"eslint-plugin-jsdoc": "^40.0.3",
+		"eslint-plugin-node": "^11.1.0",
+		"husky": "^4.3.0",
+		"lint-staged": "^10.4.2",
+		"npm-run-all": "^4.1.5",
+		"prettier": "^2.3.0",
+		"rollup": "^3.19.1",
+		"tiws": "^1.0.0",
+		"typescript": "^5.0.2"
+	},
+	"engines": {
+		"node": ">=16.0.0"
+	},
+	"commitlint": {
+		"extends": [
+			"@commitlint/config-conventional"
+		]
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "lint-staged",
+			"commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+		}
+	},
+	"lint-staged": {
+		"*.js": [
+			"prettier --write"
+		],
+		"*.ts": [
+			"eslint",
+			"prettier --parser=typescript --write"
+		]
+	},
+	"files": [
+		"dist",
+		"scripts"
+	],
+	"publishConfig": {
+		"tag": "next"
+	}
 }

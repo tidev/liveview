@@ -27,6 +27,7 @@ const nodeResolve = async (id: string, opts: resolveId.AsyncOpts) => {
 				...opts,
 				packageFilter(pkg, pkgFile) {
 					pkgRoot = path.dirname(pkgFile);
+					return pkg
 				}
 			},
 			(err, resolvedId, pkg) => {

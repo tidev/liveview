@@ -32,7 +32,10 @@ export async function runDynamicOptimize(
 	const data: DepOptimizationMetadata = {
 		hash: mainHash,
 		browserHash: mainHash,
-		optimized: {}
+		optimized: {},
+		chunks: {},
+		discovered: {},
+		depInfoList: []
 	};
 
 	if (!force) {
@@ -78,7 +81,7 @@ export async function runDynamicOptimize(
 	for (const id in knownOptimized) {
 		newDeps[id] = knownOptimized[id].src;
 	}
-	const meta = await optimizeDeps(server.config, true, false, newDeps);
+	const meta = await optimizeDeps(server.config, true, false);
 	if (meta) {
 		// In-place update of known optimized deps so the `_registerMissingImport`
 		// function on the server knows about our newly discovered dynamic deps.

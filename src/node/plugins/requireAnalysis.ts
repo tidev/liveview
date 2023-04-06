@@ -66,7 +66,7 @@ export function requireAnalysisPlugin(): Plugin {
 			let requires;
 			try {
 				requires = parseRequires(source);
-			} catch (e) {
+			} catch (e: any) {
 				this.error(
 					'Failed to parse source for require analysis because the content ' +
 						'contains invalid JS syntax.',
@@ -141,7 +141,7 @@ export function requireAnalysisPlugin(): Plugin {
 					if (depModule.lastHMRTimestamp > 0) {
 						url = injectQuery(url, `t=${depModule.lastHMRTimestamp}`);
 					}
-				} catch (e) {
+				} catch (e: any) {
 					// it's possible that the dep fails to resolve (non-existent import)
 					// attach location to the missing import
 					e.pos = pos;
@@ -219,7 +219,7 @@ export function requireAnalysisPlugin(): Plugin {
 								`__vite__injectQuery(${url}, 'import')`
 							);
 						}
-					} catch (e) {
+					} catch (e: any) {
 						this.error(e);
 					}
 				}

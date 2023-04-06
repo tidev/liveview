@@ -220,7 +220,7 @@ async function transformDynamicRequire(
 		source = (await transform(source, { loader, target: 'node10' })).code;
 	}
 
-	const requires = parseRequires(source);
+	const requires = parseRequires(source, importer);
 	const s = new MagicString(source);
 	for (let index = 0; index < requires.length; index++) {
 		const { start, end, specifier } = requires[index];

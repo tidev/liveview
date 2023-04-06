@@ -2,7 +2,7 @@
 
 import path from 'path';
 import createDebugger from 'debug';
-import chalk from 'chalk';
+import * as chalk from 'chalk';
 
 import { CLIENT_PUBLIC_PATH } from './constants';
 import { isBuiltinModule } from './utils/titanium';

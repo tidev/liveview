@@ -40,3 +40,9 @@ export const CLIENT_DIR = path.dirname(CLIENT_ENTRY);
 export const ENV_ENTRY = path.resolve(__dirname, '../client/env.js');
 
 export const DEP_VERSION_RE = /[?&](v=[\w.-]+)\b/;
+
+export const wildcardHosts = new Set([
+	'0.0.0.0',
+	'::',
+	'0000:0000:0000:0000:0000:0000:0000:0000'
+]);

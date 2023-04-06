@@ -58,11 +58,9 @@ export async function startServer({
 		},
 		server: {
 			...server,
-			fsServe: {
-				strict: false
-			},
 			hmr: true
-		}
+		},
+		appType: 'custom'
 	});
 	await viteSever.listen();
 	await runDynamicOptimize(viteSever);

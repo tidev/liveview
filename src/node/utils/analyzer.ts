@@ -1,13 +1,36 @@
+/*
+ * This analyzer for `require()` usage is ported from the `es-module-lexer` package.
+ *
+ * @see https://github.com/guybedford/es-module-lexer/blob/d44ad4ae1f5493a6956e226668008c9b2cd7f3fd/src/lexer.c#L845
+ */
+
 interface RequireExpression {
 	expressionStart: number;
 	expressionEnd: number;
 	start: number;
 	end: number;
 	safe: boolean;
+	next?: RequireExpression;
 }
 
 interface RequireInfo extends RequireExpression {
 	specifier?: string;
+}
+
+// Paren = odd, Brace = even
+enum OpenTokenState {
+	AnyParen = 1, // (
+	AnyBrace = 2, // {
+	Template = 3, // `
+	TemplateBrace = 4, // ${
+	ImportParen = 5, // import(),
+	ClassBrace = 6,
+	AsyncParen = 7 // async()
+}
+
+interface OpenToken {
+	token: OpenTokenState;
+	pos: number;
 }
 
 export function parseRequires(code: string, filename = '@'): RequireInfo[] {
@@ -16,12 +39,14 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 	const end = code.length;
 	let lastTokenPos = Infinity;
 	let openTokenDepth = 0;
-	const openTokenPosStack: number[] = [];
-	const openClassPosStack: number[] = [];
+	const openTokenStack: OpenToken[] = [];
 	let lastSlashWasDivision = false;
+	let firstRequire: RequireExpression | undefined;
 	let requireWriteHead: RequireExpression | undefined;
+	let requireWriteHeadLast: RequireExpression | undefined;
 	let hasError = false;
 	let errorPos = 0;
+	let nextBraceIsClass = false;
 
 	const tryParseRequire = () => {
 		const startPos = pos;
@@ -29,7 +54,9 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 
 		let ch = skipCommentAndWhitespace();
 		if (ch === '(') {
-			openTokenPosStack[openTokenDepth++] = startPos;
+			openTokenStack[openTokenDepth].token = OpenTokenState.ImportParen;
+			openTokenStack[openTokenDepth++].pos = pos;
+
 			addRequire(startPos, pos + 1, 0);
 			// try parse a string, to record a safe require string
 			pos++;
@@ -67,6 +94,12 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 			end,
 			safe: false
 		};
+		if (!requireWriteHead) {
+			firstRequire = def;
+		} else {
+			requireWriteHead.next = def;
+		}
+		requireWriteHeadLast = requireWriteHead;
 		requireWriteHead = def;
 		requires.push(def);
 	};
@@ -133,6 +166,25 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 		syntaxError();
 	};
 
+	const skipTemplateString = () => {
+		while (pos++ < end) {
+			const ch = code.charAt(pos);
+			if (ch == '$' && code.charAt(pos + 1) == '{') {
+				pos++;
+				openTokenStack[openTokenDepth].token = OpenTokenState.TemplateBrace;
+				openTokenStack[openTokenDepth++].pos = pos;
+				return;
+			}
+			if (ch == '`') {
+				if (openTokenStack[--openTokenDepth].token != OpenTokenState.Template)
+					syntaxError();
+				return;
+			}
+			if (ch == '\\') pos++;
+		}
+		syntaxError();
+	};
+
 	const skipRegexCharacterClass = () => {
 		while (pos++ < end) {
 			const ch = code.charAt(pos);
@@ -168,6 +220,10 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 
 	const isBr = (c: string) => {
 		return c === '\r' || c === '\n';
+	};
+
+	const isWsNotBr = (c: number) => {
+		return c == 9 || c == 11 || c == 12 || c == 32 || c == 160;
 	};
 
 	const isBrOrWs = (c: number) => {
@@ -276,7 +332,7 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 			return false;
 		}
 		return (
-			code.substr(pos - (length - 1), length) === keyword &&
+			code.substring(pos - (length - 1), length) === keyword &&
 			(pos - (length - 1) === 0 ||
 				isBrOrWsOrPunctuatorNotDot(code.charCodeAt(pos - length)))
 		);
@@ -311,6 +367,17 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 			str === '^' ||
 			(ch > 122 && ch < 127 && str !== '}')
 		);
+	};
+
+	const isBreakOrContinue = (curPos: number) => {
+		switch (code.charAt(curPos)) {
+			case 'k':
+				return readPrecedingKeyword(curPos - 1, 'brea');
+			case 'e':
+				if (code.charAt(curPos - 1) == 'u')
+					return readPrecedingKeyword(curPos - 2, 'contin');
+		}
+		return false;
 	};
 
 	const isExpressionTerminator = (curPos: number) => {
@@ -354,24 +421,54 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 				}
 				break;
 			}
+			case 'c':
+				if (
+					isKeywordStart(pos) &&
+					code.substring(pos, pos + 5) === 'class' &&
+					isBrOrWs(code.charCodeAt(pos + 5))
+				)
+					nextBraceIsClass = true;
+				break;
 			case '(': {
-				openTokenPosStack[openTokenDepth++] = lastTokenPos;
+				openTokenStack[openTokenDepth].token = OpenTokenState.AnyParen;
+				openTokenStack[openTokenDepth++].pos = lastTokenPos;
 				break;
 			}
 			case ')': {
 				if (openTokenDepth === 0) {
 					syntaxError();
+					break;
 				}
 				openTokenDepth--;
 				if (
 					requireWriteHead &&
-					requireWriteHead.expressionStart === openTokenPosStack[openTokenDepth]
+					requireWriteHead.expressionStart ===
+						openTokenStack[openTokenDepth].pos
 				) {
 					requireWriteHead.expressionEnd = pos;
 					requireWriteHead.end = pos - 1;
 				}
 				break;
 			}
+			case '{':
+				// require followed by { is not a reuire (so remove)
+				// this is a sneaky way to get around { require () {} } v { require () }
+				// block / object ambiguity without a parser (assuming source is valid)
+				if (
+					code.charAt(lastTokenPos) == ')' &&
+					requireWriteHead &&
+					requireWriteHead.end == lastTokenPos
+				) {
+					requireWriteHead = requireWriteHeadLast;
+					if (requireWriteHead) requireWriteHead.next = undefined;
+					else firstRequire = undefined;
+				}
+				openTokenStack[openTokenDepth].token = nextBraceIsClass
+					? OpenTokenState.ClassBrace
+					: OpenTokenState.AnyBrace;
+				openTokenStack[openTokenDepth++].pos = lastTokenPos;
+				nextBraceIsClass = false;
+				break;
 			case "'":
 				parseString("'");
 				break;
@@ -387,7 +484,10 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 					skipBlockComment();
 					continue;
 				} else {
-					// Division / regex ambiguity handling
+					// Division / regex ambiguity handling based on checking backtrack analysis of:
+					// - what token came previously (lastToken)
+					// - if a closing brace or paren, what token came before the corresponding
+					//   opening brace or paren (lastOpenTokenIndex)
 					const lastToken = code.charAt(lastTokenPos);
 					const prevLastToken = code.charAt(lastTokenPos - 1);
 					if (
@@ -400,10 +500,10 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 							!(lastToken === '+' && prevLastToken === '+') &&
 							!(lastToken === '-' && prevLastToken === '-')) ||
 						(lastToken === ')' &&
-							isParenKeyword(openTokenPosStack[openTokenDepth])) ||
+							isParenKeyword(openTokenStack[openTokenDepth].pos)) ||
 						(lastToken === '}' &&
-							(isExpressionTerminator(openTokenPosStack[openTokenDepth]) ||
-								openClassPosStack[openTokenDepth])) ||
+							(isExpressionTerminator(openTokenStack[openTokenDepth].pos) ||
+								openTokenStack[openTokenDepth].pos)) ||
 						isExpressionKeyword(lastTokenPos) ||
 						(lastToken === '/' && lastSlashWasDivision) ||
 						!lastToken
@@ -411,9 +511,31 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 						skipRegularExpression();
 						lastSlashWasDivision = false;
 					} else {
+						// Final check - if the last token was "break x" or "continue x"
+						while (
+							lastTokenPos > 0 &&
+							!isBrOrWsOrPunctuatorNotDot(code.charCodeAt(--lastTokenPos))
+						);
+						if (isWsNotBr(code.charCodeAt(lastTokenPos))) {
+							while (
+								lastTokenPos > 0 &&
+								isWsNotBr(code.charCodeAt(--lastTokenPos))
+							);
+							if (isBreakOrContinue(lastTokenPos)) {
+								skipRegularExpression();
+								lastSlashWasDivision = false;
+								break;
+							}
+						}
 						lastSlashWasDivision = true;
 					}
 				}
+				break;
+			}
+			case '`': {
+				openTokenStack[openTokenDepth].pos = lastTokenPos;
+				openTokenStack[openTokenDepth++].token = OpenTokenState.Template;
+				skipTemplateString();
 				break;
 			}
 		}

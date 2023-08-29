@@ -39,7 +39,10 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 	const end = code.length;
 	let lastTokenPos = Infinity;
 	let openTokenDepth = 0;
-	const openTokenStack: OpenToken[] = [];
+	const openTokenStack: OpenToken[] = new Array(1024).fill({
+		token: 0,
+		pos: 0
+	});
 	let lastSlashWasDivision = false;
 	let firstRequire: RequireExpression | undefined;
 	let requireWriteHead: RequireExpression | undefined;
@@ -52,7 +55,7 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 		const startPos = pos;
 		pos += 7;
 
-		let ch = skipCommentAndWhitespace();
+		let ch = skipCommentAndWhitespace(true);
 		if (ch === '(') {
 			openTokenStack[openTokenDepth].token = OpenTokenState.ImportParen;
 			openTokenStack[openTokenDepth++].pos = pos;
@@ -60,7 +63,7 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 			addRequire(startPos, pos + 1, 0);
 			// try parse a string, to record a safe require string
 			pos++;
-			ch = skipCommentAndWhitespace();
+			ch = skipCommentAndWhitespace(true);
 			if (ch === "'") {
 				parseString("'");
 			} else if (ch === '"') {
@@ -70,7 +73,7 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 				return;
 			}
 			pos++;
-			ch = skipCommentAndWhitespace();
+			ch = skipCommentAndWhitespace(true);
 			if (ch === ')') {
 				openTokenDepth--;
 				if (!requireWriteHead) {
@@ -108,7 +111,7 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 		return pos === 0 || isBrOrWsOrPunctuatorNotDot(code.charCodeAt(pos - 1));
 	};
 
-	const skipCommentAndWhitespace = () => {
+	const skipCommentAndWhitespace = (br: boolean) => {
 		let ch;
 		do {
 			ch = code.charAt(pos);
@@ -117,7 +120,7 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 				if (nextCh === '/') {
 					skipLineComment();
 				} else if (nextCh === '*') {
-					skipBlockComment();
+					skipBlockComment(br);
 				} else {
 					return ch;
 				}
@@ -137,10 +140,13 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 		}
 	};
 
-	const skipBlockComment = () => {
+	const skipBlockComment = (br: boolean) => {
 		pos++;
 		while (pos++ < end) {
 			const ch = code.charAt(pos);
+			if (!br && isBr(ch)) {
+				return;
+			}
 			if (ch === '*' && code.charAt(pos + 1) === '/') {
 				pos++;
 				return;
@@ -169,18 +175,23 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 	const skipTemplateString = () => {
 		while (pos++ < end) {
 			const ch = code.charAt(pos);
-			if (ch == '$' && code.charAt(pos + 1) == '{') {
+			if (ch === '$' && code.charAt(pos + 1) === '{') {
 				pos++;
 				openTokenStack[openTokenDepth].token = OpenTokenState.TemplateBrace;
 				openTokenStack[openTokenDepth++].pos = pos;
 				return;
 			}
-			if (ch == '`') {
-				if (openTokenStack[--openTokenDepth].token != OpenTokenState.Template)
+			if (ch === '`') {
+				if (
+					openTokenStack[--openTokenDepth].token !== OpenTokenState.Template
+				) {
 					syntaxError();
+				}
 				return;
 			}
-			if (ch == '\\') pos++;
+			if (ch === '\\') {
+				pos++;
+			}
 		}
 		syntaxError();
 	};
@@ -401,6 +412,7 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 	};
 
 	const syntaxError = () => {
+		console.log(new Error('test').stack);
 		hasError = true;
 		errorPos = pos;
 		pos = end + 1;
@@ -460,14 +472,29 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 					requireWriteHead.end == lastTokenPos
 				) {
 					requireWriteHead = requireWriteHeadLast;
-					if (requireWriteHead) requireWriteHead.next = undefined;
-					else firstRequire = undefined;
+					if (requireWriteHead) {
+						requireWriteHead.next = undefined;
+					} else {
+						firstRequire = undefined;
+					}
 				}
 				openTokenStack[openTokenDepth].token = nextBraceIsClass
 					? OpenTokenState.ClassBrace
 					: OpenTokenState.AnyBrace;
 				openTokenStack[openTokenDepth++].pos = lastTokenPos;
 				nextBraceIsClass = false;
+				break;
+			case '}':
+				if (openTokenDepth === 0) {
+					syntaxError();
+					break;
+				}
+				if (
+					openTokenStack[--openTokenDepth].token ===
+					OpenTokenState.TemplateBrace
+				) {
+					skipTemplateString();
+				}
 				break;
 			case "'":
 				parseString("'");
@@ -481,7 +508,7 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 					skipLineComment();
 					continue;
 				} else if (nextCh === '*') {
-					skipBlockComment();
+					skipBlockComment(true);
 					continue;
 				} else {
 					// Division / regex ambiguity handling based on checking backtrack analysis of:
@@ -503,7 +530,8 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 							isParenKeyword(openTokenStack[openTokenDepth].pos)) ||
 						(lastToken === '}' &&
 							(isExpressionTerminator(openTokenStack[openTokenDepth].pos) ||
-								openTokenStack[openTokenDepth].pos)) ||
+								openTokenStack[openTokenDepth].token ===
+									OpenTokenState.ClassBrace)) ||
 						isExpressionKeyword(lastTokenPos) ||
 						(lastToken === '/' && lastSlashWasDivision) ||
 						!lastToken
@@ -553,7 +581,7 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 		}
 	};
 
-	if (hasError) {
+	if (openTokenDepth || hasError) {
 		const line = code.slice(0, errorPos).split('\n').length;
 		const column = errorPos - code.lastIndexOf('\n', errorPos - 1);
 		const error = new ParseError(`Parse error ${filename}:${line}:${column}`);

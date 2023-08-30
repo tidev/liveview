@@ -5,10 +5,10 @@
  */
 
 interface RequireExpression {
-	expressionStart: number;
-	expressionEnd: number;
 	start: number;
 	end: number;
+	statementStart: number;
+	statementEnd: number;
 	safe: boolean;
 	next?: RequireExpression;
 }
@@ -39,10 +39,13 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 	const end = code.length;
 	let lastTokenPos = Infinity;
 	let openTokenDepth = 0;
-	const openTokenStack: OpenToken[] = new Array(1024).fill({
-		token: 0,
-		pos: 0
-	});
+	const openTokenStack: OpenToken[] = new Array(1024);
+	for (let i = 0; i < openTokenStack.length; i++) {
+		openTokenStack[i] = {
+			token: 0,
+			pos: 0
+		} as any;
+	}
 	let lastSlashWasDivision = false;
 	let firstRequire: RequireExpression | undefined;
 	let requireWriteHead: RequireExpression | undefined;
@@ -59,11 +62,13 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 		if (ch === '(') {
 			openTokenStack[openTokenDepth].token = OpenTokenState.ImportParen;
 			openTokenStack[openTokenDepth++].pos = pos;
-
-			addRequire(startPos, pos + 1, 0);
+			if (code.charAt(lastTokenPos) === '.') {
+				return;
+			}
 			// try parse a string, to record a safe require string
 			pos++;
 			ch = skipCommentAndWhitespace(true);
+			addRequire(startPos, pos + 1, 0);
 			if (ch === "'") {
 				parseString("'");
 			} else if (ch === '"') {
@@ -73,6 +78,7 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 				return;
 			}
 			pos++;
+			const endPos = pos;
 			ch = skipCommentAndWhitespace(true);
 			if (ch === ')') {
 				openTokenDepth--;
@@ -80,8 +86,8 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 					syntaxError();
 					return;
 				}
-				requireWriteHead.expressionEnd = pos;
-				requireWriteHead.end = pos - 1;
+				requireWriteHead.end = endPos;
+				requireWriteHead.statementEnd = pos + 1;
 				requireWriteHead.safe = true;
 			} else {
 				pos--;
@@ -89,12 +95,12 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 		}
 	};
 
-	const addRequire = (expressionStart: number, start: number, end: number) => {
+	const addRequire = (statementStart: number, start: number, end: number) => {
 		const def: RequireExpression = {
-			expressionStart,
-			expressionEnd: end,
 			start,
 			end,
+			statementStart,
+			statementEnd: end + 1,
 			safe: false
 		};
 		if (!requireWriteHead) {
@@ -412,7 +418,6 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 	};
 
 	const syntaxError = () => {
-		console.log(new Error('test').stack);
 		hasError = true;
 		errorPos = pos;
 		pos = end + 1;
@@ -454,11 +459,10 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 				openTokenDepth--;
 				if (
 					requireWriteHead &&
-					requireWriteHead.expressionStart ===
-						openTokenStack[openTokenDepth].pos
+					requireWriteHead.start === openTokenStack[openTokenDepth].pos
 				) {
-					requireWriteHead.expressionEnd = pos;
-					requireWriteHead.end = pos - 1;
+					requireWriteHead.end = pos;
+					requireWriteHead.statementEnd = pos + 1;
 				}
 				break;
 			}

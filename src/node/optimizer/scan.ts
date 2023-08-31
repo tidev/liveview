@@ -1,9 +1,9 @@
+import fs from 'fs';
+import path from 'path';
 import createDebugger from 'debug';
 import { Loader, Plugin, build, transform } from 'esbuild';
 import glob from 'fast-glob';
-import fs from 'fs';
 import MagicString from 'magic-string';
-import path from 'path';
 import { PartialResolvedId } from 'rollup';
 import { PluginContainer, ResolvedConfig, ViteDevServer } from 'vite';
 

@@ -1,6 +1,6 @@
+import path from 'path';
 import glob from 'fast-glob';
 import fs from 'fs-extra';
-import path from 'path';
 import { Plugin } from 'vite';
 
 import { Platform } from '../types';

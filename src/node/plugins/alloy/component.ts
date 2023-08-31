@@ -1,6 +1,6 @@
-import { createFilter } from '@rollup/pluginutils';
 import path from 'path';
 import qs from 'querystring';
+import { createFilter } from '@rollup/pluginutils';
 import { ResolvedId } from 'rollup';
 import { Plugin } from 'vite';
 
@@ -72,6 +72,9 @@ export function componentPlugin(ctx: AlloyContext): Plugin {
 			if (query.alloy) {
 				console.log('alloy sub-part load', filename, query);
 				if (query.type === 'template') {
+					throw new Error(
+						'Alloy template sub-part loading not implemented yet.'
+					);
 				}
 			}
 

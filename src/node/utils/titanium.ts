@@ -2,7 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
-import { ProjectType, Platform } from '../types';
+import { Platform, ProjectType } from '../types';
 
 export const otherPlatform: Record<Platform, Platform> = {
 	android: 'ios',

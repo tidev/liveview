@@ -1,10 +1,10 @@
+import path from 'path';
 import chalk from 'chalk';
 import fs from 'fs-extra';
-import path from 'path';
 import supportsColor from 'supports-color';
 
 import { determineProjectType, resolveHost } from '../utils';
-import { startServer, LiveViewOpions } from '../server';
+import { LiveViewOpions, startServer } from '../server';
 
 interface DoneCallback {
 	(error?: Error | null, ...args: unknown[]): void;

@@ -1,5 +1,5 @@
-import { Plugin, ResolvedConfig, normalizePath } from 'vite';
 import path from 'path';
+import { Plugin, ResolvedConfig, normalizePath } from 'vite';
 
 import { CLIENT_ENTRY, ENV_ENTRY } from '../constants.js';
 import { isObject, resolveHostname } from '../utils/vite.js';
@@ -8,8 +8,8 @@ const process_env_NODE_ENV_RE =
 	/(\bglobal(This)?\.)?\bprocess\.env\.NODE_ENV\b/;
 
 // ids in transform are normalized to unix style
-const normalizedClientEntry = normalizePath(CLIENT_ENTRY)
-const normalizedEnvEntry = normalizePath(ENV_ENTRY)
+const normalizedClientEntry = normalizePath(CLIENT_ENTRY);
+const normalizedEnvEntry = normalizePath(ENV_ENTRY);
 
 /**
  * Titanium specific replacment for the default Vite client injects plugins.

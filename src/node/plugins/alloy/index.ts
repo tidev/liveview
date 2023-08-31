@@ -1,8 +1,10 @@
-import { nodeResolve } from '@rollup/plugin-node-resolve';
 import path from 'path';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 import { Plugin } from 'vite';
 
-import { initContextPlugin, AlloyContext } from './context';
+import { Platform } from '../../types';
+import { bareImportRE } from '../../constants';
+import { AlloyContext, initContextPlugin } from './context';
 import { componentPlugin } from './component';
 import { corePlugin } from './core';
 import { configPlugin } from './config';
@@ -10,8 +12,6 @@ import { entryPlugin } from './entry';
 import { globImportsPlugin } from './globImports';
 import { modelPlugin } from './model';
 import { widgetPlugin } from './widget';
-import { Platform } from '../../types';
-import { bareImportRE } from '../../constants';
 
 export function resolveAlloyPlugins(
 	projectDir: string,

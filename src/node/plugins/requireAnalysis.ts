@@ -1,15 +1,15 @@
-import chalk from 'chalk';
 import fs from 'fs';
-import MagicString from 'magic-string';
 import path from 'path';
+import chalk from 'chalk';
+import MagicString from 'magic-string';
 import { Plugin, ViteDevServer, normalizePath } from 'vite';
 
 import {
-	createDynamicRequireContext,
-	parseRequires,
 	cleanUrl,
+	createDynamicRequireContext,
 	injectQuery,
-	isBuiltinModule
+	isBuiltinModule,
+	parseRequires
 } from '../utils';
 import {
 	CLIENT_DIR,

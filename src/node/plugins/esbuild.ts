@@ -1,5 +1,5 @@
 import { createFilter } from '@rollup/pluginutils';
-import { transform, TransformOptions } from 'esbuild';
+import { TransformOptions, transform } from 'esbuild';
 import { Plugin, normalizePath } from 'vite';
 
 import { CLIENT_DIR } from '../constants';

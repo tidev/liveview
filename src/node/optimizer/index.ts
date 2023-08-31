@@ -1,8 +1,8 @@
-import chalk from 'chalk';
 import { createHash } from 'crypto';
+import path from 'path';
+import chalk from 'chalk';
 import createDebugger from 'debug';
 import fs from 'fs-extra';
-import path from 'path';
 import {
 	DepOptimizationMetadata,
 	ResolvedConfig,

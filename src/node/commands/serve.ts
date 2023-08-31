@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import path from 'path';
+import { promisify } from 'util';
 import chalk from 'chalk';
 import fs from 'fs-extra';
-import path from 'path';
 import hash from 'hash-sum';
 import merge from 'lodash.merge';
 import get from 'lodash.get';
 import set from 'lodash.set';
 import ti from 'node-titanium-sdk';
 import tiappxml from 'node-titanium-sdk/lib/tiappxml';
-import { promisify } from 'util';
 
 import { startServer } from '../server';
 import { resolveHost } from '../utils';
@@ -30,7 +30,6 @@ let buildCommand: any;
 
 export const config = (logger: any, config: any, cli: any) => {
 	const platform = cli.argv._[1];
-	// eslint-disable-next-line security/detect-non-literal-require
 	buildCommand = require(cli.globalContext.commands.build.path);
 	const createBuildConfig = buildCommand.config(logger, config, cli);
 	return (done: (cmdConfig: any) => void) => {
@@ -157,7 +156,9 @@ export const run = async (
 			let prevData;
 			try {
 				prevData = fs.readJSONSync(dataPath);
-			} catch (e) {}
+			} catch (e) {
+				// ignore error and simply trigger full build
+			}
 			if (!prevData || prevData.hash !== buildHash) {
 				force = true;
 			}

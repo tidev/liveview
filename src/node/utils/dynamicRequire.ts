@@ -1,3 +1,4 @@
+import path from 'path';
 import {
 	BinaryExpression,
 	CallExpression,
@@ -8,7 +9,6 @@ import {
 import { walk } from 'estree-walker';
 import * as acorn from 'acorn';
 import globby from 'globby';
-import path from 'path';
 import resolveId from 'resolve';
 import { PartialResolvedId } from 'rollup';
 
@@ -27,7 +27,7 @@ const nodeResolve = async (id: string, opts: resolveId.AsyncOpts) => {
 				...opts,
 				packageFilter(pkg, pkgFile) {
 					pkgRoot = path.dirname(pkgFile);
-					return pkg
+					return pkg;
 				}
 			},
 			(err, resolvedId, pkg) => {

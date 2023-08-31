@@ -1,10 +1,10 @@
 import path from 'path';
-import { createServer, normalizePath, ViteDevServer } from 'vite';
+import { ViteDevServer, createServer, normalizePath } from 'vite';
 
 import { runDynamicOptimize } from './optimizer';
 import { resolvePlugins } from './plugins';
 import { Platform, ProjectType } from './types';
-import { CLIENT_DIR, CLIENT_ENTRY, FS_PREFIX, ENV_ENTRY } from './constants.js';
+import { CLIENT_DIR, CLIENT_ENTRY, ENV_ENTRY, FS_PREFIX } from './constants.js';
 
 interface ProjectOptions {
 	dir: string;

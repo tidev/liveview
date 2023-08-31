@@ -6,7 +6,7 @@ import * as chalk from 'chalk';
 
 import { CLIENT_PUBLIC_PATH } from './constants';
 import { isBuiltinModule } from './utils/titanium';
-import { cleanUrl, isJSRequest, isImportRequest } from './utils/vite';
+import { cleanUrl, isImportRequest, isJSRequest } from './utils/vite';
 
 const debug = createDebugger('liveview:client');
 debug.log = console.debug.bind(console);
@@ -23,7 +23,7 @@ export function execute(done: () => void): void {
 	patchRequire();
 	patchI18n();
 
-	// eslint-disable-next-line @typescript-eslint/no-var-requires, security/detect-non-literal-require
+	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const { injectQuery } = require(CLIENT_PUBLIC_PATH);
 	__vite__injectQuery = injectQuery;
 

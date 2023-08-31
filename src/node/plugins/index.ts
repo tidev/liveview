@@ -1,9 +1,9 @@
 import { Plugin } from 'vite';
 
+import { Platform, ProjectType } from '../types';
 import { clientInjectionsPlugin } from './clientInjections';
 import { resolveAlloyPlugins } from './alloy';
 import { esbuildPlugin } from './esbuild';
-import { Platform, ProjectType } from '../types';
 import { nativeModulesPlugin } from './nativeModules';
 import { hyperloopPlugin } from './hyperloop';
 import { i18nPlugin } from './i18n';

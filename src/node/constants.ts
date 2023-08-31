@@ -17,12 +17,12 @@ export const OPTIMIZABLE_ENTRY_RE = /\.[cm]?[jt]s$/;
 /**
  * Prefix for resolved fs paths, since windows paths may not be valid as URLs.
  */
-export const FS_PREFIX = `/@fs/`
+export const FS_PREFIX = `/@fs/`;
 
 /**
  * Prefix for resolved Ids that are not valid browser import specifiers
  */
-export const VALID_ID_PREFIX = `/@id/`
+export const VALID_ID_PREFIX = `/@id/`;
 
 /**
  * Plugins that use 'virtual modules' (e.g. for helper functions), prefix the
@@ -35,12 +35,11 @@ export const VALID_ID_PREFIX = `/@id/`
  * These encoded virtual ids are also prefixed by the VALID_ID_PREFIX, so virtual
  * modules in the browser end up encoded as `/@id/__x00__{id}`
  */
-export const NULL_BYTE_PLACEHOLDER = `__x00__`
+export const NULL_BYTE_PLACEHOLDER = `__x00__`;
 
 export const bareImportRE = /^[\w@](?!.*:\/\/)/;
 
 export const CLIENT_PUBLIC_PATH = '/@vite/client';
-// eslint-disable-next-line node/no-missing-require
 export const CLIENT_ENTRY = path.resolve(__dirname, '../client/client.js');
 export const CLIENT_DIR = path.dirname(CLIENT_ENTRY);
 export const ENV_ENTRY = path.resolve(__dirname, '../client/env.js');

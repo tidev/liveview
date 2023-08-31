@@ -1,6 +1,6 @@
-import { parseConfig } from 'alloy-compiler/lib/compilerUtils';
 import fs from 'fs';
 import path from 'path';
+import { parseConfig } from 'alloy-compiler/lib/compilerUtils';
 import { Plugin } from 'vite';
 import { AlloyContext } from './context';
 

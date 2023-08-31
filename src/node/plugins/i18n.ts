@@ -1,5 +1,5 @@
 import path from 'path';
-import { normalizePath, Plugin } from 'vite';
+import { Plugin, normalizePath } from 'vite';
 import xmlParser from 'fast-xml-parser';
 
 import { ProjectType } from '../types';

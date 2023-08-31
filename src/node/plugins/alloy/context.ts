@@ -1,6 +1,6 @@
-import { createCompiler, AlloyConfig, AlloyCompiler } from 'alloy-compiler';
-import globalPaths from 'global-paths';
 import path from 'path';
+import { AlloyCompiler, AlloyConfig, createCompiler } from 'alloy-compiler';
+import globalPaths from 'global-paths';
 import { Plugin, ViteDevServer, normalizePath } from 'vite';
 
 import { Platform } from '../../types';
@@ -32,6 +32,7 @@ export class AlloyContext {
 		public readonly projectDir: string,
 		private readonly platform: Platform
 	) {
+		// eslint-disable-next-line n/no-missing-require
 		const alloyModuleMain = require.resolve('alloy', {
 			paths: [projectDir, ...globalPaths(projectDir)]
 		});

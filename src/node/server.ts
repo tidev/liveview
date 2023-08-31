@@ -73,7 +73,7 @@ export async function startServer({
 			...server,
 			hmr: true,
 			fs: {
-				allow: [CLIENT_DIR]
+				allow: [root, CLIENT_DIR]
 			}
 		},
 		appType: 'custom'

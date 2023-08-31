@@ -3,6 +3,7 @@ import { Plugin } from 'vite';
 
 import { Platform, ProjectType } from '../types';
 import { cleanUrl, otherPlatform } from '../utils';
+import { FS_PREFIX } from '../constants.js';
 
 /**
  * Resolve plugin for Titanium specific resolve rules.
@@ -23,7 +24,21 @@ export function resolvePlugin(
 		configResolved(config) {
 			root = config.root;
 		},
-		async resolveId(id, importer, options) {
+		async resolveId(id, importer) {
+			if (
+				id[0] === '\0' ||
+				id.startsWith('virtual:') ||
+				// When injected directly in html/client code
+				id.startsWith('/virtual:')
+			) {
+				return;
+			}
+
+			// explicit fs paths that starts with /@fs/*
+			if (id.startsWith(FS_PREFIX)) {
+				return;
+			}
+
 			const platformResolve = async (id: string, base: string) => {
 				const result = await this.resolve(path.join(base, id), importer, {
 					skipSelf: true

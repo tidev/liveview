@@ -12,17 +12,15 @@ import { HMRPayload, Update } from 'vite';
 import './env';
 
 // injected by the hmr plugin when served
-declare const __ROOT__: string;
-declare const __BASE__: string;
-declare const __SERVER_HOSTNAME__: string;
-declare const __SERVER_PORT__: string;
-declare const __HMR_TIMEOUT__: number;
-declare const __HMR_ENABLE_OVERLAY__: boolean;
+declare const __HMR_PROTOCOL__: string | null
+declare const __HMR_DIRECT_TARGET__: string
+declare const __HMR_TIMEOUT__: number
 
 console.log('[vite] connecting...');
 
-const socketHost = `${__SERVER_HOSTNAME__}:${__SERVER_PORT__}`;
-const socket = new WebSocket(`ws://${socketHost}`, 'vite-hmr');
+const socketProtocol = __HMR_PROTOCOL__
+const directSocketHost = __HMR_DIRECT_TARGET__;
+const socket = new WebSocket(`${socketProtocol}://${directSocketHost}`, 'vite-hmr');
 const base = '/';
 
 socket.on('error', (e) => console.log(e));

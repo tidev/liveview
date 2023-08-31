@@ -12,24 +12,30 @@ import path from 'path';
 
 export const JS_TYPES_RE = /\.(?:j|t)sx?$|\.mjs$/;
 
-export const OPTIMIZABLE_ENTRY_RE = /\.(?:m?js|ts)$/;
+export const OPTIMIZABLE_ENTRY_RE = /\.[cm]?[jt]s$/;
 
 /**
  * Prefix for resolved fs paths, since windows paths may not be valid as URLs.
  */
-export const FS_PREFIX = '/@fs/';
+export const FS_PREFIX = `/@fs/`
 
 /**
  * Prefix for resolved Ids that are not valid browser import specifiers
  */
-export const VALID_ID_PREFIX = '/@id/';
+export const VALID_ID_PREFIX = `/@id/`
 
 /**
- * Some Rollup plugins use ids that starts with the null byte \0 to avoid
- * collisions, but it is not permitted in import URLs so we have to replace
- * them.
+ * Plugins that use 'virtual modules' (e.g. for helper functions), prefix the
+ * module ID with `\0`, a convention from the rollup ecosystem.
+ * This prevents other plugins from trying to process the id (like node resolution),
+ * and core features like sourcemaps can use this info to differentiate between
+ * virtual modules and regular files.
+ * `\0` is not a permitted char in import URLs so we have to replace them during
+ * import analysis. The id will be decoded back before entering the plugins pipeline.
+ * These encoded virtual ids are also prefixed by the VALID_ID_PREFIX, so virtual
+ * modules in the browser end up encoded as `/@id/__x00__{id}`
  */
-export const NULL_BYTE_PLACEHOLDER = '__x00__';
+export const NULL_BYTE_PLACEHOLDER = `__x00__`
 
 export const bareImportRE = /^[\w@](?!.*:\/\/)/;
 

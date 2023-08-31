@@ -1,9 +1,10 @@
 import path from 'path';
-import { createServer, ViteDevServer } from 'vite';
+import { createServer, normalizePath, ViteDevServer } from 'vite';
 
 import { runDynamicOptimize } from './optimizer';
 import { resolvePlugins } from './plugins';
 import { Platform, ProjectType } from './types';
+import { CLIENT_DIR, CLIENT_ENTRY, FS_PREFIX, ENV_ENTRY } from './constants.js';
 
 interface ProjectOptions {
 	dir: string;
@@ -48,6 +49,18 @@ export async function startServer({
 			nativeModules
 		}),
 		define,
+		resolve: {
+			alias: [
+				{
+					find: /^\/?@vite\/env/,
+					replacement: path.posix.join(FS_PREFIX, normalizePath(ENV_ENTRY))
+				},
+				{
+					find: /^\/?@vite\/client/,
+					replacement: path.posix.join(FS_PREFIX, normalizePath(CLIENT_ENTRY))
+				}
+			]
+		},
 		cacheDir: path.join(projectDir, 'build/.vite'),
 		optimizeDeps: {
 			entries: [appEntry],
@@ -58,7 +71,10 @@ export async function startServer({
 		},
 		server: {
 			...server,
-			hmr: true
+			hmr: true,
+			fs: {
+				allow: [CLIENT_DIR]
+			}
 		},
 		appType: 'custom'
 	});

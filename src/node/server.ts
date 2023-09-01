@@ -42,6 +42,12 @@ export async function startServer({
 	const viteSever = await createServer({
 		clearScreen: false,
 		root,
+		build: {
+			modulePreload: false,
+			rollupOptions: {
+				input: appEntry
+			}
+		},
 		plugins: await resolvePlugins({
 			projectDir,
 			type: projectType,
@@ -63,7 +69,6 @@ export async function startServer({
 		},
 		cacheDir: path.join(projectDir, 'build/.vite'),
 		optimizeDeps: {
-			entries: [appEntry],
 			exclude: [...nativeModules],
 			esbuildOptions: {
 				define

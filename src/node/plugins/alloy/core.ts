@@ -25,6 +25,7 @@ export function corePlugin(ctx: AlloyContext, platform: Platform): Plugin {
 				config.resolve = {};
 			}
 			config.resolve.alias = [
+				...(Array.isArray(config.resolve.alias) ? config.resolve.alias : []),
 				{
 					find: /\/?alloy$/,
 					replacement: ALLOY_MAIN
@@ -84,8 +85,11 @@ export function corePlugin(ctx: AlloyContext, platform: Platform): Plugin {
 				DIST_STORE: false
 			};
 
-			config.optimizeDeps!.entries = [
-				...(config.optimizeDeps!.entries as string[]),
+			if (!config.optimizeDeps) {
+				config.optimizeDeps = {};
+			}
+			config.optimizeDeps.entries = [
+				...(config.optimizeDeps.entries ?? []),
 				`controllers/!(${otherPlatform[platform]})/**/*.@(j|t)s`,
 				`lib/!(${otherPlatform[platform]})/**/*.@(j|t)s`
 			];

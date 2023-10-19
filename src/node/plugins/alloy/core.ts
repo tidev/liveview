@@ -27,11 +27,11 @@ export function corePlugin(ctx: AlloyContext, platform: Platform): Plugin {
 			config.resolve.alias = [
 				...(Array.isArray(config.resolve.alias) ? config.resolve.alias : []),
 				{
-					find: /\/?alloy$/,
+					find: /^\/?alloy$/,
 					replacement: ALLOY_MAIN
 				},
 				{
-					find: /\/?alloy\/backbone$/,
+					find: /^\/?alloy\/backbone$/,
 					replacement: path.join(
 						alloyRoot,
 						'lib/alloy/backbone',
@@ -40,22 +40,22 @@ export function corePlugin(ctx: AlloyContext, platform: Platform): Plugin {
 					)
 				},
 				{
-					find: /\/?alloy\/constants$/,
+					find: /^\/?alloy\/constants$/,
 					replacement: path.join(
 						path.dirname(require.resolve('alloy-utils')),
 						'constants.js'
 					)
 				},
 				{
-					find: /\/?alloy\/models/,
+					find: /^\/?alloy\/models/,
 					replacement: path.join(appDir, 'models')
 				},
 				{
-					find: /\/?alloy\/styles/,
+					find: /^\/?alloy\/styles/,
 					replacement: path.join(appDir, 'styles')
 				},
 				{
-					find: /\/?alloy\/widgets/,
+					find: /^\/?alloy\/widgets/,
 					replacement: path.join(appDir, 'widgets')
 				},
 				{
@@ -93,6 +93,14 @@ export function corePlugin(ctx: AlloyContext, platform: Platform): Plugin {
 				`controllers/!(${otherPlatform[platform]})/**/*.@(j|t)s`,
 				`lib/!(${otherPlatform[platform]})/**/*.@(j|t)s`
 			];
+
+			config.server = {
+				...config.server,
+				fs: {
+					...config.server?.fs,
+					allow: [...(config.server?.fs?.allow ?? []), alloyRoot]
+				}
+			};
 		},
 
 		resolveId(id, importer) {

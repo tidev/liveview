@@ -68,7 +68,7 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 			// try parse a string, to record a safe require string
 			pos++;
 			ch = skipCommentAndWhitespace(true);
-			addRequire(startPos, pos + 1, 0);
+			addRequire(startPos, pos, 0);
 			if (ch === "'") {
 				parseString("'");
 			} else if (ch === '"') {
@@ -576,6 +576,7 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 	}
 
 	const decode = (str: string): string | undefined => {
+		console.log('decode', str);
 		try {
 			// eslint-disable-next-line no-eval
 			return (0, eval)(str);
@@ -595,7 +596,7 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 
 	return requires.map((expression) => ({
 		...expression,
-		specifier: decode(code.slice(expression.start, expression.end + 1))
+		specifier: decode(code.slice(expression.start, expression.end))
 	}));
 }
 

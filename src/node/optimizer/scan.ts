@@ -228,7 +228,7 @@ async function transformDynamicRequire(
 			continue;
 		}
 
-		const url = source.slice(start, end + 1);
+		const url = source.slice(start, end);
 		const context = await createDynamicRequireContext(url, importer, resolve);
 		if (
 			context === null ||

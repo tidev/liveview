@@ -156,7 +156,7 @@ export function requireAnalysisPlugin(): Plugin {
 
 			for (let index = 0; index < requires.length; index++) {
 				const { start, end, specifier } = requires[index];
-				const rawUrl = source.slice(start, end + 1);
+				const rawUrl = source.slice(start, end);
 
 				if (specifier) {
 					// skip client

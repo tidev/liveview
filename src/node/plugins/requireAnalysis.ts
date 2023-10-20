@@ -168,7 +168,7 @@ export function requireAnalysisPlugin(): Plugin {
 					const url = normalizedUrl;
 
 					if (url !== specifier) {
-						str().overwrite(start, end + 1, `'${url}'`);
+						str().overwrite(start, end, `'${url}'`);
 					}
 				} else if (!importer.startsWith(clientDir)) {
 					const url = rawUrl
@@ -208,14 +208,15 @@ export function requireAnalysisPlugin(): Plugin {
 							requireContexts[prefix] = files;
 							str().overwrite(
 								start,
-								end + 1,
+								end,
 								`__dynamicContextRequire('${prefix}', ${url})`
 							);
 						} else {
 							needQueryInjectHelper = true;
+							console.log('__vite__injectQuery', { start, end, specifier });
 							str().overwrite(
 								start,
-								end + 1,
+								end,
 								`__vite__injectQuery(${url}, 'import')`
 							);
 						}

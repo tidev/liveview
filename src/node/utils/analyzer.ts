@@ -23,9 +23,8 @@ enum OpenTokenState {
 	AnyBrace = 2, // {
 	Template = 3, // `
 	TemplateBrace = 4, // ${
-	ImportParen = 5, // import(),
-	ClassBrace = 6,
-	AsyncParen = 7 // async()
+	RequireParen = 5, // require(),
+	ClassBrace = 6
 }
 
 interface OpenToken {
@@ -46,6 +45,8 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 			pos: 0
 		} as any;
 	}
+	const requireStack: RequireExpression[] = [];
+	let requireStackDepth = 0;
 	let lastSlashWasDivision = false;
 	let firstRequire: RequireExpression | undefined;
 	let requireWriteHead: RequireExpression | undefined;
@@ -60,7 +61,7 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 
 		let ch = skipCommentAndWhitespace(true);
 		if (ch === '(') {
-			openTokenStack[openTokenDepth].token = OpenTokenState.ImportParen;
+			openTokenStack[openTokenDepth].token = OpenTokenState.RequireParen;
 			openTokenStack[openTokenDepth++].pos = pos;
 			if (code.charAt(lastTokenPos) === '.') {
 				return;
@@ -69,6 +70,9 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 			pos++;
 			ch = skipCommentAndWhitespace(true);
 			addRequire(startPos, pos, 0);
+			if (requireWriteHead) {
+				requireStack[requireStackDepth++] = requireWriteHead;
+			}
 			if (ch === "'") {
 				parseString("'");
 			} else if (ch === '"') {
@@ -345,12 +349,13 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 
 	const readPrecedingKeyword = (pos: number, keyword: string) => {
 		const length = keyword.length;
-		if (pos - (length - 1) < 0) {
+		const startPos = pos - (length - 1);
+		if (startPos < 0) {
 			return false;
 		}
 		return (
-			code.substring(pos - (length - 1), length) === keyword &&
-			(pos - (length - 1) === 0 ||
+			code.substring(startPos, startPos + length) === keyword &&
+			(startPos === 0 ||
 				isBrOrWsOrPunctuatorNotDot(code.charCodeAt(pos - length)))
 		);
 	};
@@ -458,11 +463,15 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 				}
 				openTokenDepth--;
 				if (
-					requireWriteHead &&
-					requireWriteHead.start === openTokenStack[openTokenDepth].pos
+					requireStackDepth > 0 &&
+					openTokenStack[openTokenDepth].token === OpenTokenState.RequireParen
 				) {
-					requireWriteHead.end = pos;
-					requireWriteHead.statementEnd = pos + 1;
+					const currentRequire = requireStack[requireStackDepth - 1];
+					if (currentRequire.end === 0) {
+						currentRequire.end = pos;
+					}
+					currentRequire.statementEnd = pos + 1;
+					requireStackDepth--;
 				}
 				break;
 			}
@@ -576,7 +585,6 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 	}
 
 	const decode = (str: string): string | undefined => {
-		console.log('decode', str);
 		try {
 			// eslint-disable-next-line no-eval
 			return (0, eval)(str);

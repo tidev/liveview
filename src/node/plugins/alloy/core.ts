@@ -11,6 +11,7 @@ export function corePlugin(ctx: AlloyContext, platform: Platform): Plugin {
 	const { root: alloyRoot } = ctx;
 	const ALLOY_MAIN = path.join(alloyRoot, 'template/lib/alloy.js');
 	const ALLOY_WIDGET = path.join(alloyRoot, 'lib/alloy/widget.js');
+	const ALLOY_UTILS_ROOT = path.dirname(require.resolve('alloy-utils'));
 
 	return {
 		name: 'titanium:alloy:core',
@@ -41,10 +42,7 @@ export function corePlugin(ctx: AlloyContext, platform: Platform): Plugin {
 				},
 				{
 					find: /^\/?alloy\/constants$/,
-					replacement: path.join(
-						path.dirname(require.resolve('alloy-utils')),
-						'constants.js'
-					)
+					replacement: path.join(ALLOY_UTILS_ROOT, 'constants.js')
 				},
 				{
 					find: /^\/?alloy\/models/,
@@ -98,7 +96,11 @@ export function corePlugin(ctx: AlloyContext, platform: Platform): Plugin {
 				...config.server,
 				fs: {
 					...config.server?.fs,
-					allow: [...(config.server?.fs?.allow ?? []), alloyRoot]
+					allow: [
+						...(config.server?.fs?.allow ?? []),
+						alloyRoot,
+						ALLOY_UTILS_ROOT
+					]
 				}
 			};
 		},

@@ -104,9 +104,9 @@ export function corePlugin(ctx: AlloyContext, platform: Platform): Plugin {
 		},
 
 		resolveId(id, importer) {
-			if (id === 'jquery' && importer?.endsWith('backbone.js')) {
+			if (id === 'jquery' && importer?.includes('/backbone.js')) {
 				// backbone includes an unused require to `jquery` that needs to be
-				// marked as external
+				// marked as external so vite does not try to handle it
 				return { id, external: true };
 			}
 		},

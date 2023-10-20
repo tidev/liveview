@@ -9,7 +9,6 @@ import { componentPlugin } from './component';
 import { corePlugin } from './core';
 import { configPlugin } from './config';
 import { entryPlugin } from './entry';
-import { globImportsPlugin } from './globImports';
 import { modelPlugin } from './model';
 import { widgetPlugin } from './widget';
 
@@ -25,7 +24,6 @@ export function resolveAlloyPlugins(
 		corePlugin(context, platform),
 		configPlugin(context),
 		entryPlugin(appDir),
-		globImportsPlugin(projectDir),
 		/**
 		 * Alloy supports installing Node modules under `app/lib`, which cannot be
 		 * resolved by the default node resolve algorithim that Vite uses when the

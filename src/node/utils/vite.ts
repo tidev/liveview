@@ -24,6 +24,13 @@ export function normalizePath(id: string): string {
 	return path.posix.normalize(isWindows ? slash(id) : id);
 }
 
+export function withTrailingSlash(path: string): string {
+	if (path[path.length - 1] !== '/') {
+		return `${path}/`;
+	}
+	return path;
+}
+
 export function isObject(value: unknown): value is Record<string, any> {
 	return Object.prototype.toString.call(value) === '[object Object]';
 }
@@ -242,6 +249,14 @@ export async function resolveHostname(
 	}
 
 	return { host, name };
+}
+
+export function stripBase(path: string, base: string): string {
+	if (path === base) {
+		return '/';
+	}
+	const devBase = withTrailingSlash(base);
+	return path.startsWith(devBase) ? path.slice(devBase.length - 1) : path;
 }
 
 export function arrayEqual(a: any[], b: any[]): boolean {

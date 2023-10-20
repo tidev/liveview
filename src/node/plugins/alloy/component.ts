@@ -2,8 +2,9 @@ import path from 'path';
 import qs from 'querystring';
 import { createFilter } from '@rollup/pluginutils';
 import { ResolvedId } from 'rollup';
-import { Plugin } from 'vite';
+import { ModuleNode, Plugin, ResolvedConfig, ViteDevServer } from 'vite';
 
+import { stripBase } from '../../utils/vite.js';
 import { AlloyContext } from './context';
 
 const controllerRE =
@@ -30,10 +31,20 @@ function parseAlloyRequest(id: string) {
 
 export function componentPlugin(ctx: AlloyContext): Plugin {
 	const { appDir } = ctx;
+	let server: ViteDevServer;
+	let config: ResolvedConfig;
 	const filter = createFilter(controllerRE, /controllers\/BaseController/);
 
 	return {
 		name: 'titanium:alloy:component',
+
+		configureServer(_server) {
+			server = _server;
+		},
+
+		configResolved(_config) {
+			config = _config;
+		},
 
 		async resolveId(id, importer) {
 			// serve sub-part requests (*?alloy) as virtual modules
@@ -81,7 +92,7 @@ export function componentPlugin(ctx: AlloyContext): Plugin {
 			return null;
 		},
 
-		transform(code, id) {
+		async transform(code, id) {
 			const { filename, query } = parseAlloyRequest(id);
 			if (!query.alloy && !filter(filename)) {
 				return;
@@ -116,15 +127,35 @@ export function componentPlugin(ctx: AlloyContext): Plugin {
 
 				const output = [controllerCode, importAnalysisTrigger];
 
-				/*
-				if (server.config.server.hmr) {
-					output.push(
-						`import.meta.hot.accept((update) => {`,
-						`  console.log('hot.accept', update)`,
-						`})`
-					)
+				if (server) {
+					// server only handling for view and style dependency hmr
+					const { moduleGraph } = server;
+					const thisModule = moduleGraph.getModuleById(id);
+					if (thisModule) {
+						// record deps in the module graph so edits to view and style can trigger
+						// controller import to hot update
+						const depModules = new Set<string | ModuleNode>();
+						const devBase = config.base;
+						for (const file of deps) {
+							depModules.add(
+								await moduleGraph.ensureEntryFromUrl(
+									stripBase(file, (config.server?.origin ?? '') + devBase),
+									false
+								)
+							);
+						}
+
+						moduleGraph.updateModuleInfo(
+							thisModule,
+							depModules,
+							null,
+							new Set(),
+							null,
+							false,
+							false
+						);
+					}
 				}
-				*/
 
 				return { code: output.join('\n'), map };
 			} else if (query.type === 'template' || query.type === 'style') {

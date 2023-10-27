@@ -118,14 +118,6 @@ export function componentPlugin(ctx: AlloyContext): Plugin {
 						throw new Error(`Unknown Alloy component dependency: ${dep}`);
 					}
 				});
-				// Dummy function to trigger dependency detection im vite's import analysis plugin.
-				// This is required to properly clear caches for the generated controller JS
-				// when a template or style file changes.
-				const importAnalysisTrigger = `function __vite_import_dummy__() {
-					${deps.map((d) => `import(${JSON.stringify(d)})`).join('\n')}
-				}`;
-
-				const output = [controllerCode, importAnalysisTrigger];
 
 				if (server) {
 					// server only handling for view and style dependency hmr
@@ -157,7 +149,7 @@ export function componentPlugin(ctx: AlloyContext): Plugin {
 					}
 				}
 
-				return { code: output.join('\n'), map };
+				return { code: controllerCode, map };
 			} else if (query.type === 'template' || query.type === 'style') {
 				return { code: EMPTY_EXPORT };
 			}

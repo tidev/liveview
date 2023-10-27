@@ -91,6 +91,10 @@ export function corePlugin(ctx: AlloyContext, platform: Platform): Plugin {
 				`controllers/!(${otherPlatform[platform]})/**/*.@(j|t)s`,
 				`lib/!(${otherPlatform[platform]})/**/*.@(j|t)s`
 			];
+			config.optimizeDeps.exclude = [
+				...(config.optimizeDeps.exclude ?? []),
+				'alloy.bootstrap'
+			];
 
 			config.server = {
 				...config.server,

@@ -13,6 +13,8 @@ jobs:
       matrix:
         node: [ '18' ]
     name: Node ${{ matrix.node }}
+    env:
+      SDK_VERSION: 12.2.1.GA
     steps:
       - uses: actions/checkout@v2
 
@@ -21,6 +23,22 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - run: npm ci
-        name: Install dependencies
+      - name: Install Titanium CLI
+        run: npm i -g titanium
+
+      - name: Cache Titanium SDK
+        id: titanium-cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.titanium/mobilesdk/linux/${{ env.SDK_VERSION }}
+          key: ${{ runner.os }}-titanium-sdk-${{ env.SDK_VERSION }}
+          restore-keys: |
+            ${{ runner.os }}-titanium-sdk-
+
+      - name: Install Titanium SDK ${{ env.SDK_VERSION }}
+        if: steps.titanium-cache.outputs.cache-hit != 'true'
+        run: ti sdk install ${{ env.SDK_VERSION }} --force
+
+      - name: Install dependencies
         if: steps.node-cache.outputs.cache-hit != 'true'
+        run: npm ci

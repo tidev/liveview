@@ -142,24 +142,13 @@ function patchRequire() {
 			const source = fetchRemote(filename);
 			if (source) {
 				const module = new Module(filename, this);
-				if (filename.slice(-4) === 'json') {
-					module.filename = id;
-					module.path = path.dirname(id);
-					Module.cache[id] = module;
-					module.exports = JSON.parse(source);
-					module.loaded = true;
-				} else {
-					let wrapped = source;
-					if (id === '/app' && OS_ANDROID) {
-						wrapped = `try {\n${source}\n} catch (e) { console.log(e); }`;
-					}
-					module.load(id, wrapped);
+				let wrapped = source;
+				if (id === '/app' && OS_ANDROID) {
+					wrapped = `try {\n${source}\n} catch (e) { console.log(e); }`;
 				}
+				module.load(id, wrapped);
 
-				if (request.includes('build/.vite')) {
-					// Optimized deps from Vite are always converted to ES modules first
-					// and then back to CJS for use in Titanium. Add an ES module interop
-					// to properly assign `default` exports back to `module.exports`.
+				if (requiresEsModuleInterop(request)) {
 					module.exports = esModuleInterop(module.exports);
 				}
 
@@ -194,6 +183,18 @@ function patchI18n() {
 		}
 		return messages[key] || hint || key;
 	};
+}
+
+/**
+ * Some files need and additional ES module interop to properly assign
+ * `default` exports back to `module.exports`.
+ *
+ * - Optimized deps from Vite, which are always converted to ES modules first
+ * and then back to CJS for use in Titanium.
+ * - JSON files that were processed by Vite's JSON plugin.
+ */
+function requiresEsModuleInterop(request: string) {
+	return request.includes('build/.vite') || request.includes('.json');
 }
 
 const esModuleInterop = (module: any) => {

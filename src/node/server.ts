@@ -81,7 +81,10 @@ export async function startServer({
 				allow: [projectDir, CLIENT_DIR]
 			}
 		},
-		appType: 'custom'
+		appType: 'custom',
+		json: {
+			stringify: true
+		}
 	});
 	await viteSever.listen();
 	await runDynamicOptimize(viteSever);

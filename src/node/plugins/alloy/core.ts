@@ -123,6 +123,11 @@ export function corePlugin(ctx: AlloyContext, platform: Platform): Plugin {
 					code
 						// remove ucfirst in model/collection requires
 						.replace(/models\/'\s\+\sucfirst\(name\)/g, "models/' + name")
+						// remove double slash in controller requires
+						.replace(
+							/(controllers\/' \+ \(?)(name)/,
+							"$1$2.replace(/^\\//, '')"
+						)
 				);
 			}
 		}

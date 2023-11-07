@@ -110,6 +110,9 @@ export function componentPlugin(ctx: AlloyContext): Plugin {
 				});
 
 				const deps = dependencies.map((dep) => {
+					// Make sure changes to view and style files trigger a controller rebuild
+					this.addWatchFile(dep);
+
 					if (dep.endsWith('.tss')) {
 						return dep + '?alloy&type=style';
 					} else if (dep.endsWith('.xml')) {

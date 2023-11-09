@@ -3,6 +3,7 @@ on:
   push:
     branches:
     - master
+    - next/vite-4
     - "[0-9]+_[0-9]+_X"
   pull_request:
 

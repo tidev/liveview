@@ -7,6 +7,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     name: Publish
+    if: github.event.release.target_commitish == 'next/vite-4'
 
     steps:
     - name: Checkout repository
@@ -29,4 +30,4 @@ jobs:
         GH_TOKEN: ${{ github.token }}
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         RELEASE_TAG: ${{ github.event.release.prerelease && 'next' || 'latest' }}
-      run: npm publish --tag $RELEASE_TAG
+      run: npm publish --tag $RELEASE_TAG --dry-run

@@ -20,6 +20,18 @@ jobs:
         node-version: '16'
         registry-url: 'https://registry.npmjs.org'
 
+    - name: Install Titanium CLI
+      run: npm i -g titanium
+
+    - name: Cache Titanium SDK
+      id: titanium-cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.titanium/mobilesdk/linux/${{ env.SDK_VERSION }}
+        key: ${{ runner.os }}-titanium-sdk-${{ env.SDK_VERSION }}
+        restore-keys: |
+          ${{ runner.os }}-titanium-sdk-
+
     - name: Install dependencies
       run: yarn
       if: steps.node-cache.outputs.cache-hit != 'true'

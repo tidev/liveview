@@ -7,7 +7,6 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     name: Publish
-    if: github.event.release.target_commitish == 'next/vite-4'
 
     steps:
     - name: Checkout repository

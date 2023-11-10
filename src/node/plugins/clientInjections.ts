@@ -2,7 +2,7 @@ import path from 'path';
 import { Plugin, ResolvedConfig, normalizePath } from 'vite';
 
 import { CLIENT_ENTRY, ENV_ENTRY } from '../constants.js';
-import { isObject, resolveHostname } from '../utils/vite.js';
+import { cleanUrl, isObject, resolveHostname } from '../utils/vite.js';
 
 const process_env_NODE_ENV_RE =
 	/(\bglobal(This)?\.)?\bprocess\.env\.NODE_ENV\b/;
@@ -108,7 +108,8 @@ export function clientInjectionsPlugin(): Plugin {
 		},
 
 		transform(code, id, options) {
-			if (id === normalizedClientEntry || id === normalizedEnvEntry) {
+			const file = cleanUrl(id); //
+			if (file === normalizedClientEntry || file === normalizedEnvEntry) {
 				return injectConfigValues(code);
 			} else if (!options?.ssr && code.includes('process.env.NODE_ENV')) {
 				// replace process.env.NODE_ENV instead of defining a global

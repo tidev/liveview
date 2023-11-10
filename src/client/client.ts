@@ -9,18 +9,21 @@
 import WebSocket from 'tiws';
 import { HMRPayload, Update } from 'vite';
 
-import './env';
+import '@vite/env';
 
 // injected by the hmr plugin when served
-declare const __HMR_PROTOCOL__: string | null
-declare const __HMR_DIRECT_TARGET__: string
-declare const __HMR_TIMEOUT__: number
+declare const __HMR_PROTOCOL__: string | null;
+declare const __HMR_DIRECT_TARGET__: string;
+declare const __HMR_TIMEOUT__: number;
 
 console.log('[vite] connecting...');
 
-const socketProtocol = __HMR_PROTOCOL__
+const socketProtocol = __HMR_PROTOCOL__;
 const directSocketHost = __HMR_DIRECT_TARGET__;
-const socket = new WebSocket(`${socketProtocol}://${directSocketHost}`, 'vite-hmr');
+const socket = new WebSocket(
+	`${socketProtocol}://${directSocketHost}`,
+	'vite-hmr'
+);
 const base = '/';
 
 socket.on('error', (e) => console.log(e));

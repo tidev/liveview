@@ -213,7 +213,6 @@ export function requireAnalysisPlugin(): Plugin {
 							);
 						} else {
 							needQueryInjectHelper = true;
-							console.log('__vite__injectQuery', { start, end, specifier });
 							str().overwrite(
 								start,
 								end,

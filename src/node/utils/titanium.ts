@@ -65,4 +65,6 @@ export function resolveHost() {
 			}
 		}
 	}
+
+	return 'localhost';
 }

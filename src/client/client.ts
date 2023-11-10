@@ -18,7 +18,7 @@ declare const __HMR_TIMEOUT__: number;
 
 console.log('[vite] connecting...');
 
-const socketProtocol = __HMR_PROTOCOL__;
+const socketProtocol = __HMR_PROTOCOL__ || 'ws';
 const directSocketHost = __HMR_DIRECT_TARGET__;
 const socket = new WebSocket(
 	`${socketProtocol}://${directSocketHost}`,

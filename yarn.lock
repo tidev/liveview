@@ -6295,10 +6295,10 @@ through2@^4.0.0:
   resolved "https://registry.npmjs.org/through/-/through-2.3.8.tgz"
   integrity sha1-DdTJ/6q8NXlgsbckEV1+Doai4fU=
 
-tiws@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.npmjs.org/tiws/-/tiws-1.0.0.tgz"
-  integrity sha512-ZTTKUA4JLwAVRFUTLurntjUSN2H/6Z7ExLBZd7ac9/35hvhCHYCRLGDzXzGgaiqrypI+b+42poC+xQeyIXRMjw==
+tiws@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/tiws/-/tiws-1.0.1.tgz#cd193f6aaf7065339a72f552e8ad066bfcd8abfd"
+  integrity sha512-Xn6JHn1vYZJs/GS/B7uGzXJaBUzWZYHph03gkIOdqOYBv1L/sV5RVkOHiA9oAhiM1+mcSMI2sykZBfxCGnjlFQ==
 
 to-fast-properties@^2.0.0:
   version "2.0.0"

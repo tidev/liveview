@@ -1741,22 +1741,6 @@ alloy-compiler@0.2.7:
     walk-sync "^2.0.2"
     xmldom "^0.6.0"
 
-alloy-utils@^0.2.5:
-  version "0.2.5"
-  resolved "https://registry.npmjs.org/alloy-utils/-/alloy-utils-0.2.5.tgz"
-  integrity sha512-fzktykZU5Niny/mVNNx07bJcrAfG9paaPA2oYF2vGhuuipgUrnWDvpNnXc7ADWiKUKcBIgQJ2I1paHIrRoI+mA==
-  dependencies:
-    "@babel/code-frame" "^7.8.3"
-    chmodr "^1.2.0"
-    colors "^1.4.0"
-    fs-extra "^9.0.0"
-    global-paths "^1.0.0"
-    jsonlint "^1.6.3"
-    lodash "^4.17.15"
-    moment "^2.24.0"
-    resolve "^1.12.0"
-    xmldom "^0.3.0"
-
 alloy-utils@^0.2.7:
   version "0.2.7"
   resolved "https://registry.npmjs.org/alloy-utils/-/alloy-utils-0.2.7.tgz"

@@ -14,7 +14,7 @@ export function widgetPlugin(appDir: string): Plugin {
 		 * @todo: Support Widgets from `node_modules`.
 		 */
 		async resolveId(id, importer) {
-			if (id.startsWith('/')) {
+			if (id.startsWith('/') && !id.startsWith(appDir)) {
 				// check WPATH generated url `/<widget>/<id>`
 				const secondSlashIndex = id.indexOf('/', 1);
 				if (secondSlashIndex !== -1) {

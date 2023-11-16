@@ -42,7 +42,7 @@
 		"@rollup/plugin-node-resolve": "^15.0.1",
 		"acorn": "^8.2.4",
 		"alloy-compiler": "0.2.7",
-		"alloy-utils": "^0.2.5",
+		"alloy-utils": "^0.2.7",
 		"chalk": "^4.1.2",
 		"debug": "^4.3.1",
 		"esbuild": "^0.11.12",

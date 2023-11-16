@@ -28,7 +28,7 @@ export async function resolvePlugins({
 		clientInjectionsPlugin(),
 		nativeModulesPlugin(nativeModules),
 		nodeBuiltinsPlugin(),
-		resolvePlugin(type, platform),
+		resolvePlugin(projectDir, type, platform),
 		i18nPlugin(projectDir, type)
 	];
 	if (nativeModules.includes('hyperloop')) {

@@ -12,6 +12,7 @@ import { FS_PREFIX } from '../constants.js';
  * - Support bare module and absolute ids as relative to source root
  */
 export function resolvePlugin(
+	projectDir: string,
 	projectType: ProjectType,
 	platform: Platform
 ): Plugin {
@@ -36,6 +37,11 @@ export function resolvePlugin(
 
 			// explicit fs paths that starts with /@fs/*
 			if (id.startsWith(FS_PREFIX)) {
+				return;
+			}
+
+			// prevent nested full path resolving
+			if (id.startsWith(projectDir)) {
 				return;
 			}
 

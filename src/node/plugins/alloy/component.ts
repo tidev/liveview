@@ -1,15 +1,17 @@
 import path from 'path';
 import qs from 'querystring';
+import fs from 'fs-extra';
 import { createFilter } from '@rollup/pluginutils';
 import { ResolvedId } from 'rollup';
 import { ModuleNode, Plugin, ResolvedConfig, ViteDevServer } from 'vite';
 
-import { stripBase } from '../../utils/vite.js';
+import { cleanUrl, stripBase } from '../../utils/vite.js';
 import { AlloyContext } from './context';
 
 const controllerRE =
 	/(?:[/\\]widgets[/\\]([^/\\]+))?[/\\](?:controllers)[/\\](.*)/;
 const EMPTY_EXPORT = 'export default {}';
+const VIEW_ONLY_PREFIX = '\0alloyview:';
 
 interface AlloyQuery {
 	alloy?: boolean;
@@ -70,6 +72,20 @@ export function componentPlugin(ctx: AlloyContext): Plugin {
 						importer,
 						{ skipSelf: true }
 					);
+					if (!result) {
+						// No controller found, but maybe there is a view only
+						const view = await this.resolve(
+							path.join(appDir, 'views', `${componentId}.xml`),
+							importer,
+							{ skipSelf: true }
+						);
+						if (view) {
+							return (
+								VIEW_ONLY_PREFIX +
+								view.id.replace('/app/views/', '/app/controllers/')
+							);
+						}
+					}
 				}
 				if (result) {
 					return result.id;
@@ -78,6 +94,11 @@ export function componentPlugin(ctx: AlloyContext): Plugin {
 		},
 
 		async load(id) {
+			if (id.startsWith(VIEW_ONLY_PREFIX)) {
+				console.log('Load view only controller');
+				return '';
+			}
+
 			const { filename, query } = parseAlloyRequest(id);
 			// select corresponding block for sub-part virtual modules
 			if (query.alloy) {
@@ -93,34 +114,47 @@ export function componentPlugin(ctx: AlloyContext): Plugin {
 		},
 
 		async transform(code, id) {
+			if (id.startsWith(VIEW_ONLY_PREFIX)) {
+				// Map virtual view only id back to controller id
+				id = id
+					.replace(VIEW_ONLY_PREFIX, '')
+					.replace('/app/views/', '/app/controllers/')
+					.replace(/\.xml/, '.js');
+			}
+
 			const { filename, query } = parseAlloyRequest(id);
 			if (!query.alloy && !filter(filename)) {
 				return;
 			}
 
+			const cleanId = cleanUrl(id);
+
 			if (!query.alloy) {
-				ctx.compiler.purgeStyleCache(id);
+				ctx.compiler.purgeStyleCache(cleanId);
 				const {
 					code: controllerCode,
 					map,
 					dependencies
 				} = ctx.compiler.compileComponent({
 					controllerContent: code,
-					file: id
+					file: cleanId
 				});
 
-				const deps = dependencies.map((dep) => {
-					// Make sure changes to view and style files trigger a controller rebuild
-					this.addWatchFile(dep);
+				const deps = dependencies
+					// Only consider deps that actually exist
+					.filter((d) => fs.pathExistsSync(d))
+					.map((dep) => {
+						// Make sure changes to view and style files trigger a controller rebuild
+						this.addWatchFile(dep);
 
-					if (dep.endsWith('.tss')) {
-						return dep + '?alloy&type=style';
-					} else if (dep.endsWith('.xml')) {
-						return dep + '?alloy&type=template';
-					} else {
-						throw new Error(`Unknown Alloy component dependency: ${dep}`);
-					}
-				});
+						if (dep.endsWith('.tss')) {
+							return dep + '?alloy&type=style';
+						} else if (dep.endsWith('.xml')) {
+							return dep + '?alloy&type=template';
+						} else {
+							throw new Error(`Unknown Alloy component dependency: ${dep}`);
+						}
+					});
 
 				if (server) {
 					// server only handling for view and style dependency hmr

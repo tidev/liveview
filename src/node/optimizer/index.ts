@@ -17,7 +17,7 @@ const log = createDebugger('titanium:deps');
 
 export async function runDynamicOptimize(
 	server: ViteDevServer,
-	force = server.config.server.force
+	force = server.config.optimizeDeps.force
 ): Promise<void> {
 	const config = server.config;
 	const { cacheDir, logger, root } = config;

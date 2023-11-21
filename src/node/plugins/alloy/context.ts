@@ -84,6 +84,7 @@ export class AlloyContext {
 		};
 
 		return createCompiler({
+			webpack: true,
 			compileConfig: {
 				projectDir: this.projectDir,
 				alloyConfig

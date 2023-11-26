@@ -40,6 +40,7 @@ export async function startServer({
 		OS_IOS: JSON.stringify(platform === 'ios')
 	};
 	const viteSever = await createServer({
+		configFile: path.join(projectDir, 'vite.config.js'),
 		clearScreen: false,
 		root,
 		build: {

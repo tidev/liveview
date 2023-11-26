@@ -107,7 +107,7 @@ export async function createDynamicRequireContext(
 }
 
 function dynamicRequireToGlob(requireExpression: string): string | null {
-	const ast = acorn.parse(requireExpression, { ecmaVersion: 10 });
+	const ast = acorn.parse(requireExpression, { ecmaVersion: 'latest' });
 	let glob: string | null = null;
 
 	walk(ast, {

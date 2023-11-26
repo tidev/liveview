@@ -40,7 +40,7 @@
 	],
 	"dependencies": {
 		"@rollup/plugin-node-resolve": "^15.2.3",
-		"acorn": "^8.2.4",
+		"acorn": "^8.11.2",
 		"alloy-compiler": "0.2.7",
 		"alloy-utils": "^0.2.7",
 		"chalk": "^4.1.2",

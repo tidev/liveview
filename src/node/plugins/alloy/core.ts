@@ -131,20 +131,21 @@ export function corePlugin(ctx: AlloyContext, platform: Platform): Plugin {
 }
 
 /**
- * Applies various patches in the given content to be compatible Vite.
+ * Applies various patches in the given content to be compatible with Vite.
  *
  * @param content File content to modify
  */
 function patchForViteCompatibility(content: string) {
 	// requires for controllers need to use `.default`
-	content = requireDefaultExport(content, appControllerRequestPattern);
-	content = requireDefaultExport(content, widgetControllerRequestPattern);
+	// FIXME: Re-enable once we can control ESM mode per project
+	// content = requireDefaultExport(content, appControllerRequestPattern);
+	// content = requireDefaultExport(content, widgetControllerRequestPattern);
 
 	content = content
 		// remove ucfirst in model/collection requires
 		.replace(/models\/'\s\+\sucfirst\(name\)/g, "models/' + name")
 		// remove double slash in controller requires
-		.replace(/(controllers\/' \+ \(?)(name)/, "$1$2.replace(/^\\//, '')");
+		.replace(/(controllers\/' \+ \(?)(name)/g, "$1$2?.replace(/^\\//, '')");
 
 	return content;
 }

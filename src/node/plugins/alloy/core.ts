@@ -2,10 +2,14 @@ import path from 'path';
 import { Plugin } from 'vite';
 
 import { Platform } from '../../types';
-import { otherPlatform } from '../../utils';
+import { cleanUrl, otherPlatform } from '../../utils';
 import { AlloyContext } from './context';
 
 const DEFAULT_BACKBONE_VERSION = '0.9.2';
+
+const appControllerRequestPattern = "'/alloy/controllers/' \\+ ";
+const widgetControllerRequestPattern =
+	"'/alloy/widgets/'.*?'/controllers/' \\+ ";
 
 export function corePlugin(ctx: AlloyContext, platform: Platform): Plugin {
 	const { root: alloyRoot } = ctx;
@@ -118,18 +122,46 @@ export function corePlugin(ctx: AlloyContext, platform: Platform): Plugin {
 		},
 
 		transform(code, id) {
-			if (id === ALLOY_MAIN || id === ALLOY_WIDGET) {
-				return (
-					code
-						// remove ucfirst in model/collection requires
-						.replace(/models\/'\s\+\sucfirst\(name\)/g, "models/' + name")
-						// remove double slash in controller requires
-						.replace(
-							/(controllers\/' \+ \(?)(name)/,
-							"$1$2.replace(/^\\//, '')"
-						)
-				);
+			const cleanId = cleanUrl(id);
+			if (cleanId === ALLOY_MAIN || cleanId === ALLOY_WIDGET) {
+				return patchForViteCompatibility(code);
 			}
 		}
 	};
+}
+
+/**
+ * Applies various patches in the given content to be compatible Vite.
+ *
+ * @param content File content to modify
+ */
+function patchForViteCompatibility(content: string) {
+	// requires for controllers need to use `.default`
+	content = requireDefaultExport(content, appControllerRequestPattern);
+	content = requireDefaultExport(content, widgetControllerRequestPattern);
+
+	content = content
+		// remove ucfirst in model/collection requires
+		.replace(/models\/'\s\+\sucfirst\(name\)/g, "models/' + name")
+		// remove double slash in controller requires
+		.replace(/(controllers\/' \+ \(?)(name)/, "$1$2.replace(/^\\//, '')");
+
+	return content;
+}
+
+/**
+ * Modifies require statements to use `.default`.
+ *
+ * @param content Content string to search in.
+ * @param requestFilter RegExp to filter for specific requires.
+ */
+function requireDefaultExport(content: string, requestFilter: string) {
+	const searchPattern = new RegExp(
+		`(require\\(${requestFilter})(\\(?name(?: \\|\\| DEFAULT_WIDGET\\))?)(\\))`,
+		'g'
+	);
+	return content.replace(
+		searchPattern,
+		"$1$2.replace(/^\\.?\\//, '')$3.default"
+	);
 }

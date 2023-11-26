@@ -82,7 +82,9 @@ export function componentPlugin(ctx: AlloyContext): Plugin {
 						if (view) {
 							return (
 								VIEW_ONLY_PREFIX +
-								view.id.replace('/app/views/', '/app/controllers/')
+								view.id
+									.replace('/app/views/', '/app/controllers/')
+									.replace(/\.xml$/, '.js')
 							);
 						}
 					}
@@ -95,7 +97,6 @@ export function componentPlugin(ctx: AlloyContext): Plugin {
 
 		async load(id) {
 			if (id.startsWith(VIEW_ONLY_PREFIX)) {
-				console.log('Load view only controller');
 				return '';
 			}
 
@@ -116,10 +117,7 @@ export function componentPlugin(ctx: AlloyContext): Plugin {
 		async transform(code, id) {
 			if (id.startsWith(VIEW_ONLY_PREFIX)) {
 				// Map virtual view only id back to controller id
-				id = id
-					.replace(VIEW_ONLY_PREFIX, '')
-					.replace('/app/views/', '/app/controllers/')
-					.replace(/\.xml/, '.js');
+				id = id.replace(VIEW_ONLY_PREFIX, '');
 			}
 
 			const { filename, query } = parseAlloyRequest(id);

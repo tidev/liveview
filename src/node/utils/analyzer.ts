@@ -84,7 +84,17 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 			pos++;
 			const endPos = pos;
 			ch = skipCommentAndWhitespace(true);
-			if (ch === ')') {
+			if (ch == ',') {
+				pos++;
+				ch = skipCommentAndWhitespace(true);
+				if (!requireWriteHead) {
+					syntaxError();
+					return;
+				}
+				requireWriteHead.end = endPos;
+				requireWriteHead.safe = true;
+				pos--;
+			} else if (ch === ')') {
 				openTokenDepth--;
 				if (!requireWriteHead) {
 					syntaxError();

@@ -478,7 +478,7 @@ export function parseRequires(code: string, filename = '@'): RequireInfo[] {
 				) {
 					const currentRequire = requireStack[requireStackDepth - 1];
 					if (currentRequire.end === 0) {
-						currentRequire.end = pos;
+						currentRequire.end = lastTokenPos + 1;
 					}
 					currentRequire.statementEnd = pos + 1;
 					requireStackDepth--;

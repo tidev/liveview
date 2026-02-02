@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["./", "../dep-types", "../types"],
+  "include": ["./", "../dep-types", "../../types"],
   "exclude": ["**/__tests__"],
   "compilerOptions": {
     "lib": ["ESNext", "DOM"]

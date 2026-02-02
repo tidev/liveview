@@ -30,7 +30,12 @@ let buildCommand: any;
 
 export const config = (logger: any, config: any, cli: any) => {
 	const platform = cli.argv._[1];
-	buildCommand = require(cli.globalContext.commands.build.path);
+	buildCommand = require(path.join(
+		cli.sdk.path,
+		'cli',
+		'commands',
+		'build.js'
+	));
 	const createBuildConfig = buildCommand.config(logger, config, cli);
 	return (done: (cmdConfig: any) => void) => {
 		createBuildConfig((buildConfig: any) => {

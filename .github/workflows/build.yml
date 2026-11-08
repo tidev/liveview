@@ -11,29 +11,28 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ '12', '14' ]
+        node: [ '24', '26' ]
     name: Node ${{ matrix.node }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
 
       - name: Setup node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
 
       - run: npm ci
         name: Install dependencies
-        if: steps.node-cache.outputs.cache-hit != 'true'
- 
+
       - run: npm test
         name: Build
 
       - run: npm pack
         name: Package
-        if: matrix.node == '12'
+        if: matrix.node == '24'
 
-      - uses: actions/upload-artifact@v2
-        if: matrix.node == '12'
+      - uses: actions/upload-artifact@v7
+        if: matrix.node == '24'
         with:
           name: liveview
           path: liveview-*.tgz

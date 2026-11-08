@@ -50,11 +50,11 @@
     "chokidar": "^3.4.2",
     "coloring": "~0.1.0",
     "commander": "~2.0.0",
-    "debug": "~4.2.0",
+    "debug": "^4.4.3",
     "fs-extra": "^8.1.0",
     "hypar": "~0.1.0",
     "node-titanium-sdk": "^3.0.1",
-    "shelljs": "~0.2.6",
+    "shelljs": "^0.10.0",
     "win-fork": "~1.1.1"
   },
   "devDependencies": {
@@ -76,7 +76,7 @@
     "should": "~13.2.3"
   },
   "engines": {
-    "node": ">=10.0.0"
+    "node": ">=24.0.0"
   },
   "mocha": {
     "timeout": 3500,
